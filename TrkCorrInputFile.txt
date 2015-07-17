@@ -2,7 +2,7 @@
 PbPb_TrkCorr_SEDTARGETDATE     #job name
 2                   #Number of Pb nuclei (0=pp, 1=pPb, 2=PbPb)
 1                   #Do Efficiency?
-1                   #Do Fake Rate?
+0                   #Do Fake Rate?
 0                   #Do Multiple Reco? (To Be done)
 0                   #Do Secondary? (To Be Done)
 
@@ -12,21 +12,24 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 1                  # Require passing pCollisionEventSelection?
 
 #MC and reweighting options
-4                   #Number of Input MC samples
-sample              #List of MC samples
-sample
-sample
-sample
+7                   #Number of Input MC samples
+/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat30_Track9_Jet30_matchEqR_merged_forest_0.root              #List of MC samples
+/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat50_Track9_Jet30_matchEqR_merged_forest_0.root
+/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat80_Track9_Jet30_matchEqR_merged_forest_0.root
+/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat120_Track9_Jet30_matchEqR_merged_forest_0.root
+/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat220_Track9_Jet30_matchEqR_merged_forest_0.root
+/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat280_Track9_Jet30_matchEqR_merged_forest_0.root
+/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat370_Track9_Jet30_matchEqR_merged_forest_0.root
+
+
 
 1                       # Do pthat reweighting?
-30 40 50 60 1000000     # (N+1) pthat Boundaries for (N) MC samples; (for pthat reweighting)
-30 40 50 60             # Total MC cross section for each pthat interval (For the interval pthat(N) to pthat(N+1)!!! NOT for pthat(N) to infinity)
+30 50 80 120 220 280 370 1000000     # (N+1) pthat Boundaries for (N) MC samples; (for pthat reweighting)
+0.009725 9.26E-4 8.736e-5 1.1e-5 2.3047e-7 4.729e-8 5.934E-09             # Total MC cross section for each pthat interval (For the interval pthat(N) to pthat(N+1)!!! NOT for pthat(N) to infinity)
 
 1                       # Do vertex reweighting?
-sample                  # Data file to reweight the vertex to
-
 1                       # Do Centrality/PU reweighting (Cent for PbPb, PU for pp, none for pPb)
-sample                  # Data file to reweight the vertex to
+/mnt/hadoop/cms/store/user/velicanu/HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4-merged/0.root                  # Data file to reweight the vertex to
 
 #Coarse Binning Options
 4                       # # of course Trk Pt Bins
@@ -64,4 +67,4 @@ sample                  # Data file to reweight the vertex to
 2 1 0 3          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=nearest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
 3                # Full iterations to run before terminating
 0                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
-ak3PuPF          # jet definition
+akVs3Calo          # jet definition

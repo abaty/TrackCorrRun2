@@ -14,7 +14,7 @@ class Settings {
 
    bool doPthat, doVtx, doCentPU;
    std::vector<std::string> MCFiles;
-   std::string vtxDataFile, centPUDataFile;
+   std::string DataFile;
    std::vector<double> pthatBins, pthatCrossSection;
 
    int nPtBinCoarse, ptBinFine, etaBinFine, phiBinFine, centPUBinFine, jetBinFine;
@@ -86,11 +86,9 @@ Settings::Settings(std::string inputFile)
     getline(f,Dump);
     getline(f,Dump);
     f >> doVtx; getline(f,Dump);
-    f >> vtxDataFile; getline(f,Dump);
-    getline(f,Dump);
     f >> doCentPU; getline(f,Dump);
-    f >> centPUDataFile; getline(f,Dump);
-    getline(f,Dump);   
+    f >> DataFile; getline(f,Dump);
+    getline(f,Dump);
     getline(f,Dump);   
 
     //Binnings
@@ -171,8 +169,8 @@ Settings::Settings(std::string inputFile)
     std::cout << doPthat << std::endl;
     for(int i = 0; i<nMC+1; i++) std::cout << pthatBins.at(i) << std::endl;
     for(int i = 0; i<nMC; i++) std::cout << pthatCrossSection.at(i) << std::endl;
-    std::cout << doVtx << " " << vtxDataFile << std::endl;
-    std::cout << doCentPU << " " << centPUDataFile << std::endl;
+    std::cout << doVtx << " " << DataFile << std::endl;
+    std::cout << doCentPU << " " << DataFile << std::endl;
     std::cout << nPtBinCoarse << std::endl;
     for(int i = 0; i<nPtBinCoarse+1; i++) std::cout << ptBinCoarse.at(i) << std::endl;
     for(int i = 0; i<nPtBinCoarse; i++){
