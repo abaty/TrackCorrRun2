@@ -1,0 +1,8 @@
+Fix SEDTARGETDATE thing
+
+condor infrastructure
+job splitting
+getWeights function 
+skimming code
+iteration code
+job exit code

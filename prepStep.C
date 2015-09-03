@@ -1,7 +1,7 @@
 #include "src/Settings.h"
 #include "src/getWeights.C"
 
-void test()
+void prepStep()
 {
   Settings test("TrkCorrInputFile.txt");
   produceWeights(test);
