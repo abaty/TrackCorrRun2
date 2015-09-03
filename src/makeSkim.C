@@ -40,16 +40,35 @@ void makeSkim(Settings s, int job, const char * skimType)
   TChain * trkCh;
   TChain * centCh;
   TChain * jet;
+  int nTrk;
+  float trkPt[25000];
+  float trkEta[25000];
+  float trkPhi;
+  float highPurity;
+  float genPt;
+  float genEta;
+  float genPhi;
+  float mtrkPt;
   int nVtx;
+  float localtrackDensity;
+  float eff = 1;
+  float fake = 0;
+  
   int hiBin;
   float vz;
   float pthat;
+  float weight = 1;
 
   //Setup input trees  
   //track tree     
   trkCh = new TChain("anaTrack/trackTree");
-  for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str());  
-  trkCh->SetBranchAddress("nVtx",&nVtx);
+  for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str()); 
+  trkCh->SetBranchAddress("nTrk",&nTrk); 
+  trkCh->SetBranchAddress("trkPt",&trkPt);
+  trkCh->SetBranchAddress("trkEta",&trkEta);
+  //trkCh->SetBranchAddress("trkPhi",&trkPhi);
+  //trkCh->SetBranchAddress("highPurity",&highPurity);
+  //trkCh->SetBranchAddress("nVtx",&nVtx);
   
   //centrality and vz
   centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -69,28 +88,32 @@ void makeSkim(Settings s, int job, const char * skimType)
   std::string particleVars;
   if(strcmp(skimType,"Eff")==0)
   {
-    particleVars="pt:matchedpt:eta:phi:rmin:trackselect:centPU:eff:weight";
-    trackVars=   "pt:eta:phi:rmin:trackselect:trackstatus:centPU:eff:weight";
+    //particleVars="genPt:matchedpt:genEta:genPhi:genDensity:centPU:eff:weight";
+    //trackVars=   "trlPt:trkEta:trkPhi:trkDensity:trackselect:trackstatus:centPU:eff:weight";
+    trackVars = "trkPt:trkEta";
   }
   else if(strcmp(skimType,"Fake")==0)
   {
-    particleVars="pt:matchedpt:eta:phi:rmin:trackselect:centPU:fake:weight";
-    trackVars=   "pt:eta:phi:rmin:trackselect:trackstatus:centPU:trkfake:fake:weight";
+    particleVars="pt:matchedpt:eta:phi:density:trackselect:centPU:fake:weight";
+    trackVars=   "pt:eta:phi:density:trackselect:trackstatus:centPU:trkfake:fake:weight";
   }
 
+  TFile * skimOut = TFile::Open("trackSkim_step0.root","recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
 
   std::cout << "starting skim loop" << std::endl;
   //Actual skimming
   int processed = 0;
-  for(int i = 0; i<trkCh->GetEntries(); i++)
+  for(int i = 0; i<1000;i++)//trkCh->GetEntries(); i++)
   {
+    std::cout << i << std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
   
     if((s.nPb==2) && ((hiBin/2 < centPUMin) || (hiBin/2 >= centPUMax))) continue;
     else if((s.nPb==0) && ((nVtx < centPUMin) || (nVtx >= centPUMax))) continue;
+    else if(TMath::Abs(vz)>s.vz_window) continue;
     else if(processed%nSkip !=0)
     {
       processed++;
@@ -100,8 +123,13 @@ void makeSkim(Settings s, int job, const char * skimType)
     if(s.nPb==2) trkCh->GetEntry(i);
   
     //make sure to fix this
-    float weight = 1;    
-    
+    //if(s.nPb==2) weight = getWeight(s,pthat,vz,hiBin);    
+    //if(s.nPb==0) weight = getWeight(s,pthat,vz,nVtx);
+  
+    float entry[] = {trkPt[0],trkEta[0]};
+    reco->Fill(entry); 
     processed++;
-  }   
+  }
+  skimOut->Write();
+  skimOut->Close();   
 }
