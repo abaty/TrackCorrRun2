@@ -1,8 +1,8 @@
 Fix SEDTARGETDATE thing
 
 condor infrastructure
-job splitting
-getWeights function 
+job splitting 
 skimming code
 iteration code
 job exit code
+possible need to specify trkStatus for things?
