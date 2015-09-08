@@ -17,7 +17,7 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
 TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 {
   TH2D * hist;
-  if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",s.etaBinFine,-2.4,2.4,s.phiBinFine,TMath::Pi(),-TMath::Pi());
+  if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",s.etaBinFine,-2.4,2.4,s.phiBinFine,-TMath::Pi(),TMath::Pi());
   return hist;
 }
 
@@ -89,14 +89,28 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
     {
     //put function here to get all previous steps eff corrections 
     }
+    if(eta>2.4 || eta<-2.4) std::cout << eta << std::endl;
     if(stepType==0) recoHist->Fill(pt,weight*previousEffCorr);
     if(stepType==1) recoHist2->Fill(eta,phi,weight*previousEffCorr);  
     if(stepType==6) recoHist->Fill(density,weight*previousEffCorr);
   }
   skim->Close();
+  
   histFile->cd();    
-  if(stepType==0 || stepType==6) recoHist->Write();
-  else                           recoHist2->Write();
+  if(stepType==0 || stepType==6)
+  {
+    divHist = (TH1D*)recoHist->Clone(Form("eff_step%d",iter));
+    divHist->Divide(genHist);
+    recoHist->Write();
+    divHist->Write();
+  }
+  if(stepType==1)
+  {
+    divHist2 = (TH2D*)recoHist2->Clone(Form("eff_step%d",iter));
+    divHist2->Divide(genHist2);
+    recoHist2->Write();
+    divHist2->Write();
+  }
   histFile->Close(); 
     
   return;

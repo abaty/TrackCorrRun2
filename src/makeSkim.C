@@ -114,7 +114,7 @@ void makeSkim(Settings s, const char * skimType)
   //grid resolution is 0.025x0.02503 in eta x phi space
   TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
   
-  for(int i = 0; i<10;i++)//trkCh->GetEntries(); i++)
+  for(int i = 0; i<5000;i++)//trkCh->GetEntries(); i++)
   {
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
