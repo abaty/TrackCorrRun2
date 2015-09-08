@@ -8,6 +8,12 @@
 
 class Settings {
   public:
+  //Settings that will be set when a job number is specified
+   int job;
+   int nSkip;
+   double ptMin, ptMax, centPUMin, centPUMax;
+
+  //Settings that should be the same across all processes
    std::string jobName;
    int nPb, vz_window, nMC;
    bool doEff, doFake, doMult, doSecondary, doNoiseFilter, doPColl;

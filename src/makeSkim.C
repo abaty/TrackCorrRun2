@@ -21,32 +21,10 @@ double getArea(double eta1, double R)
   }
 }
 
-void makeSkim(Settings s, int job, const char * skimType)
+void makeSkim(Settings s, const char * skimType)
 {
-//figuring out which subset of data to skim based on the job number
-  int nSkip = 0;
-  double ptMin = 0.5;
-  double ptMax = 1;
-  double centPUMin = 0;
-  double centPUMax = 1;
-
-  int jobTemp = job;
-  for(int i = 0; i<s.nPtBinCoarse; i++)
-  {
-    if(jobTemp>=s.nCentPUBinCoarse.at(i)) jobTemp = jobTemp-s.nCentPUBinCoarse.at(i);
-    else
-    { 
-      nSkip = s.eventSkip.at(i).at(jobTemp);
-      ptMin = s.ptBinCoarse.at(i);
-      ptMax = s.ptBinCoarse.at(i+1);
-      centPUMin = s.centPUBinCoarse.at(i).at(jobTemp);
-      centPUMax = s.centPUBinCoarse.at(i).at(jobTemp+1);
-      break;
-    }
-  }
-
-  std::cout << "\nJob number: " << job << "\nCorresponds to the following parameters\nnSkip: " << nSkip
-  << "\nptMin: " << ptMin << "\nptMax: " << ptMax << "\ncentMin: " << centPUMin << "\ncentMax " << centPUMax << std::endl;
+  std::cout << "\nJob number: " << s.job << "\nCorresponds to the following parameters\nnSkip: " << s.nSkip
+  << "\nptMin: " << s.ptMin << "\nptMax: " << s.ptMax << "\ncentMin: " << s.centPUMin << "\ncentMax " << s.centPUMax << std::endl;
 
   std::cout << "\nCreating initial skim of important information" << std::endl;
 
@@ -119,11 +97,10 @@ void makeSkim(Settings s, int job, const char * skimType)
   }
   else if(strcmp(skimType,"Fake")==0)
   {
-    particleVars="genPt:genEta:genPhi:genDensity:weight";
-    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight";
+    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight,highPurity";
   }
 
-  TFile * skimOut = TFile::Open("trackSkim_step0.root","recreate");
+  TFile * skimOut = TFile::Open("trackSkim.root","recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
 
@@ -142,10 +119,10 @@ void makeSkim(Settings s, int job, const char * skimType)
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
   
-    if((s.nPb==2) && ((hiBin/2 < centPUMin) || (hiBin/2 >= centPUMax))) continue;
-    else if((s.nPb==0) && ((nVtx < centPUMin) || (nVtx >= centPUMax))) continue;
+    if((s.nPb==2) && ((hiBin/2 < s.centPUMin) || (hiBin/2 >= s.centPUMax))) continue;
+    else if((s.nPb==0) && ((nVtx < s.centPUMin) || (nVtx >= s.centPUMax))) continue;
     else if(TMath::Abs(vz)>s.vz_window) continue;
-    else if(processed%nSkip !=0)
+    else if(processed%(s.nSkip) !=0)
     {
       processed++;
       continue;
@@ -165,69 +142,93 @@ void makeSkim(Settings s, int job, const char * skimType)
     }
 
     //Filling density histogram
-    //The eta phi strips are used simply to speed up program by only looping over the relevant 2*dMapR x 2*dMapR 'square' of bins
-    //Can speed up by reversing loops and narrowing the Eta range a bit
     for(int j = 0; j<nTrk; j++)
     {
-     if(TMath::Abs(trkEta[j])>2.4) continue;
-     //loop over strip in eta around the track
-     for(int eta = densityMap->GetXaxis()->FindBin(trkEta[j]-dMapR); eta<=densityMap->GetXaxis()->FindBin(trkEta[j]+dMapR); eta++)
-     {
-       //loop over strip in phi (have to be careful about the -pi to pi wrap around...)
-       //for case where we don't have to worry about wrap around
-       if(TMath::Pi()-TMath::Abs(trkPhi[j])>dMapR)
-       {
-         for(int phi = densityMap->GetYaxis()->FindBin(trkPhi[j]-dMapR); phi<=densityMap->GetYaxis()->FindBin(trkPhi[j]+dMapR); phi++)
-         {
-           if(TMath::Power(trkEta[j]-densityMap->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) densityMap->SetBinContent(eta,phi,densityMap->GetBinContent(eta,phi)+1); 
-         }
-       }
-       else
-       //for case with -pi and pi wrap around 
-       {
-         for(int phi = 1; phi<=densityMap->GetYaxis()->FindBin(trkPhi[j]+dMapR-(trkPhi[j]>0?2*TMath::Pi():0)); phi++) 
-         { 
-           if(TMath::Power(trkEta[j]-densityMap->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) densityMap->SetBinContent(eta,phi,densityMap->GetBinContent(eta,phi)+1); 
-         }
-         for(int phi = densityMap->GetYaxis()->FindBin(trkPhi[j]-dMapR+(trkPhi[j]<0?2*TMath::Pi():0)); phi<=nPhiBin; phi++) 
-         { 
-           if(TMath::Power(trkEta[j]-densityMap->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) densityMap->SetBinContent(eta,phi,densityMap->GetBinContent(eta,phi)+1); 
-         }
-       }
-     }
+      if(TMath::Abs(trkEta[j])>2.4) continue;
+      //loop over strip in phi (have to be careful about the -pi to pi wrap around...)
+      //for case where we don't have to worry about wrap around
+      if(TMath::Pi()-TMath::Abs(trkPhi[j])>dMapR)
+      {
+        for(int phi = densityMap->GetYaxis()->FindBin(trkPhi[j]-dMapR); phi<=densityMap->GetYaxis()->FindBin(trkPhi[j]+dMapR); phi++)
+        {
+          //loop over the eta bins needed
+          float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2),0.5);
+          for(int eta = densityMap->GetXaxis()->FindBin(trkEta[j]-dEtaMax); eta<=densityMap->GetXaxis()->FindBin(trkEta[j]+dEtaMax); eta++)
+          {
+            if(TMath::Power(trkEta[j]-densityMap->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) densityMap->SetBinContent(eta,phi,densityMap->GetBinContent(eta,phi)+1); 
+          }
+        }
+      }
+      else
+      //for case with -pi and pi wrap around 
+      {
+        for(int phi = 1; phi<=densityMap->GetYaxis()->FindBin(trkPhi[j]+dMapR-(trkPhi[j]>0?2*TMath::Pi():0)); phi++) 
+        { 
+          //loop over the eta bins needed
+          float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2),0.5);
+          for(int eta = densityMap->GetXaxis()->FindBin(trkEta[j]-dEtaMax); eta<=densityMap->GetXaxis()->FindBin(trkEta[j]+dEtaMax); eta++)
+          {
+            if(TMath::Power(trkEta[j]-densityMap->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) densityMap->SetBinContent(eta,phi,densityMap->GetBinContent(eta,phi)+1); 
+          }
+        }
+        for(int phi = densityMap->GetYaxis()->FindBin(trkPhi[j]-dMapR+(trkPhi[j]<0?2*TMath::Pi():0)); phi<=nPhiBin; phi++) 
+        { 
+          //loop over the eta bins needed
+          float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2),0.5);
+          for(int eta = densityMap->GetXaxis()->FindBin(trkEta[j]-dEtaMax); eta<=densityMap->GetXaxis()->FindBin(trkEta[j]+dEtaMax); eta++)
+          {
+            if(TMath::Power(trkEta[j]-densityMap->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) densityMap->SetBinContent(eta,phi,densityMap->GetBinContent(eta,phi)+1); 
+          }
+        }
+      }   
     }//end density map fill
+    
     /*TCanvas * c1 = new TCanvas("c1","c1",800,800);
     densityMap->Draw("colz");
-    c1->SaveAs("Density.png");
+    c1->SaveAs("Density_check.png");
     delete c1;*/
-//need to divide by area to get density still
-   
+
+ //track loop  
  for(int j = 0; j<nTrk; j++)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
-      if(highPurity[j]!=1) continue;
+      if(highPurity[j]!=1 && strcmp(skimType,"Eff")==0)) continue;
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
-      if(trkPt[j]<ptMin || trkPt[j]>ptMax) continue;
+      if(trkPt[j]<s.ptMin || trkPt[j]>s.ptMax) continue;
 
       localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(trkEta[j]),densityMap->GetYaxis()->FindBin(trkPhi[j]))/getArea(trkEta[j],dMapR);
-      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,weight};
-      reco->Fill(trkEntry);
+      if(strcmp(skimType,"Eff")==0)
+      {
+        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,weight};
+        reco->Fill(trkEntry);
+      }
+      if(strcmp(skimType,"Fake")==0) 
+      {
+        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,trkFake[j],weight,highPurity[j]};
+        reco->Fill(trkEntry);
+      }
     }
-    for(int j = 0; j<nParticle; j++)
+    if(strcmp(skimType,"Eff")==0)
     {
-      if(TMath::Abs(genEta[j])>2.4) continue;
-      if(genPt[j]<ptMin || genPt[j]>ptMax) continue;
+      for(int j = 0; j<nParticle; j++)
+      {
+        if(TMath::Abs(genEta[j])>2.4) continue;
+        if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
 
-      localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
-      float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight};
-      gen->Fill(genEntry); 
+        localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
+        float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight};
+        gen->Fill(genEntry); 
+      }
     }
     densityMap->Reset();
     processed++;
   }
   delete densityMap;
+
+  std::cout << "Writing skim..." << std::endl;
   skimOut->Write();
   skimOut->Close();   
+  std::cout << "Done skimming." << std::endl;
 }

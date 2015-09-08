@@ -1,8 +1,11 @@
 Fix SEDTARGETDATE thing
 
 condor infrastructure
+fake/double reco/ secondary code
 job splitting 
 skimming code
 iteration code
 job exit code
+save original skim to hadoop and put an option to bypass the initial skim (only run iteration steps)
+improve number of types of iteration supported
 possible need to specify trkStatus for things?
