@@ -118,7 +118,8 @@ void makeSkim(Settings s, const char * skimType)
   {
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
-  
+    
+    //some event selections on centrality, vz, or just throwing away some events because stats not needed 
     if((s.nPb==2) && ((hiBin/2 < s.centPUMin) || (hiBin/2 >= s.centPUMax))) continue;
     else if((s.nPb==0) && ((nVtx < s.centPUMin) || (nVtx >= s.centPUMax))) continue;
     else if(TMath::Abs(vz)>s.vz_window) continue;
@@ -141,7 +142,7 @@ void makeSkim(Settings s, const char * skimType)
       centPU = nVtx;
     }
 
-    //Filling density histogram
+    //Filling density histogram (keep all tracks, even not highPurity for this)
     for(int j = 0; j<nTrk; j++)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
@@ -192,7 +193,8 @@ void makeSkim(Settings s, const char * skimType)
  for(int j = 0; j<nTrk; j++)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
-      if(highPurity[j]!=1 && strcmp(skimType,"Eff")==0)) continue;
+      //keep tracks w/o highPurity for Fake calculation, but throw away for efficiency
+      if(highPurity[j]!=1 && strcmp(skimType,"Eff")==0) continue;
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
@@ -206,7 +208,7 @@ void makeSkim(Settings s, const char * skimType)
       }
       if(strcmp(skimType,"Fake")==0) 
       {
-        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,trkFake[j],weight,highPurity[j]};
+        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,trkFake[j],weight,(float)highPurity[j]};
         reco->Fill(trkEntry);
       }
     }
