@@ -1,5 +1,6 @@
 #General options (The number of line skips in this doc is important)
 PbPb_TrkCorr_SEDTARGETDATE     #job name
+0                   #Reuse previous data skims?
 2                   #Number of Pb nuclei (0=pp, 1=pPb, 2=PbPb)
 1                   #Do Efficiency?
 0                   #Do Fake Rate?

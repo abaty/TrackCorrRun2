@@ -1,9 +1,10 @@
 Fix SEDTARGETDATE thing
+Change scratch to hadoop skimming location when putting on condor
 
 condor infrastructure
 fake/double reco/ secondary code
 job exit code
 save original skim to hadoop and put an option to bypass the initial skim (only run iteration steps)
-improve number of types of iteration supported
+jet information maybe?
 possible need to specify trkStatus for things?
 trkDensity fine binning added to config file (currently hardcoded in iterate.c)

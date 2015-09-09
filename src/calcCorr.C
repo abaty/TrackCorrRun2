@@ -33,9 +33,12 @@ void calcCorr(int job, int effOrFake)
 
   //************************************************************************************************
   //make skims needed from main data files to parse down info
-  //will need to do something with 'job number' for fake events eventually depending on the condor implementation... 
-  if(effOrFake==0) makeSkim(s,"Eff");
-  if(effOrFake==1) makeSkim(s,"Fake");
+  //will need to do something with 'job number' for fake events eventually depending on the condor implementation...
+  if(!s.reuseSkim) 
+  {
+    if(effOrFake==0) makeSkim(s,"Eff");
+    if(effOrFake==1) makeSkim(s,"Fake");
+  }
 
   //***********************************************************************************************
   // iteration procedure

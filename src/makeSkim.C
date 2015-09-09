@@ -10,6 +10,7 @@
 #include <vector>
 #include <iostream>
 
+//calculates the area falling outside the acceptance (circle overlapping a rectagle)
 double getArea(double eta1, double R)
 {  
   if(TMath::Abs(eta1)<(2.4-R)) return TMath::Pi()*R*R;
@@ -92,15 +93,15 @@ void makeSkim(Settings s, const char * skimType)
   std::string particleVars;
   if(strcmp(skimType,"Eff")==0)
   {
-    particleVars="genPt:genEta:genPhi:genDensity:weighti:hiBinORpu";
-    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:hiBinORpu";
+    particleVars="genPt:genEta:genPhi:genDensity:weight:centPU";
+    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU";
   }
   else if(strcmp(skimType,"Fake")==0)
   {
-    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight:highPurity:hiBinORpu";
+    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight:highPurity:centPU";
   }
 
-  TFile * skimOut = TFile::Open("trackSkim.root","recreate");
+  TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
 
@@ -116,6 +117,7 @@ void makeSkim(Settings s, const char * skimType)
   
   for(int i = 0; i<25000;i++)//trkCh->GetEntries(); i++)
   {
+    if(i%25000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
     

@@ -17,10 +17,21 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
     for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
     hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",ptBins,s.ptMin,s.ptMax);
   }
+
+  if(stepType ==2) 
+  {
+    if(s.nPb==2)  hist = new TH1D(Form("%s_centPU",titlePrefix),";hiBin;",s.centPUBinFine,s.centPUMin,s.centPUMax); 
+    if(s.nPb==0)  hist = new TH1D(Form("%s_centPU",titlePrefix),";nVtx;",s.centPUBinFine,s.centPUMin,s.centPUMax); 
+  }
+  
+  if(stepType ==4) hist = new TH1D(Form("%s_eta",titlePrefix),";eta;",s.etaBinFine,-2.4,2.4);
  
-  const int densityBins = 25;
-  double densityAxis[densityBins+1]={0.0001,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,440,480,520,600,5000};
-  if(stepType ==6)  hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",densityBins,densityAxis);
+  if(stepType ==6)
+  {
+    const int densityBins = 25;
+    double densityAxis[densityBins+1]={0.0001,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,440,480,520,600,5000};
+    hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",densityBins,densityAxis);
+  }
   return hist;
 }
 
@@ -34,7 +45,7 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 
 void iterate(Settings s,int iter, int stepType, const char * effOrFake)
 {
-  float pt, eta, phi, density, weight, highPurity,trkFake; 
+  float pt, eta, phi, density, weight, highPurity,trkFake, centPU; 
 
   std::cout << "Loading appropriate information for denominator (gen for efficiency, reco for fake)..." << std::endl;
   TFile * histFile;
@@ -49,7 +60,7 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
     if(iter<s.nStep)
     {
       std::cout << "Denominator info not found, calculating and saving it..." << std::endl;
-      if(stepType == 0 || stepType == 6) genHist = makeTH1(s,stepType,"gen");
+      if(stepType == 0 || stepType==2 || stepType == 4 || stepType == 6) genHist = makeTH1(s,stepType,"gen");
       if(stepType == 1) genHist2 = makeTH2(s,stepType,"gen");
       
       TFile * skim = TFile::Open("trackSkim.root","read");
@@ -59,12 +70,15 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
       gen->SetBranchAddress("genPhi",&phi);
       gen->SetBranchAddress("genDensity",&density);
       gen->SetBranchAddress("weight",&weight);
+      gen->SetBranchAddress("centPU",&centPU);
    
       for(int i = 0; i<gen->GetEntries(); i++)
       {
         gen->GetEntry(i);
         if(stepType==0) genHist->Fill(pt,weight);
-        if(stepType==1) genHist2->Fill(eta,phi,weight);  
+        if(stepType==1) genHist2->Fill(eta,phi,weight); 
+        if(stepType==2) genHist->Fill(centPU,weight);
+        if(stepType==4) genHist->Fill(eta,weight); 
         if(stepType==6) genHist->Fill(density,weight);
       }
       skim->Close();
@@ -73,7 +87,9 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
   
     //redundant for first step, but needed if the gen file was made and saved previously 
     if(stepType==0) genHist = (TH1D*)histFile->Get("gen_pt");
-    if(stepType==1) genHist2 = (TH2D*)histFile->Get("gen_accept");  
+    if(stepType==1) genHist2 = (TH2D*)histFile->Get("gen_accept"); 
+    if(stepType==2) genHist = (TH1D*)histFile->Get("gen_centPU");
+    if(stepType==4) genHist = (TH1D*)histFile->Get("gen_eta"); 
     if(stepType==6) genHist = (TH1D*)histFile->Get("gen_density");
     std::cout << "Denominator histogram available now." << std::endl;
   }
@@ -86,21 +102,22 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
   for(int i=0; i<iter; i++)
   {
     int type = s.stepOrder.at(i%s.nStep); 
-    if(type==0 || type == 6) previousEff[i] = (TH1D*)histFile->Get(Form("eff_step%d",i)); 
+    if(type==0 || type==2 || type==4 || type == 6) previousEff[i] = (TH1D*)histFile->Get(Form("eff_step%d",i)); 
     if(type==1)              previousEff2[i] = (TH2D*)histFile->Get(Form("eff_step%d",i)); 
   }
 
   //setting up stuff for reading out of skim
-  if(stepType == 0 || stepType == 6) recoHist = makeTH1(s,stepType,Form("reco_step%d",iter));
+  if(stepType == 0 || stepType==2 || stepType==4 || stepType == 6) recoHist = makeTH1(s,stepType,Form("reco_step%d",iter));
   if(stepType == 1) recoHist2 = makeTH2(s,stepType,Form("reco_step%d",iter));
 
-  TFile * skim = TFile::Open("trackSkim.root","read");
+  TFile * skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
   TNtuple * reco = (TNtuple*)  skim->Get("Reco"); 
   reco->SetBranchAddress("trkPt",&pt);
   reco->SetBranchAddress("trkEta",&eta);
   reco->SetBranchAddress("trkPhi",&phi);
   reco->SetBranchAddress("trkDensity",&density);
   reco->SetBranchAddress("weight",&weight);
+  reco->SetBranchAddress("centPU",&centPU);
 
   //reading out of skim 
   for(int i = 0; i<reco->GetEntries(); i++)
@@ -115,14 +132,18 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
         int type = s.stepOrder.at(n%s.nStep);
         if(type==0) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(pt));
         if(type==1) previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(phi));
+        if(type==2) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(centPU));
+        if(type==4) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(eta));
         if(type==6) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(density)); 
       } 
     }
-    if(previousEffCorr==0) std::cout <<  "\n\nWarning!!! A correction is going to infinity.  This usually indicates an empty bin somewhere, try using a coarser binning or more events! \n\n" << std::endl;
+    if(previousEffCorr==0) std::cout <<  "\nWarning!!! A correction is going to infinity.  This usually indicates an empty bin somewhere, try using a coarser binning or more events! \n" << std::endl;
    
     //filling histograms
     if(stepType==0) recoHist->Fill(pt,weight/previousEffCorr);
-    if(stepType==1) recoHist2->Fill(eta,phi,weight/previousEffCorr);  
+    if(stepType==1) recoHist2->Fill(eta,phi,weight/previousEffCorr); 
+    if(stepType==2) recoHist->Fill(centPU,weight/previousEffCorr);
+    if(stepType==4) recoHist->Fill(eta,weight/previousEffCorr); 
     if(stepType==6) recoHist->Fill(density,weight/previousEffCorr);
   }
   skim->Close();
@@ -130,7 +151,7 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
   //saving reco and efficiencies 
   std::cout << "Calculating updated Efficiency and saving histograms" << std::endl;
   histFile->cd();    
-  if(stepType==0 || stepType==6)
+  if(stepType==0 || stepType == 2 || stepType==4 || stepType==6)
   {
     divHist = (TH1D*)recoHist->Clone(Form("eff_step%d",iter));
     divHist->Divide(genHist);
