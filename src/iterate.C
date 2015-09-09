@@ -9,8 +9,18 @@
 TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
 {
   TH1D * hist;
-  if(stepType ==0)  hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",s.ptBinFine,s.ptMin,s.ptMax);
-  if(stepType ==6)  hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",30,0,600);
+  //set log spacing 
+  if(stepType ==0)
+  {
+    const int ptBins = s.ptBinFine+1;
+    double ptAxis[ptBins];
+    for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
+    hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",ptBins,s.ptMin,s.ptMax);
+  }
+ 
+  const int densityBins = 25;
+  double densityAxis[densityBins+1]={0.0001,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,440,480,520,600,5000};
+  if(stepType ==6)  hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",densityBins,densityAxis);
   return hist;
 }
 
@@ -70,6 +80,17 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
    
   //********************************************************************************
   std::cout << "Calculating numerator for efficiency calculation..." << std::endl;
+  //getting old eff histograms to calculate the updated efficiency (the number 30 is arbitrary, increase if more are needed)
+  TH1D * previousEff[30];
+  TH2D * previousEff2[30];
+  for(int i=0; i<iter; i++)
+  {
+    int type = s.stepOrder.at(i%s.nStep); 
+    if(type==0 || type == 6) previousEff[i] = (TH1D*)histFile->Get(Form("eff_step%d",i)); 
+    if(type==1)              previousEff2[i] = (TH2D*)histFile->Get(Form("eff_step%d",i)); 
+  }
+
+  //setting up stuff for reading out of skim
   if(stepType == 0 || stepType == 6) recoHist = makeTH1(s,stepType,Form("reco_step%d",iter));
   if(stepType == 1) recoHist2 = makeTH2(s,stepType,Form("reco_step%d",iter));
 
@@ -80,22 +101,34 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
   reco->SetBranchAddress("trkPhi",&phi);
   reco->SetBranchAddress("trkDensity",&density);
   reco->SetBranchAddress("weight",&weight);
-  
+
+  //reading out of skim 
   for(int i = 0; i<reco->GetEntries(); i++)
   {
+    //applying efficiencies from all previous steps
     float previousEffCorr = 1; 
     reco->GetEntry(i);
     if(strcmp(effOrFake,"Eff")==0 && iter!=0)
     {
-    //put function here to get all previous steps eff corrections 
+      for(int n = 0; n<iter; n++)
+      {
+        int type = s.stepOrder.at(n%s.nStep);
+        if(type==0) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(pt));
+        if(type==1) previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(phi));
+        if(type==6) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(density)); 
+      } 
     }
-    if(eta>2.4 || eta<-2.4) std::cout << eta << std::endl;
-    if(stepType==0) recoHist->Fill(pt,weight*previousEffCorr);
-    if(stepType==1) recoHist2->Fill(eta,phi,weight*previousEffCorr);  
-    if(stepType==6) recoHist->Fill(density,weight*previousEffCorr);
+    if(previousEffCorr==0) std::cout <<  "\n\nWarning!!! A correction is going to infinity.  This usually indicates an empty bin somewhere, try using a coarser binning or more events! \n\n" << std::endl;
+   
+    //filling histograms
+    if(stepType==0) recoHist->Fill(pt,weight/previousEffCorr);
+    if(stepType==1) recoHist2->Fill(eta,phi,weight/previousEffCorr);  
+    if(stepType==6) recoHist->Fill(density,weight/previousEffCorr);
   }
   skim->Close();
-  
+ 
+  //saving reco and efficiencies 
+  std::cout << "Calculating updated Efficiency and saving histograms" << std::endl;
   histFile->cd();    
   if(stepType==0 || stepType==6)
   {
@@ -111,7 +144,8 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
     recoHist2->Write();
     divHist2->Write();
   }
-  histFile->Close(); 
-    
+  histFile->Close();    
+ 
+  std::cout << "Finished with iteration \n" << std::endl;
   return;
 }

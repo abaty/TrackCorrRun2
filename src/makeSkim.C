@@ -92,12 +92,12 @@ void makeSkim(Settings s, const char * skimType)
   std::string particleVars;
   if(strcmp(skimType,"Eff")==0)
   {
-    particleVars="genPt:genEta:genPhi:genDensity:weight";
-    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight";
+    particleVars="genPt:genEta:genPhi:genDensity:weighti:hiBinORpu";
+    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:hiBinORpu";
   }
   else if(strcmp(skimType,"Fake")==0)
   {
-    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight,highPurity";
+    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight:highPurity:hiBinORpu";
   }
 
   TFile * skimOut = TFile::Open("trackSkim.root","recreate");
@@ -114,7 +114,7 @@ void makeSkim(Settings s, const char * skimType)
   //grid resolution is 0.025x0.02503 in eta x phi space
   TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
   
-  for(int i = 0; i<5000;i++)//trkCh->GetEntries(); i++)
+  for(int i = 0; i<25000;i++)//trkCh->GetEntries(); i++)
   {
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
@@ -203,12 +203,12 @@ void makeSkim(Settings s, const char * skimType)
       localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(trkEta[j]),densityMap->GetYaxis()->FindBin(trkPhi[j]))/getArea(trkEta[j],dMapR);
       if(strcmp(skimType,"Eff")==0)
       {
-        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,weight};
+        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,weight,centPU};
         reco->Fill(trkEntry);
       }
       if(strcmp(skimType,"Fake")==0) 
       {
-        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,trkFake[j],weight,(float)highPurity[j]};
+        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,trkFake[j],weight,(float)highPurity[j],centPU};
         reco->Fill(trkEntry);
       }
     }
@@ -220,7 +220,7 @@ void makeSkim(Settings s, const char * skimType)
         if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
 
         localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
-        float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight};
+        float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,centPU};
         gen->Fill(genEntry); 
       }
     }

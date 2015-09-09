@@ -40,11 +40,13 @@ void calcCorr(int job, int effOrFake)
   //***********************************************************************************************
   // iteration procedure
   std::cout << "Beginning iteration procedure..." << std::endl;
-  for(int i = 0; i<3 ; i++)
+  for(int i = 0; ; i++)
   {
     std::cout << "Starting iteration " << i << std::endl;
     //stepTypes are pt, acceptance, centrality, jet pt, eta, rmin, occupancy
-    int stepType = s.stepOrder.at(i%s.nStep); 
+    int stepType = s.stepOrder.at(i%s.nStep);
+    std::cout << "This iteration is type " << stepType << std::endl; 
+
     if(effOrFake==0) iterate(s,i,stepType,"Eff");
     if(effOrFake==1) iterate(s,i,stepType,"Fake");
 
