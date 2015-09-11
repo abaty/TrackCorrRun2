@@ -55,10 +55,10 @@ void calcCorr(int job, int effOrFake)
 
     //check to see if we are done yet 
     if(i>=s.nStep*s.fullIterations && s.terminateStep==stepType) break;
-  } 
+  }
 }
 
-//***********************************************************************************************
+
 int main(int argc, const char* argv[])
 {
   if(argc != 3)

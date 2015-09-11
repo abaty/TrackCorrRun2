@@ -9,8 +9,8 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 
 #Data event Cuts
 15                  # Window range in cm for vertex z cut (default is |vz|<15) (Might need to rethink vertex requirements and reweighting for high PU pp)
-1                  # Require passing NoiseFilter?
-1                  # Require passing pCollisionEventSelection?
+1                  # Require data passing NoiseFilter?
+1                  # Require data passing pCollisionEventSelection?
 
 #MC and reweighting options
 7                   #Number of Input MC samples
