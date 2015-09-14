@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 class Settings {
   public:
@@ -42,7 +43,7 @@ class Settings {
 Settings::Settings(std::string inputFile)
 {
   std::cout << "Getting settings from file: " << inputFile << std::endl;
-  ifstream f;
+  std::ifstream f;
   f.open ("TrkCorrInputFile.txt");
 
   //somewhat messy, but it just loads the input config file

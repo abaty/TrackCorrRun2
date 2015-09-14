@@ -1,15 +1,16 @@
 #General options (The number of line skips in this doc is important)
 PbPb_TrkCorr_SEDTARGETDATE     #job name
+0                   #Reuse previous data skims?
 2                   #Number of Pb nuclei (0=pp, 1=pPb, 2=PbPb)
 1                   #Do Efficiency?
 0                   #Do Fake Rate?
 0                   #Do Multiple Reco? (To Be done)
 0                   #Do Secondary? (To Be Done)
 
-#Event Cuts
+#Data event Cuts
 15                  # Window range in cm for vertex z cut (default is |vz|<15) (Might need to rethink vertex requirements and reweighting for high PU pp)
-1                  # Require passing NoiseFilter?
-1                  # Require passing pCollisionEventSelection?
+1                  # Require data passing NoiseFilter?
+1                  # Require data passing pCollisionEventSelection?
 
 #MC and reweighting options
 7                   #Number of Input MC samples
@@ -33,7 +34,7 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 
 #Coarse Binning Options
 4                       # # of course Trk Pt Bins
-0.5 1 3 8 500           # Trk Pt Bin boundaries
+0.5 1 3 8 350           # Trk Pt Bin boundaries
 
 4                       # # of coarse Cent/PU Bins for the 1st coarse Trk Pt Bin
 0 10 20 50 100          # Cent/PU Bin Boundaries
@@ -63,8 +64,8 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 
 #Advanced Settings
 #Algorithm properties
-4                # Number of steps
-2 1 0 3          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=nearest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
+3                # Number of steps
+1 6 0          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=nearest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
 3                # Full iterations to run before terminating
 0                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
 akVs3Calo          # jet definition

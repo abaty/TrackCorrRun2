@@ -3,6 +3,12 @@
 
 void prepStep()
 {
-  Settings test("../TrkCorrInputFile.txt");
-  produceWeights(test);
+  Settings s("TrkCorrInputFile.txt");
+  produceWeights(s);
+}
+
+int main()
+{
+  prepStep();
+  return 1;
 }

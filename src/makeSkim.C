@@ -101,7 +101,8 @@ void makeSkim(Settings s, const char * skimType)
     trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight:highPurity:centPU";
   }
 
-  TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
+  TFile * skimOut = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"recreate");
+  //TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
 
@@ -205,12 +206,12 @@ void makeSkim(Settings s, const char * skimType)
       localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(trkEta[j]),densityMap->GetYaxis()->FindBin(trkPhi[j]))/getArea(trkEta[j],dMapR);
       if(strcmp(skimType,"Eff")==0)
       {
-        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,weight,centPU};
+        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,weight,(float)centPU};
         reco->Fill(trkEntry);
       }
       if(strcmp(skimType,"Fake")==0) 
       {
-        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,trkFake[j],weight,(float)highPurity[j],centPU};
+        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,trkFake[j],weight,(float)highPurity[j],(float)centPU};
         reco->Fill(trkEntry);
       }
     }
@@ -222,7 +223,7 @@ void makeSkim(Settings s, const char * skimType)
         if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
 
         localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
-        float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,centPU};
+        float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,(float)centPU};
         gen->Fill(genEntry); 
       }
     }
