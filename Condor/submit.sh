@@ -16,7 +16,6 @@ cp ../src/makeSkim.C $now
 cp ../src/getWeights.C $now
 cp ../src/iterate.C $now
 
-cp run.condor $now
 cp run.sh $now
 
 #insert blacklist code
@@ -42,7 +41,7 @@ g++ calcCorr.C $(root-config --cflags --libs) -Wall -O2 -o "calcCorr.exe"
 #g++ calcCorr.C $(root-config --cflags --libs) -Werror -Wall -O2 -o "calcCorr.exe"
 echo finished compilation
 echo
-cat $now/run.condor
+cat run.condor
 echo 
 echo running prepStep in 10s
 sleep 10

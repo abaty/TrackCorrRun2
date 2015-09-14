@@ -63,7 +63,9 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
       if(stepType == 0 || stepType==2 || stepType == 4 || stepType == 6) genHist = makeTH1(s,stepType,"gen");
       if(stepType == 1) genHist2 = makeTH2(s,stepType,"gen");
       
-      TFile * skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+      TFile * skim;
+      if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+      else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
       //TFile * skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
       TNtuple * gen = (TNtuple*)  skim->Get("Gen");
       gen->SetBranchAddress("genPt",&pt);
@@ -111,7 +113,9 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
   if(stepType == 0 || stepType==2 || stepType==4 || stepType == 6) recoHist = makeTH1(s,stepType,Form("reco_step%d",iter));
   if(stepType == 1) recoHist2 = makeTH2(s,stepType,Form("reco_step%d",iter));
 
-  TFile * skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+  TFile * skim;
+  if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+  else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
   //TFile * skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
   TNtuple * reco = (TNtuple*)  skim->Get("Reco"); 
   reco->SetBranchAddress("trkPt",&pt);

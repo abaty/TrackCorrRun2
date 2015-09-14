@@ -101,7 +101,7 @@ void makeSkim(Settings s, const char * skimType)
     trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight:highPurity:centPU";
   }
 
-  TFile * skimOut = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"recreate");
+  TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
   //TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
