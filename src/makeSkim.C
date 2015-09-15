@@ -32,6 +32,7 @@ void makeSkim(Settings s, const char * skimType)
 //Setup variables for skim
   TChain * trkCh;
   TChain * centCh;
+  TChain * evtCh;
   TChain * jet;
 
   //track
@@ -61,6 +62,7 @@ void makeSkim(Settings s, const char * skimType)
   float jtphi[100];
   float jteta[100];
   float weight = 1;
+  int pcoll;
 
   //Setup input trees  
   //track tree     
@@ -96,6 +98,11 @@ void makeSkim(Settings s, const char * skimType)
   jet->SetBranchAddress("jtphi",&jtphi);
   trkCh->AddFriend(jet);
   
+  evtCh = new TChain("skimanalysis/HltTree");
+  for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
+  evtCh->SetBranchAddress("pcollisionEventSelection",&pcoll);
+  trkCh->AddFriend(evtCh);
+
   //Setup output Ntuples
   std::string trackVars;
   std::string particleVars;
@@ -109,8 +116,8 @@ void makeSkim(Settings s, const char * skimType)
     trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight:highPurity:centPU:rmin:jtpt";
   }
 
-  TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
-  //TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
+  //TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
+  TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
 
@@ -132,15 +139,17 @@ void makeSkim(Settings s, const char * skimType)
     
     //some event selections on centrality, vz, or just throwing away some events because stats not needed 
     if((s.nPb==2) && ((hiBin/2 < s.centPUMin) || (hiBin/2 >= s.centPUMax))) continue;
-    else if((s.nPb==0) && ((nVtx < s.centPUMin) || (nVtx >= s.centPUMax))) continue;
-    else if(TMath::Abs(vz)>s.vz_window) continue;
-    else if(processed%(s.nSkip) !=0)
+    if((s.nPb==0) && ((nVtx < s.centPUMin) || (nVtx >= s.centPUMax))) continue;
+    if(TMath::Abs(vz)>s.vz_window) continue;
+    if(processed%(s.nSkip) !=0)
     {
       processed++;
       continue;
     }
     if(s.nPb==2) trkCh->GetEntry(i);
+    if(pcoll==0) continue;
   
+    //getting weight parameters
     int centPU;
     if(s.nPb==2)
     {

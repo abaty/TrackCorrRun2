@@ -64,9 +64,9 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
       if(stepType == 1) genHist2 = makeTH2(s,stepType,"gen");
       
       TFile * skim;
-      if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-      else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-      //TFile * skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+      //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+      //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+      skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
       TNtuple * gen = (TNtuple*)  skim->Get("Gen");
       gen->SetBranchAddress("genPt",&pt);
       gen->SetBranchAddress("genEta",&eta); 
@@ -75,50 +75,50 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
       gen->SetBranchAddress("weight",&weight);
       gen->SetBranchAddress("centPU",&centPU);
       gen->SetBranchAddress("rmin",&rmin);
-      gen->SetBranchAddress("maxJetPt",&maxJetPt);
-   
-      for(int i = 0; i<gen->GetEntries(); i++)
-      {
-        gen->GetEntry(i);
-        if(stepType==0) genHist->Fill(pt,weight);
-        if(stepType==1) genHist2->Fill(eta,phi,weight); 
-        if(stepType==2) genHist->Fill(centPU,weight);
-        if(stepType==4) genHist->Fill(eta,weight); 
-        if(stepType==6) genHist->Fill(density,weight);
-      }
-      skim->Close();
-      histFile->Write(); 
-    }
-  
-    //redundant for first step, but needed if the gen file was made and saved previously 
-    if(stepType==0) genHist = (TH1D*)histFile->Get("gen_pt");
-    if(stepType==1) genHist2 = (TH2D*)histFile->Get("gen_accept"); 
-    if(stepType==2) genHist = (TH1D*)histFile->Get("gen_centPU");
-    if(stepType==4) genHist = (TH1D*)histFile->Get("gen_eta"); 
-    if(stepType==6) genHist = (TH1D*)histFile->Get("gen_density");
-    std::cout << "Denominator histogram available now." << std::endl;
-  }
-   
-  //********************************************************************************
-  std::cout << "Calculating numerator for efficiency calculation..." << std::endl;
-  //getting old eff histograms to calculate the updated efficiency (the number 30 is arbitrary, increase if more are needed)
-  TH1D * previousEff[30];
-  TH2D * previousEff2[30];
-  for(int i=0; i<iter; i++)
-  {
-    int type = s.stepOrder.at(i%s.nStep); 
-    if(type==0 || type==2 || type==4 || type == 6) previousEff[i] = (TH1D*)histFile->Get(Form("eff_step%d",i)); 
-    if(type==1)              previousEff2[i] = (TH2D*)histFile->Get(Form("eff_step%d",i)); 
-  }
+	      gen->SetBranchAddress("jtpt",&maxJetPt);
+	   
+	      for(int i = 0; i<gen->GetEntries(); i++)
+	      {
+		gen->GetEntry(i);
+		if(stepType==0) genHist->Fill(pt,weight);
+		if(stepType==1) genHist2->Fill(eta,phi,weight); 
+		if(stepType==2) genHist->Fill(centPU,weight);
+		if(stepType==4) genHist->Fill(eta,weight); 
+		if(stepType==6) genHist->Fill(density,weight);
+	      }
+	      skim->Close();
+	      histFile->Write(); 
+	    }
+	  
+	    //redundant for first step, but needed if the gen file was made and saved previously 
+	    if(stepType==0) genHist = (TH1D*)histFile->Get("gen_pt");
+	    if(stepType==1) genHist2 = (TH2D*)histFile->Get("gen_accept"); 
+	    if(stepType==2) genHist = (TH1D*)histFile->Get("gen_centPU");
+	    if(stepType==4) genHist = (TH1D*)histFile->Get("gen_eta"); 
+	    if(stepType==6) genHist = (TH1D*)histFile->Get("gen_density");
+	    std::cout << "Denominator histogram available now." << std::endl;
+	  }
+	   
+	  //********************************************************************************
+	  std::cout << "Calculating numerator for efficiency calculation..." << std::endl;
+	  //getting old eff histograms to calculate the updated efficiency (the number 30 is arbitrary, increase if more are needed)
+	  TH1D * previousEff[30];
+	  TH2D * previousEff2[30];
+	  for(int i=0; i<iter; i++)
+	  {
+	    int type = s.stepOrder.at(i%s.nStep); 
+	    if(type==0 || type==2 || type==4 || type == 6) previousEff[i] = (TH1D*)histFile->Get(Form("eff_step%d",i)); 
+	    if(type==1)              previousEff2[i] = (TH2D*)histFile->Get(Form("eff_step%d",i)); 
+	  }
 
-  //setting up stuff for reading out of skim
-  if(stepType == 0 || stepType==2 || stepType==4 || stepType == 6) recoHist = makeTH1(s,stepType,Form("reco_step%d",iter));
-  if(stepType == 1) recoHist2 = makeTH2(s,stepType,Form("reco_step%d",iter));
+	  //setting up stuff for reading out of skim
+	  if(stepType == 0 || stepType==2 || stepType==4 || stepType == 6) recoHist = makeTH1(s,stepType,Form("reco_step%d",iter));
+	  if(stepType == 1) recoHist2 = makeTH2(s,stepType,Form("reco_step%d",iter));
 
-  TFile * skim;
-  if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-  else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-  //TFile * skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+	  TFile * skim;
+	  //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+  //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+  skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
   TNtuple * reco = (TNtuple*)  skim->Get("Reco"); 
   reco->SetBranchAddress("trkPt",&pt);
   reco->SetBranchAddress("trkEta",&eta);
@@ -127,7 +127,7 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
   reco->SetBranchAddress("weight",&weight);
   reco->SetBranchAddress("centPU",&centPU);
   reco->SetBranchAddress("rmin",&rmin);
-  reco->SetBranchAddress("maxJetPt",&maxJetPt);
+  reco->SetBranchAddress("jtpt",&maxJetPt);
 
   //reading out of skim 
   for(int i = 0; i<reco->GetEntries(); i++)
