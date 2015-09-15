@@ -45,7 +45,7 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 
 void iterate(Settings s,int iter, int stepType, const char * effOrFake)
 {
-  float pt, eta, phi, density, weight, highPurity,trkFake, centPU; 
+  float pt, eta, phi, density, weight, highPurity,trkFake, centPU, rmin, maxJetPt; 
 
   std::cout << "Loading appropriate information for denominator (gen for efficiency, reco for fake)..." << std::endl;
   TFile * histFile;
@@ -74,6 +74,8 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
       gen->SetBranchAddress("genDensity",&density);
       gen->SetBranchAddress("weight",&weight);
       gen->SetBranchAddress("centPU",&centPU);
+      gen->SetBranchAddress("rmin",&rmin);
+      gen->SetBranchAddress("maxJetPt",&maxJetPt);
    
       for(int i = 0; i<gen->GetEntries(); i++)
       {
@@ -124,6 +126,8 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
   reco->SetBranchAddress("trkDensity",&density);
   reco->SetBranchAddress("weight",&weight);
   reco->SetBranchAddress("centPU",&centPU);
+  reco->SetBranchAddress("rmin",&rmin);
+  reco->SetBranchAddress("maxJetPt",&maxJetPt);
 
   //reading out of skim 
   for(int i = 0; i<reco->GetEntries(); i++)
