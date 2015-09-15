@@ -24,6 +24,7 @@ void produceWeights(Settings s)
   
   float pthat, vz;
   int nVtx, hiBin;
+  int pcoll, noiseFilter;
   TH1D * dVz;
   TH1D * dCentPU;
   TCanvas * c1 = new TCanvas("c1","",800,600);
@@ -34,7 +35,6 @@ void produceWeights(Settings s)
   TTree * trk;
   if(s.doVtx || s.doCentPU)
   {
-    int pcoll, noiseFilter;
     f = TFile::Open(s.DataFile.c_str(),"read");
 
     //stuff needed for event selections
@@ -91,6 +91,7 @@ void produceWeights(Settings s)
   TChain * jet;
   TChain * trkCh;
   TChain * centCh;
+  TChain * evtCh;
   TH1D * MCVz;
   TH1D * MCCentPU;
   TH1D * MCPthat;
@@ -106,7 +107,13 @@ void produceWeights(Settings s)
     jet = new TChain(Form("%sJetAnalyzer/t",s.jetDefinition.c_str()));
     for(int i = 0; i<s.nMC; i++)  jet->Add(s.MCFiles.at(i).c_str());  
     jet->SetBranchAddress("pthat", &pthat);
-      
+     
+    //stuff for pcoll
+    evtCh = new TChain("skimanalysis/HltTree");
+    for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
+    evtCh->SetBranchAddress("pcollisionEventSelection", &pcoll);
+    jet->AddFriend(evtCh);
+ 
     //stuff needed for pileup RW
     if(s.doCentPU && s.nPb==0)      
     {
@@ -127,7 +134,7 @@ void produceWeights(Settings s)
     if(s.doPthat)
     {
       MCPthat->GetDirectory()->cd();
-      jet->Draw("pthat>>MCPthat", Form("TMath::Abs(vz)<%d",s.vz_window));
+      jet->Draw("pthat>>MCPthat", Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
       MCPthat->SetDirectory(0);
       MCPthat->Draw();
       c1->SaveAs("../../evalPlots/MCPthat.png");
@@ -135,7 +142,7 @@ void produceWeights(Settings s)
     if(s.doVtx)
     {
       MCVz->GetDirectory()->cd();
-      jet->Draw("vz>>MCVz",Form("TMath::Abs(vz)<%d",s.vz_window));
+      jet->Draw("vz>>MCVz",Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
       MCVz->SetDirectory(0);
       MCVz->Scale(1.0/(double)MCVz->GetEntries());
       MCVz->Draw();
@@ -144,7 +151,7 @@ void produceWeights(Settings s)
     if(s.doCentPU && s.nPb==2)
     {
       MCCentPU->GetDirectory()->cd();
-      jet->Draw("hiBin>>MCCentPU",Form("TMath::Abs(vz)<%d",s.vz_window));
+      jet->Draw("hiBin>>MCCentPU",Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
       MCCentPU->SetDirectory(0);
       MCCentPU->Scale(1.0/(double)MCCentPU->GetEntries());
       MCCentPU->Draw();
@@ -153,7 +160,7 @@ void produceWeights(Settings s)
     else if(s.doCentPU && s.nPb==0)
     {
       MCCentPU->GetDirectory()->cd();
-      jet->Draw("nVtx>>MCCentPU",Form("TMath::Abs(vz)<%d",s.vz_window));
+      jet->Draw("nVtx>>MCCentPU",Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
       MCCentPU->SetDirectory(0);
       MCCentPU->Scale(1.0/(double)MCCentPU->GetEntries());
       MCCentPU->Draw();
