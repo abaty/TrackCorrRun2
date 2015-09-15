@@ -40,7 +40,7 @@ void makeSkim(Settings s, const char * skimType)
   float trkPt[100000];
   float trkEta[100000];
   float trkPhi[100000];
-  float trkFake[100000];
+  bool trkFake[100000];
   bool highPurity[100000];
   int nVtx;
 
@@ -73,7 +73,7 @@ void makeSkim(Settings s, const char * skimType)
   trkCh->SetBranchAddress("trkEta",&trkEta);
   trkCh->SetBranchAddress("trkPhi",&trkPhi);
   trkCh->SetBranchAddress("highPurity",&highPurity);
-  if(strcmp(skimType,"Fake")==0) trkCh->SetBranchAddress("trkFake",&trkFake);
+  trkCh->SetBranchAddress("trkFake",&trkFake);
   if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
   trkCh->SetBranchAddress("nParticle",&nParticle);
@@ -106,15 +106,8 @@ void makeSkim(Settings s, const char * skimType)
   //Setup output Ntuples
   std::string trackVars;
   std::string particleVars;
-  if(strcmp(skimType,"Eff")==0)
-  {
-    particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt";
-    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU:rmin:jtpt";
-  }
-  else if(strcmp(skimType,"Fake")==0)
-  {
-    trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight:highPurity:centPU:rmin:jtpt";
-  }
+  particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt";
+  trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight:centPU:rmin:jtpt";
 
   //TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
   TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
@@ -220,8 +213,7 @@ void makeSkim(Settings s, const char * skimType)
  for(int j = 0; j<nTrk; j++)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
-      //keep tracks w/o highPurity for Fake calculation, but throw away for efficiency
-      if(highPurity[j]!=1 && strcmp(skimType,"Eff")==0) continue;
+      if(highPurity[j]!=1) continue;
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
@@ -238,16 +230,9 @@ void makeSkim(Settings s, const char * skimType)
       }
 
       localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(trkEta[j]),densityMap->GetYaxis()->FindBin(trkPhi[j]))/getArea(trkEta[j],dMapR);
-      if(strcmp(skimType,"Eff")==0)
-      {
-        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt};
-        reco->Fill(trkEntry);
-      }
-      if(strcmp(skimType,"Fake")==0) 
-      {
-        float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,trkFake[j],weight,(float)highPurity[j],(float)centPU,rmin,maxJetPt};
-        reco->Fill(trkEntry);
-      }
+      
+      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,(float)trkFake[j],weight,(float)centPU,rmin,maxJetPt};
+      reco->Fill(trkEntry);
     }
     if(strcmp(skimType,"Eff")==0)
     {

@@ -124,6 +124,7 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
   reco->SetBranchAddress("trkEta",&eta);
   reco->SetBranchAddress("trkPhi",&phi);
   reco->SetBranchAddress("trkDensity",&density);
+  reco->SetBranchAddress("trkFake",&trkFake);
   reco->SetBranchAddress("weight",&weight);
   reco->SetBranchAddress("centPU",&centPU);
   reco->SetBranchAddress("rmin",&rmin);
@@ -132,6 +133,7 @@ void iterate(Settings s,int iter, int stepType, const char * effOrFake)
   //reading out of skim 
   for(int i = 0; i<reco->GetEntries(); i++)
   {
+    if(trkFake==1) continue;
     //applying efficiencies from all previous steps
     float previousEffCorr = 1; 
     reco->GetEntry(i);
