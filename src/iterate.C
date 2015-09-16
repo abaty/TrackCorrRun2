@@ -6,6 +6,8 @@
 #include "TMath.h"
 #include <iostream>
 
+
+//settings for the histograms used
 TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
 {
   TH1D * hist;
@@ -47,6 +49,7 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 }
 
 
+//iteration code
 void iterate(Settings s,int iter, int stepType)
 {
   float pt, eta, phi, density, weight, centPU, rmin, maxJetPt,trkStatus; 
@@ -114,7 +117,7 @@ void iterate(Settings s,int iter, int stepType)
     for(int i = 0; i<reco->GetEntries(); i++)
     {
       reco->GetEntry(i);
-      if(trkStatus<0) continue;
+      if(trkStatus<-100) continue;
       if(stepType==0) recoHist->Fill(pt,weight);
       if(stepType==1) recoHist2->Fill(eta,phi,weight); 
       if(stepType==2) recoHist->Fill(centPU,weight);
@@ -204,7 +207,6 @@ void iterate(Settings s,int iter, int stepType)
     reco->GetEntry(i);
     
     //fake part
-    if(trkStatus==-99) continue;
     if(iter!=0)
     {
       for(int n = 0; n<iter; n++)
@@ -257,7 +259,7 @@ void iterate(Settings s,int iter, int stepType)
   }
   skim->Close();
  
-  //saving reco and efficiencies 
+  //saving reco and efficiencies/fake rates 
   std::cout << "Calculating updated Efficiency/Fake Rate and saving histograms" << std::endl;
   histFile->cd();    
   if(stepType==0 || stepType == 2 || stepType == 3 || stepType==4 || stepType==5 || stepType==6)
@@ -286,8 +288,9 @@ void iterate(Settings s,int iter, int stepType)
   }
   
   //*********************************************************************************************
+  //*********************************************************************************************
   //writing final correction tables (consolidating multiple steps of the same variable)
-  //once again 5 is an arbitrary number, increase if needed...
+  //once again 10 is an arbitrary number, increase if needed...
   if(iter>=s.nStep*s.fullIterations && s.terminateStep==stepType)
   {
     std::cout << "Consolidating into final histograms by multiplying out efficiencies/fake rates per variable" << std::endl;

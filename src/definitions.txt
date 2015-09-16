@@ -1,0 +1,22 @@
+everything reco is first required to pass highPurity (and any other cuts)
+These are my working definitions, the Fake/secondary thing might be slightly different than the standard definition but can be used to obtain the standard definition w/ simple arithmetic
+
+
+
+Efficiency is defined as the % of gen particles reconstructed as 
+            primary tracks matched any gen particle (should be between 0-1)
+
+Secondary is the ratio of reco'd tracks w/ any matched particle to reco'd tracks w/ any matched particle and is primary (above 1)
+
+Fake Rate is defined as the ratio of all reco'd tracks to all reco'd tracks w/ any gen particle matched to it (should be above 1)
+
+Multiple reco is the number of reco'd primary tracks that are matched to a gen track, divided by the number of gen particles having matched tracks (should be >=1)
+
+
+
+The total correction is then
+
+measured/Fake = measured spectra that would be matched
+measured/(Fake*Secondary) = measured spectra that would be primary matched
+measured/(Fake*Secondary*Multiple) =  measured spectra that is primary matched and not a result of multiple reco
+measured/(Fake*Secondary*Multiple*Eff) = corrected to the 'gen spectra'
