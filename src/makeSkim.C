@@ -22,7 +22,7 @@ double getArea(double eta1, double R)
   }
 }
 
-void makeSkim(Settings s, const char * skimType)
+void makeSkim(Settings s)
 {
   std::cout << "\nJob number: " << s.job << "\nCorresponds to the following parameters\nnSkip: " << s.nSkip
   << "\nptMin: " << s.ptMin << "\nptMax: " << s.ptMax << "\ncentMin: " << s.centPUMin << "\ncentMax " << s.centPUMax << std::endl;
@@ -40,7 +40,7 @@ void makeSkim(Settings s, const char * skimType)
   float trkPt[100000];
   float trkEta[100000];
   float trkPhi[100000];
-  bool trkFake[100000];
+  float trkStatus[100000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
   bool highPurity[100000];
   int nVtx;
 
@@ -73,7 +73,7 @@ void makeSkim(Settings s, const char * skimType)
   trkCh->SetBranchAddress("trkEta",&trkEta);
   trkCh->SetBranchAddress("trkPhi",&trkPhi);
   trkCh->SetBranchAddress("highPurity",&highPurity);
-  trkCh->SetBranchAddress("trkFake",&trkFake);
+  trkCh->SetBranchAddress("trkStatus",&trkStatus);
   if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
   trkCh->SetBranchAddress("nParticle",&nParticle);
@@ -107,7 +107,7 @@ void makeSkim(Settings s, const char * skimType)
   std::string trackVars;
   std::string particleVars;
   particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt";
-  trackVars=   "trkPt:trkEta:trkPhi:trkDensity:trkFake:weight:centPU:rmin:jtpt";
+  trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU:rmin:jtpt:trkStatus";
 
   //TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
   TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
@@ -124,12 +124,12 @@ void makeSkim(Settings s, const char * skimType)
   //grid resolution is 0.025x0.02503 in eta x phi space
   TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
   
-  for(int i = 0; i<75000;i++)//trkCh->GetEntries(); i++)
+  for(int i = 0; i<20000;i++)//trkCh->GetEntries(); i++)
   {
-    if(i%25000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
+    if(i%10000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
-    
+   
     //some event selections on centrality, vz, or just throwing away some events because stats not needed 
     if((s.nPb==2) && ((hiBin/2 < s.centPUMin) || (hiBin/2 >= s.centPUMax))) continue;
     if((s.nPb==0) && ((nVtx < s.centPUMin) || (nVtx >= s.centPUMax))) continue;
@@ -209,8 +209,8 @@ void makeSkim(Settings s, const char * skimType)
       if(jtpt[k]>maxJetPt) maxJetPt=jtpt[k];
     }
 
- //track loop  
- for(int j = 0; j<nTrk; j++)
+    //track loop  
+    for(int j = 0; j<nTrk; j++)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
@@ -231,33 +231,32 @@ void makeSkim(Settings s, const char * skimType)
 
       localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(trkEta[j]),densityMap->GetYaxis()->FindBin(trkPhi[j]))/getArea(trkEta[j],dMapR);
       
-      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,(float)trkFake[j],weight,(float)centPU,rmin,maxJetPt};
+      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j]};
       reco->Fill(trkEntry);
     }
-    if(strcmp(skimType,"Eff")==0)
+ 
+    //gen 
+    for(int j = 0; j<nParticle; j++)
     {
-      for(int j = 0; j<nParticle; j++)
+      if(TMath::Abs(genEta[j])>2.4) continue;
+      if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
+    
+      //find rmin parameters for the track
+      float rmin = 999;
+      for(int k = 0; k<nref; k++)
       {
-        if(TMath::Abs(genEta[j])>2.4) continue;
-        if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
-      
-        //find rmin parameters for the track
-        float rmin = 999;
-        for(int k = 0; k<nref; k++)
-        {
-          if(jtpt[k]<50) break;
-          if(TMath::Abs(jteta[k])>2) continue;
-          float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(jtphi[k]-genPhi[j],2);
-          if(rmin*rmin>R*R) rmin=R;
-        }
-
-        localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
-        float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt};
-        gen->Fill(genEntry); 
+        if(jtpt[k]<50) break;
+        if(TMath::Abs(jteta[k])>2) continue;
+        float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(jtphi[k]-genPhi[j],2);
+        if(rmin*rmin>R*R) rmin=R;
       }
+
+      localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
+      float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt};
+      gen->Fill(genEntry); 
     }
-    densityMap->Reset();
-    processed++;
+  densityMap->Reset();
+  processed++;
   }
   delete densityMap;
 
