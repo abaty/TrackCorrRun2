@@ -24,8 +24,12 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
     if(s.nPb==0)  hist = new TH1D(Form("%s_centPU",titlePrefix),";nVtx;",s.centPUBinFine,s.centPUMin,s.centPUMax); 
   }
   
+  if(stepType ==3) hist = new TH1D(Form("%s_maxJetPt",titlePrefix),";jtpt;",30,0,300); 
   if(stepType ==4) hist = new TH1D(Form("%s_eta",titlePrefix),";eta;",s.etaBinFine,-2.4,2.4);
- 
+
+  const int rminBins = 21;
+  double rminBinning[rminBins+1] = {0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7,0.8,0.9,1,1.2,1.4,1.6,2,3,10};
+  if(stepType ==5) hist = new TH1D(Form("%s_rmin",titlePrefix),";rmin;",rminBins,rminBinning);
   if(stepType ==6)
   {
     const int densityBins = 25;
@@ -58,7 +62,7 @@ void iterate(Settings s,int iter, int stepType)
   if(iter<s.nStep)
   {
     std::cout << "Denominator info not found, calculating and saving it..." << std::endl;
-    if(stepType == 0 || stepType==2 || stepType == 4 || stepType == 6) 
+    if(stepType == 0 || stepType==2 || stepType==3 || stepType == 4 || stepType==5 || stepType == 6) 
     {
       genHist = makeTH1(s,stepType,"gen");
       recoHist= makeTH1(s,stepType,"mreco");
@@ -90,7 +94,9 @@ void iterate(Settings s,int iter, int stepType)
       if(stepType==0) genHist->Fill(pt,weight);
       if(stepType==1) genHist2->Fill(eta,phi,weight); 
       if(stepType==2) genHist->Fill(centPU,weight);
+      if(stepType==3) genHist->Fill(maxJetPt,weight);
       if(stepType==4) genHist->Fill(eta,weight); 
+      if(stepType==5) genHist->Fill(rmin,weight);
       if(stepType==6) genHist->Fill(density,weight);
     }
 
@@ -112,7 +118,9 @@ void iterate(Settings s,int iter, int stepType)
       if(stepType==0) recoHist->Fill(pt,weight);
       if(stepType==1) recoHist2->Fill(eta,phi,weight); 
       if(stepType==2) recoHist->Fill(centPU,weight);
+      if(stepType==3) recoHist->Fill(maxJetPt,weight);
       if(stepType==4) recoHist->Fill(eta,weight); 
+      if(stepType==5) recoHist->Fill(rmin,weight);
       if(stepType==6) recoHist->Fill(density,weight);
     }
 
@@ -124,13 +132,17 @@ void iterate(Settings s,int iter, int stepType)
   if(stepType==0) genHist = (TH1D*)histFile->Get("gen_pt");
   if(stepType==1) genHist2 = (TH2D*)histFile->Get("gen_accept"); 
   if(stepType==2) genHist = (TH1D*)histFile->Get("gen_centPU");
+  if(stepType==3) genHist = (TH1D*)histFile->Get("gen_maxJetPt");
   if(stepType==4) genHist = (TH1D*)histFile->Get("gen_eta"); 
+  if(stepType==5) genHist = (TH1D*)histFile->Get("gen_rmin"); 
   if(stepType==6) genHist = (TH1D*)histFile->Get("gen_density");
   std::cout << "Efficiency denominator histogram available now." << std::endl;
   if(stepType==0) recoHist = (TH1D*)histFile->Get("mreco_pt");
   if(stepType==1) recoHist2 = (TH2D*)histFile->Get("mreco_accept"); 
   if(stepType==2) recoHist = (TH1D*)histFile->Get("mreco_centPU");
+  if(stepType==3) recoHist = (TH1D*)histFile->Get("mreco_maxJetPt");
   if(stepType==4) recoHist = (TH1D*)histFile->Get("mreco_eta"); 
+  if(stepType==5) recoHist = (TH1D*)histFile->Get("mreco_rmin");
   if(stepType==6) recoHist = (TH1D*)histFile->Get("mreco_density");
   std::cout << "Fake denominator histogram available now." << std::endl;
 	   
@@ -144,7 +156,7 @@ void iterate(Settings s,int iter, int stepType)
   for(int i=0; i<iter; i++)
   {
     int type = s.stepOrder.at(i%s.nStep); 
-    if(type==0 || type==2 || type==4 || type == 6)
+    if(type==0 || type==2 || type==3 || type==4 || type==5 || type == 6)
     {
       previousEff[i] = (TH1D*)histFile->Get(Form("eff_step%d",i)); 
       previousFake[i] = (TH1D*)histFile->Get(Form("fake_step%d",i));
@@ -157,7 +169,7 @@ void iterate(Settings s,int iter, int stepType)
   }
 
   //setting up stuff for reading out of skim
-  if(stepType == 0 || stepType==2 || stepType==4 || stepType == 6)
+  if(stepType == 0 || stepType==2 || stepType==3 || stepType==4 || stepType==5 || stepType == 6)
   {
     mrecoHist = makeTH1(s,stepType,Form("mreco_eff_step%d",iter));
     frecoHist = makeTH1(s,stepType,Form("reco_fake_step%d",iter));
@@ -201,7 +213,9 @@ void iterate(Settings s,int iter, int stepType)
         if(type==0) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(pt));
         if(type==1) previousFakeCorr *= previousFake2[n]->GetBinContent(previousFake2[n]->GetXaxis()->FindBin(eta),previousFake2[n]->GetYaxis()->FindBin(phi));
         if(type==2) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(centPU));
+        if(type==3) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(maxJetPt));
         if(type==4) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(eta));
+        if(type==5) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(rmin));
         if(type==6) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(density));
       } 
     }
@@ -210,7 +224,9 @@ void iterate(Settings s,int iter, int stepType)
     if(stepType==0) frecoHist->Fill(pt,weight/previousFakeCorr);
     if(stepType==1) frecoHist2->Fill(eta,phi,weight/previousFakeCorr); 
     if(stepType==2) frecoHist->Fill(centPU,weight/previousFakeCorr);
+    if(stepType==3) frecoHist->Fill(maxJetPt,weight/previousFakeCorr);
     if(stepType==4) frecoHist->Fill(eta,weight/previousFakeCorr); 
+    if(stepType==5) frecoHist->Fill(rmin,weight/previousFakeCorr); 
     if(stepType==6) frecoHist->Fill(density,weight/previousFakeCorr);
 
     //eff part
@@ -223,7 +239,9 @@ void iterate(Settings s,int iter, int stepType)
         if(type==0) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(pt));
         if(type==1) previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(phi));
         if(type==2) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(centPU));
+        if(type==3) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(maxJetPt));
         if(type==4) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(eta));
+        if(type==5) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(rmin));
         if(type==6) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(density));
       } 
     }
@@ -232,7 +250,9 @@ void iterate(Settings s,int iter, int stepType)
     if(stepType==0) mrecoHist->Fill(pt,weight/previousEffCorr);
     if(stepType==1) mrecoHist2->Fill(eta,phi,weight/previousEffCorr); 
     if(stepType==2) mrecoHist->Fill(centPU,weight/previousEffCorr);
+    if(stepType==3) mrecoHist->Fill(maxJetPt,weight/previousEffCorr);
     if(stepType==4) mrecoHist->Fill(eta,weight/previousEffCorr); 
+    if(stepType==5) mrecoHist->Fill(rmin,weight/previousEffCorr); 
     if(stepType==6) mrecoHist->Fill(density,weight/previousEffCorr);
   }
   skim->Close();
@@ -240,7 +260,7 @@ void iterate(Settings s,int iter, int stepType)
   //saving reco and efficiencies 
   std::cout << "Calculating updated Efficiency/Fake Rate and saving histograms" << std::endl;
   histFile->cd();    
-  if(stepType==0 || stepType == 2 || stepType==4 || stepType==6)
+  if(stepType==0 || stepType == 2 || stepType == 3 || stepType==4 || stepType==5 || stepType==6)
   {
     divHist = (TH1D*)mrecoHist->Clone(Form("eff_step%d",iter));
     divHist->Divide(genHist);
@@ -271,12 +291,12 @@ void iterate(Settings s,int iter, int stepType)
   if(iter>=s.nStep*s.fullIterations && s.terminateStep==stepType)
   {
     std::cout << "Consolidating into final histograms by multiplying out efficiencies/fake rates per variable" << std::endl;
-    TH1D * finalEff[5], *finalFake[5];
-    TH2D * finalEff2[5], *finalFake2[5];
+    TH1D * finalEff[10], *finalFake[10];
+    TH2D * finalEff2[10], *finalFake2[10];
     for(int i=0; i<s.nStep; i++)
     {
       int type = s.stepOrder.at(i%s.nStep); 
-      if(type == 0 || type==2 || type==4 || type == 6)
+      if(type == 0 || type==2 || type==3 || type==4 || type==5 || type == 6)
       {
         finalEff[i] = (TH1D*)previousEff[i]->Clone(Form("finalEff_step%d",i));
         finalFake[i] = (TH1D*)previousFake[i]->Clone(Form("finalFake_step%d",i));
@@ -290,7 +310,7 @@ void iterate(Settings s,int iter, int stepType)
     for(int n = s.nStep; n<iter; n++)
     {
       int type2 = s.stepOrder.at(n%s.nStep);
-      if(type2==0)
+      if(type2==0 || type2==2 || type2==3 || type2==4 || type2==5 || type2==6)
       {
         finalEff[n%s.nStep]->Multiply(previousEff[n]);
         finalFake[n%s.nStep]->Multiply(previousFake[n]); 
@@ -300,23 +320,8 @@ void iterate(Settings s,int iter, int stepType)
         finalEff2[n%s.nStep]->Multiply(previousEff2[n]);
         finalFake2[n%s.nStep]->Multiply(previousFake2[n]); 
       }
-      if(type2==2)
-      {
-        finalEff[n%s.nStep]->Multiply(previousEff[n]);
-        finalFake[n%s.nStep]->Multiply(previousFake[n]); 
-      }
-      if(type2==4)
-      {
-        finalEff[n%s.nStep]->Multiply(previousEff[n]);
-        finalFake[n%s.nStep]->Multiply(previousFake[n]); 
-      }
-      if(type2==6)
-      {
-        finalEff[n%s.nStep]->Multiply(previousEff[n]); 
-        finalFake[n%s.nStep]->Multiply(previousFake[n]); 
-      }
     }  
-    if(stepType == 0 || stepType==2 || stepType==4 || stepType == 6)
+    if(stepType == 0 || stepType==2 || stepType==3 || stepType==4 || stepType==5 || stepType == 6)
     {
       finalEff[iter%s.nStep]->Multiply((TH1D*)histFile->Get(Form("eff_step%d",iter)));
       finalFake[iter%s.nStep]->Multiply((TH1D*)histFile->Get(Form("fake_step%d",iter)));
@@ -329,7 +334,7 @@ void iterate(Settings s,int iter, int stepType)
     for(int i=0; i<s.nStep; i++)
     {
       int type = s.stepOrder.at(i%s.nStep); 
-      if(type == 0 || type==2 || type==4 || type == 6){ finalEff[i]->Write(); finalFake[i]->Write();}
+      if(type == 0 || type==2 || type==3 || type==4 || type == 5|| type == 6){ finalEff[i]->Write(); finalFake[i]->Write();}
       if(type == 1){ finalEff2[i]->Write(); finalFake2[i]->Write();}
     }
   }

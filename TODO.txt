@@ -1,9 +1,7 @@
-Fix SEDTARGETDATE thing
 Change scratch to hadoop skimming location when putting on condor
 
-condor infrastructure
-fake/double reco/ secondary code
-job exit code
-jet information maybe?
-possible need to specify trkStatus for things?
+
+add evaluation tools
+what do do about empty bins/ fake rate <0, eff>1?
+double reco/ secondary code
 trkDensity fine binning added to config file (currently hardcoded in iterate.c)
