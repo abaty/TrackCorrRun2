@@ -2,8 +2,8 @@
 PbPb_TrkCorr_SEDTARGETDATE     #job name
 0                   #Reuse previous data skims?
 2                   #Number of Pb nuclei (0=pp, 1=pPb, 2=PbPb)
-1                   #Do Efficiency?
-0                   #Do Fake Rate?
+1                   #Do Efficiency? (Hardcoded to do it fow now)
+0                   #Do Fake Rate?  (Hardcoded to do it for now)
 0                   #Do Multiple Reco? (To Be done)
 0                   #Do Secondary? (To Be Done)
 
