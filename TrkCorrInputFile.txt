@@ -65,7 +65,7 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 #Advanced Settings
 #Algorithm properties
 3                # Number of steps
-1 6 0          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=nearest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
+1 6 0          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
 3                # Full iterations to run before terminating
 0                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
 akVs3Calo          # jet definition

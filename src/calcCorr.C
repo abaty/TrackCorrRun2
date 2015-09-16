@@ -41,7 +41,7 @@ void calcCorr(int job)
 
   //***********************************************************************************************
   // iteration procedure
-  std::cout << "Beginning iteration procedure..." << std::endl;
+  std::cout << "\nBeginning iteration procedure..." << std::endl;
   for(int i = 0; ; i++)
   {
     std::cout << "Starting iteration " << i << std::endl;
