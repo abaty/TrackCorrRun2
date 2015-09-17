@@ -127,20 +127,42 @@ void iterate(Settings s,int iter, int stepType)
       if(stepType==5) recoHist->Fill(rmin,weight);
       if(stepType==6) recoHist->Fill(density,weight);
     }
+    
+    //Secondary calculation (no iterations)
+    if(iter==0)
+    {
+      std::cout << "Quickly calculating the Secondary Rate from the reco tree (No further iterations needed)" << std::endl;
+      TH1D * Secondary_Matched = new TH1D("Secondary_Matched",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
+      TH1D * Secondary_Secondaries = new TH1D("Secondary_Secondaries",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
+      for(int i = 0; i<reco->GetEntries(); i++)
+      {
+        reco->GetEntry(i);
+        if(trkStatus>-100)
+        {
+          Secondary_Matched->Fill(pt,weight);
+          if(trkStatus==-99) Secondary_Secondaries->Fill(pt,weight);
+        }
+      }
+      TH1D * Secondary = (TH1D*)Secondary_Secondaries->Clone("SecondaryRate");
+      Secondary->Divide(Secondary_Matched);
+      Secondary->SetDirectory(histFile);
+      Secondary_Matched->SetDirectory(histFile);
+      Secondary_Secondaries->SetDirectory(histFile);
+    }//end Secondary Reco calculation
 
     //multiReco calculation (no iterations)
     if(iter==0)
     {
       std::cout << "Quickly calculating the Multiple Reconstruction Rate from the gen tree (No further iterations needed)" << std::endl;
-      TH1D * MultiGen = new TH1D("MultiGen",";pt;",s.multiRecoBins.at(s.job%s.nPtBinCoarse),s.ptMin,s.ptMax); 
-      TH1D * MultiReco = new TH1D("MultiMatchedReco",";pt;",s.multiRecoBins.at(s.job%s.nPtBinCoarse),s.ptMin,s.ptMax); 
+      TH1D * MultiGen = new TH1D("MultiGen",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
+      TH1D * MultiReco = new TH1D("MultiMatchedReco",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
       for(int i = 0; i<gen->GetEntries(); i++)
       {
         gen->GetEntry(i);
         if(pNRec>0)
         {
           MultiGen->Fill(pt,weight);
-          MultiReco->Fill(pt,pNRec*weight);
+          if(pNRec>1) MultiReco->Fill(pt,(pNRec-1)*weight);
         }
       }
       TH1D * Multi = (TH1D*)MultiReco->Clone("MultipleRecoRate");
