@@ -52,7 +52,7 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 //iteration code
 void iterate(Settings s,int iter, int stepType)
 {
-  float pt, eta, phi, density, weight, centPU, rmin, maxJetPt,trkStatus; 
+  float pt, eta, phi, density, weight, centPU, rmin, maxJetPt,trkStatus,pNRec; 
 
   std::cout << "Loading appropriate information for denominator (gen for efficiency, reco for fake)..." << std::endl;
   TFile * histFile;
@@ -89,7 +89,8 @@ void iterate(Settings s,int iter, int stepType)
     gen->SetBranchAddress("weight",&weight);
     gen->SetBranchAddress("centPU",&centPU);
     gen->SetBranchAddress("rmin",&rmin);
-    gen->SetBranchAddress("jtpt",&maxJetPt); 
+    gen->SetBranchAddress("jtpt",&maxJetPt);
+    gen->SetBranchAddress("pNRec",&pNRec); 
 	   
     for(int i = 0; i<gen->GetEntries(); i++)
     {
@@ -126,6 +127,28 @@ void iterate(Settings s,int iter, int stepType)
       if(stepType==5) recoHist->Fill(rmin,weight);
       if(stepType==6) recoHist->Fill(density,weight);
     }
+
+    //multiReco calculation (no iterations)
+    if(iter==0)
+    {
+      std::cout << "Quickly calculating the Multiple Reconstruction Rate from the gen tree (No further iterations needed)" << std::endl;
+      TH1D * MultiGen = new TH1D("MultiGen",";pt;",s.multiRecoBins.at(s.job%s.nPtBinCoarse),s.ptMin,s.ptMax); 
+      TH1D * MultiReco = new TH1D("MultiMatchedReco",";pt;",s.multiRecoBins.at(s.job%s.nPtBinCoarse),s.ptMin,s.ptMax); 
+      for(int i = 0; i<gen->GetEntries(); i++)
+      {
+        gen->GetEntry(i);
+        if(pNRec>0)
+        {
+          MultiGen->Fill(pt,weight);
+          MultiReco->Fill(pt,pNRec*weight);
+        }
+      }
+      TH1D * Multi = (TH1D*)MultiReco->Clone("MultipleRecoRate");
+      Multi->Divide(MultiGen);
+      Multi->SetDirectory(histFile);
+      MultiReco->SetDirectory(histFile);
+      MultiGen->SetDirectory(histFile);
+    }//end Multiple Reco calculation
 
     skim->Close();
     histFile->Write(); 

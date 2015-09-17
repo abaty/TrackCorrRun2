@@ -49,6 +49,7 @@ void makeSkim(Settings s)
   float genPt[100000];
   float genEta[100000];
   float genPhi[100000];
+  float pNRec[100000];
 
   //other parameters
   float localTrackDensity = 0;
@@ -80,6 +81,7 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("pPt",&genPt);
   trkCh->SetBranchAddress("pEta",&genEta);
   trkCh->SetBranchAddress("pPhi",&genPhi);
+  trkCh->SetBranchAddress("pNRec",&pNRec);
   
   //centrality and vz
   centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -106,7 +108,7 @@ void makeSkim(Settings s)
   //Setup output Ntuples
   std::string trackVars;
   std::string particleVars;
-  particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt";
+  particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt:pNRec";
   trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU:rmin:jtpt:trkStatus";
 
   //TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
@@ -124,9 +126,9 @@ void makeSkim(Settings s)
   //grid resolution is 0.025x0.02503 in eta x phi space
   TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
   
-  for(int i = 0; i<50000;i++)//trkCh->GetEntries(); i++)
+  for(int i = 0; i<trkCh->GetEntries(); i++)
   {
-    if(i%10000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
+    if(i%20000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
    
@@ -252,7 +254,7 @@ void makeSkim(Settings s)
       }
 
       localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
-      float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt};
+      float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt,pNRec[j]};
       gen->Fill(genEntry); 
     }
   densityMap->Reset();

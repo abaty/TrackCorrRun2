@@ -2,15 +2,15 @@
 PbPb_TrkCorr_SEDTARGETDATE     #job name
 0                   #Reuse previous data skims?
 2                   #Number of Pb nuclei (0=pp, 1=pPb, 2=PbPb)
-1                   #Do Efficiency?
-0                   #Do Fake Rate?
+1                   #Do Efficiency? (Hardcoded to do it fow now)
+0                   #Do Fake Rate?  (Hardcoded to do it for now)
 0                   #Do Multiple Reco? (To Be done)
 0                   #Do Secondary? (To Be Done)
 
 #Data event Cuts
 15                  # Window range in cm for vertex z cut (default is |vz|<15) (Might need to rethink vertex requirements and reweighting for high PU pp)
-1                  # Require data passing NoiseFilter? (Currently hardcoded to always be '1')
-1                  # Require data and MC passing pCollisionEventSelection? (Currently hardcoded to always be '1')
+1                  # Require data passing NoiseFilter?
+1                  # Require data passing pCollisionEventSelection?
 
 #MC and reweighting options
 7                   #Number of Input MC samples
@@ -45,17 +45,19 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 4                       # # of coarse Cent/PU Bins for the 4th coarse Trk Pt Bin
 0 10 20 50 100          # Cent/PU Bin Boundaries
 
-1000 1000 1000 1000           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
+100 100 100 100           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
 100 100 100 100               #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
 10 10 10 10                   #Event skip rates for 3rd pt bin and each Cent/PU Bin (speeds up computation)
 1 1 1 1                       #Event skip rates for 4th pt bin and each Cent/PU Bin (speeds up computation)
+
+2 4 2 1                       # Multiple Reco pt fine binning
 
 #Fine Binning Options
 10         #Pt Fine Binning
 20         #Eta Fine Binning
 20         #Phi Fine Binning
 10         #Cent Fine Binning
-10         #Jets Fine Binning
+10         #Jets Fine Binning (not implemented currently)
 
 #Track Quality Cuts
 1        #High Purity Definition (0 = none (bad), 1 = loose, 2 = tight) (To Be Done)
@@ -65,7 +67,7 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 #Advanced Settings
 #Algorithm properties
 3                # Number of steps
-1 6 0          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=nearest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
+1 6 0          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
 3                # Full iterations to run before terminating
 0                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
 akVs3Calo          # jet definition

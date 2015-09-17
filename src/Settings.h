@@ -24,6 +24,7 @@ class Settings {
    std::vector<std::string> MCFiles;
    std::string DataFile;
    std::vector<double> pthatBins, pthatCrossSection;
+   std::vector<int> multiRecoBins;
 
    int nPtBinCoarse, ptBinFine, etaBinFine, phiBinFine, centPUBinFine, jetBinFine;
    std::vector<double> ptBinCoarse;
@@ -139,6 +140,14 @@ Settings::Settings(std::string inputFile)
       eventSkip.push_back(tempVec);
       getline(f,Dump);   
     }
+    getline(f,Dump);
+    for(int i = 0; i<nPtBinCoarse; i++)
+    { 
+      int temp;
+      f >> temp;
+      multiRecoBins.push_back(temp);
+    } 
+    getline(f,Dump);   
     getline(f,Dump);   
     getline(f,Dump);    
     f >> ptBinFine; getline(f,Dump);
@@ -191,6 +200,10 @@ Settings::Settings(std::string inputFile)
       for(int j=0; j<nCentPUBinCoarse.at(i); j++) std::cout << eventSkip.at(i).at(j) << " ";
       std::cout << std::endl;
     }
+    for(int i = 0; i<nPtBinCoarse; i++){
+      std::cout << multiRecoBins.at(i)<< " ";
+    }
+    std::cout << std::endl;
     std::cout << ptBinFine << " " << etaBinFine << " " << phiBinFine << " " << centPUBinFine << " " << jetBinFine<<std::endl;
     std::cout << highPurityDef << " " << doCaloMatch << " " << doOtherCut << std::endl;
     std::cout << nStep << std::endl;
