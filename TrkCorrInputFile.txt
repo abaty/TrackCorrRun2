@@ -3,10 +3,10 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 0                   #Reuse previous data skims?
 2                   #Number of Pb nuclei (0=pp, 1=pPb, 2=PbPb)
 1                   #Do Efficiency? (Hardcoded to do it fow now)
-0                   #Do Fake Rate?  (Hardcoded to do it for now)
-0                   #Do Multiple Reco? (To Be done)
-0                   #Do Secondary? (To Be Done)
-1                   #Check Closures?
+1                   #Do Fake Rate?  (Hardcoded to do it for now)
+1                   #Do Multiple Reco? (Hardcoded to do it for now)
+1                   #Do Secondary? (Hardcoded to do it for now)
+1                   #Check Closures? (Hardcoded to do it for now)
 
 #Data event Cuts
 15                  # Window range in cm for vertex z cut (default is |vz|<15) (Might need to rethink vertex requirements and reweighting for high PU pp)
@@ -34,8 +34,8 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 /mnt/hadoop/cms/store/user/velicanu/HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4-merged/0.root                  # Data file to reweight the vertex to
 
 #Coarse Binning Options
-4                       # # of course Trk Pt Bins
-0.5 1 3 8 400           # Trk Pt Bin boundaries
+5                       # # of course Trk Pt Bins
+0.5 1 3 10 30 300           # Trk Pt Bin boundaries
 
 4                       # # of coarse Cent/PU Bins for the 1st coarse Trk Pt Bin
 0 10 20 50 100          # Cent/PU Bin Boundaries
@@ -45,13 +45,16 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 0 10 20 50 100          # Cent/PU Bin Boundaries
 4                       # # of coarse Cent/PU Bins for the 4th coarse Trk Pt Bin
 0 10 20 50 100          # Cent/PU Bin Boundaries
+4                       # # of coarse Cent/PU Bins for the 5th coarse Trk Pt Bin
+0 10 20 50 100          # Cent/PU Bin Boundaries
 
 100 100 100 100           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
 100 100 100 100               #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
 10 10 10 10                   #Event skip rates for 3rd pt bin and each Cent/PU Bin (speeds up computation)
 1 1 1 1                       #Event skip rates for 4th pt bin and each Cent/PU Bin (speeds up computation)
+1 1 1 1                       #Event skip rates for 5th pt bin and each Cent/PU Bin (speeds up computation)
 
-2 4 2 1                       # Multiple Reco and 2ndary pt fine binning
+2 4 2 1 1                      # Multiple Reco and 2ndary pt fine binning
 
 #Fine Binning Options
 10         #Pt Fine Binning
@@ -67,8 +70,8 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 
 #Advanced Settings
 #Algorithm properties
-3                # Number of steps
-1 0 6            # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
+4                # Number of steps
+0 2 1 6          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
 3                # Full iterations to run before terminating
 0                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
 akVs3Calo          # jet definition

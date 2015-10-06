@@ -35,7 +35,9 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
   if(stepType ==6)
   {
     const int densityBins = 25;
-    double densityAxis[densityBins+1]={0.0001,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,440,480,520,600,5000};
+    double densityAxis[densityBins+1]={0};
+    densityAxis[0]=0.0001; densityAxis[densityBins]=5000;
+    for(int i=i;i<densityBins;i++)  densityAxis[i]=i/(0.1*0.1*3.14159)+0.01;
     hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",densityBins,densityAxis);
   }
   return hist;
@@ -44,6 +46,7 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
 TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 {
   TH2D * hist;
+  if(s.ptMin>=10){s.etaBinFine = s.etaBinFine/2; s.phiBinFine = s.phiBinFine/2;}
   if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",s.etaBinFine,-2.4,2.4,s.phiBinFine,-TMath::Pi(),TMath::Pi());
   return hist;
 }
@@ -454,7 +457,6 @@ void iterate(Settings s,int iter, int stepType)
         if(type==5) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(rmin));
         if(type==6) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(density));
       }
-      if(i%10000==0) std::cout << "Fake: " <<previousFakeCorr << " Eff: " << previousEffCorr << std::endl;
       if(previousFakeCorr<1) previousFakeCorr==0;
       finalFakeClosure[0]->Fill(pt,weight/previousFakeCorr);
       finalFakeClosure2[1]->Fill(eta,phi,weight/previousFakeCorr); 

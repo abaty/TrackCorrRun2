@@ -120,13 +120,13 @@ void makeSkim(Settings s)
   //Actual skimming
   int processed = 0;
   //cone size for filling density map
-  float dMapR = 0.2;
+  float dMapR = 0.1;
   int nEtaBin = 192;
   int nPhiBin = 251;
   //grid resolution is 0.025x0.02503 in eta x phi space
   TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
   
-  for(int i = 0; i<100000;i++)//i<trkCh->GetEntries(); i++)
+  for(int i = 1600000; i<1630000;i++)//i<trkCh->GetEntries(); i++)
   {
     if(i%20000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
@@ -142,7 +142,7 @@ void makeSkim(Settings s)
       continue;
     }
     if(s.nPb==2) trkCh->GetEntry(i);
-    if(pcoll==0) continue;
+    if(pcoll==0 || pthat>800) continue;
   
     //getting weight parameters
     int centPU;
@@ -160,7 +160,7 @@ void makeSkim(Settings s)
     //Filling density histogram (keep all tracks, even not highPurity for this)
     for(int j = 0; j<nTrk; j++)
     {
-      if(TMath::Abs(trkEta[j])>2.4) continue;
+      if(TMath::Abs(trkEta[j])>2.4 || trkPt[j]<3) continue;
       //loop over strip in phi (have to be careful about the -pi to pi wrap around...)
       //for case where we don't have to worry about wrap around
       if(TMath::Pi()-TMath::Abs(trkPhi[j])>dMapR)
