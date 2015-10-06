@@ -53,34 +53,37 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 void iterate(Settings s,int iter, int stepType)
 {
   float pt, eta, phi, density, weight, centPU, rmin, maxJetPt,trkStatus,pNRec; 
-
-  std::cout << "Loading appropriate information for denominator (gen for efficiency, reco for fake)..." << std::endl;
+  
   TFile * histFile;
   if(iter==0) histFile = TFile::Open(Form("corrHists_job%d.root",s.job),"recreate");
   else        histFile = TFile::Open(Form("corrHists_job%d.root",s.job),"update");
-  TH1D * genHist, *recoHist;
-  TH2D * genHist2, *recoHist2;
 
   //make needed gen skim if it hasn't been done yet
-  if(iter<s.nStep)
+  if(iter==0)
   {
-    std::cout << "Denominator info not found, calculating and saving it..." << std::endl;
-    if(stepType == 0 || stepType==2 || stepType==3 || stepType == 4 || stepType==5 || stepType == 6) 
+    TH1D *genPre[20], *mrecoPre[20];
+    TH2D *genPre2[20], *mrecoPre2[20];
+    std::cout << "Denominator info not yet calculated; calculating and saving it..." << std::endl;
+    for(int i = 0; i<7; i++)
     {
-      genHist = makeTH1(s,stepType,"gen");
-      recoHist= makeTH1(s,stepType,"mreco");
+      if(i != 1)
+      {
+        genPre[i] = makeTH1(s,i,"gen");
+        mrecoPre[i] = makeTH1(s,i,"mreco");
+      }
+      else
+      {
+        genPre2[i] = makeTH2(s,i,"gen");
+        mrecoPre2[i]= makeTH2(s,i,"mreco");
+      }
     }
-    if(stepType == 1)
-    {
-      genHist2 = makeTH2(s,stepType,"gen");
-      recoHist2= makeTH2(s,stepType,"mreco");
-    }
-      
+   
     TFile * skim;
     //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
     //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
     skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
     //for efficiency
+    std::cout << "Doing Efficiency denominator" << std::endl;   
     TNtuple * gen = (TNtuple*)  skim->Get("Gen");
     gen->SetBranchAddress("genPt",&pt);
     gen->SetBranchAddress("genEta",&eta); 
@@ -95,16 +98,17 @@ void iterate(Settings s,int iter, int stepType)
     for(int i = 0; i<gen->GetEntries(); i++)
     {
       gen->GetEntry(i);
-      if(stepType==0) genHist->Fill(pt,weight);
-      if(stepType==1) genHist2->Fill(eta,phi,weight); 
-      if(stepType==2) genHist->Fill(centPU,weight);
-      if(stepType==3) genHist->Fill(maxJetPt,weight);
-      if(stepType==4) genHist->Fill(eta,weight); 
-      if(stepType==5) genHist->Fill(rmin,weight);
-      if(stepType==6) genHist->Fill(density,weight);
+      genPre[0]->Fill(pt,weight);
+      genPre2[1]->Fill(eta,phi,weight); 
+      genPre[2]->Fill(centPU,weight);
+      genPre[3]->Fill(maxJetPt,weight);
+      genPre[4]->Fill(eta,weight); 
+      genPre[5]->Fill(rmin,weight);
+      genPre[6]->Fill(density,weight);
     }
 
     //for fake
+    std::cout << "Doing Fake denominator" << std::endl;   
     TNtuple * reco = (TNtuple*)  skim->Get("Reco"); 
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);
@@ -119,79 +123,78 @@ void iterate(Settings s,int iter, int stepType)
     {
       reco->GetEntry(i);
       if(trkStatus<-100) continue;
-      if(stepType==0) recoHist->Fill(pt,weight);
-      if(stepType==1) recoHist2->Fill(eta,phi,weight); 
-      if(stepType==2) recoHist->Fill(centPU,weight);
-      if(stepType==3) recoHist->Fill(maxJetPt,weight);
-      if(stepType==4) recoHist->Fill(eta,weight); 
-      if(stepType==5) recoHist->Fill(rmin,weight);
-      if(stepType==6) recoHist->Fill(density,weight);
+      mrecoPre[0]->Fill(pt,weight);
+      mrecoPre2[1]->Fill(eta,phi,weight); 
+      mrecoPre[2]->Fill(centPU,weight);
+      mrecoPre[3]->Fill(maxJetPt,weight);
+      mrecoPre[4]->Fill(eta,weight); 
+      mrecoPre[5]->Fill(rmin,weight);
+      mrecoPre[6]->Fill(density,weight);
     }
-    
+  
     //Secondary calculation (no iterations)
-    if(iter==0)
+    std::cout << "Quickly calculating the Secondary Rate from the reco tree (No further iterations needed)" << std::endl;
+    TH1D * Secondary_Matched = new TH1D("Secondary_Matched",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
+    TH1D * Secondary_Secondaries = new TH1D("Secondary_Secondaries",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
+    for(int i = 0; i<reco->GetEntries(); i++)
     {
-      std::cout << "Quickly calculating the Secondary Rate from the reco tree (No further iterations needed)" << std::endl;
-      TH1D * Secondary_Matched = new TH1D("Secondary_Matched",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
-      TH1D * Secondary_Secondaries = new TH1D("Secondary_Secondaries",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
-      for(int i = 0; i<reco->GetEntries(); i++)
+      reco->GetEntry(i);
+      if(trkStatus>-100)
       {
-        reco->GetEntry(i);
-        if(trkStatus>-100)
-        {
-          Secondary_Matched->Fill(pt,weight);
-          if(trkStatus==-99) Secondary_Secondaries->Fill(pt,weight);
-        }
+        Secondary_Matched->Fill(pt,weight);
+        if(trkStatus==-99) Secondary_Secondaries->Fill(pt,weight);
       }
-      TH1D * Secondary = (TH1D*)Secondary_Secondaries->Clone("SecondaryRate");
-      Secondary->Divide(Secondary_Matched);
-      Secondary->SetDirectory(histFile);
-      Secondary_Matched->SetDirectory(histFile);
-      Secondary_Secondaries->SetDirectory(histFile);
-    }//end Secondary Reco calculation
+    }
+    TH1D * Secondary = (TH1D*)Secondary_Secondaries->Clone("SecondaryRate");
+    Secondary->Divide(Secondary_Matched);
+    Secondary->SetDirectory(histFile);
+    Secondary_Matched->SetDirectory(histFile);
+    Secondary_Secondaries->SetDirectory(histFile);
+    //end Secondary Reco calculation
 
     //multiReco calculation (no iterations)
-    if(iter==0)
+    std::cout << "Quickly calculating the Multiple Reconstruction Rate from the gen tree (No further iterations needed)" << std::endl;
+    TH1D * MultiGen = new TH1D("MultiGen",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
+    TH1D * MultiReco = new TH1D("MultiMatchedReco",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
+    for(int i = 0; i<gen->GetEntries(); i++)
     {
-      std::cout << "Quickly calculating the Multiple Reconstruction Rate from the gen tree (No further iterations needed)" << std::endl;
-      TH1D * MultiGen = new TH1D("MultiGen",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
-      TH1D * MultiReco = new TH1D("MultiMatchedReco",";pt;",s.multiRecoBins.at(s.job/s.nPtBinCoarse),s.ptMin,s.ptMax); 
-      for(int i = 0; i<gen->GetEntries(); i++)
+      gen->GetEntry(i);
+      if(pNRec>0)
       {
-        gen->GetEntry(i);
-        if(pNRec>0)
-        {
-          MultiGen->Fill(pt,weight);
-          if(pNRec>1) MultiReco->Fill(pt,(pNRec-1)*weight);
-        }
+        MultiGen->Fill(pt,weight);
+        if(pNRec>1) MultiReco->Fill(pt,(pNRec-1)*weight);
       }
-      TH1D * Multi = (TH1D*)MultiReco->Clone("MultipleRecoRate");
-      Multi->Divide(MultiGen);
-      Multi->SetDirectory(histFile);
-      MultiReco->SetDirectory(histFile);
-      MultiGen->SetDirectory(histFile);
-    }//end Multiple Reco calculation
+    }
+    TH1D * Multi = (TH1D*)MultiReco->Clone("MultipleRecoRate");
+    Multi->Divide(MultiGen);
+    Multi->SetDirectory(histFile);
+    MultiReco->SetDirectory(histFile);
+    MultiGen->SetDirectory(histFile);
+    //end Multiple Reco calculation
 
     skim->Close();
     histFile->Write(); 
   }
 	  
   //redundant for first step, but needed if the gen file was made and saved previously 
-  if(stepType==0) genHist = (TH1D*)histFile->Get("gen_pt");
-  if(stepType==1) genHist2 = (TH2D*)histFile->Get("gen_accept"); 
-  if(stepType==2) genHist = (TH1D*)histFile->Get("gen_centPU");
-  if(stepType==3) genHist = (TH1D*)histFile->Get("gen_maxJetPt");
-  if(stepType==4) genHist = (TH1D*)histFile->Get("gen_eta"); 
-  if(stepType==5) genHist = (TH1D*)histFile->Get("gen_rmin"); 
-  if(stepType==6) genHist = (TH1D*)histFile->Get("gen_density");
+  std::cout << "Loading appropriate information for denominator (gen for efficiency, reco for fake)..." << std::endl;
+  TH1D * genHist[20], *recoHist[20];
+  TH2D * genHist2[20], *recoHist2[20];
+  genHist[0] = (TH1D*)histFile->Get("gen_pt");
+  genHist2[1] = (TH2D*)histFile->Get("gen_accept"); 
+  genHist[2] = (TH1D*)histFile->Get("gen_centPU");
+  genHist[3] = (TH1D*)histFile->Get("gen_maxJetPt");
+  genHist[4] = (TH1D*)histFile->Get("gen_eta"); 
+  genHist[5] = (TH1D*)histFile->Get("gen_rmin"); 
+  genHist[6] = (TH1D*)histFile->Get("gen_density");
   std::cout << "Efficiency denominator histogram available now." << std::endl;
-  if(stepType==0) recoHist = (TH1D*)histFile->Get("mreco_pt");
-  if(stepType==1) recoHist2 = (TH2D*)histFile->Get("mreco_accept"); 
-  if(stepType==2) recoHist = (TH1D*)histFile->Get("mreco_centPU");
-  if(stepType==3) recoHist = (TH1D*)histFile->Get("mreco_maxJetPt");
-  if(stepType==4) recoHist = (TH1D*)histFile->Get("mreco_eta"); 
-  if(stepType==5) recoHist = (TH1D*)histFile->Get("mreco_rmin");
-  if(stepType==6) recoHist = (TH1D*)histFile->Get("mreco_density");
+  recoHist[0] = (TH1D*)histFile->Get("mreco_pt");
+  recoHist2[1] = (TH2D*)histFile->Get("mreco_accept"); 
+  recoHist[2] = (TH1D*)histFile->Get("mreco_centPU");
+  recoHist[3] = (TH1D*)histFile->Get("mreco_maxJetPt");
+  recoHist[4] = (TH1D*)histFile->Get("mreco_eta"); 
+  recoHist[5] = (TH1D*)histFile->Get("mreco_rmin");
+  recoHist[6] = (TH1D*)histFile->Get("mreco_density");
   std::cout << "Fake denominator histogram available now." << std::endl;
 	   
   //************************************************************************************************************
@@ -310,34 +313,35 @@ void iterate(Settings s,int iter, int stepType)
   if(stepType==0 || stepType == 2 || stepType == 3 || stepType==4 || stepType==5 || stepType==6)
   {
     divHist = (TH1D*)mrecoHist->Clone(Form("eff_step%d",iter));
-    divHist->Divide(genHist);
+    divHist->Divide(genHist[stepType]);
     mrecoHist->Write();
     divHist->Write();
     
     fdivHist = (TH1D*)frecoHist->Clone(Form("fake_step%d",iter));
-    fdivHist->Divide(recoHist);
+    fdivHist->Divide(recoHist[stepType]);
     frecoHist->Write();
     fdivHist->Write(); 
   }
   if(stepType==1)
   {
     divHist2 = (TH2D*)mrecoHist2->Clone(Form("eff_step%d",iter));
-    divHist2->Divide(genHist2);
+    divHist2->Divide(genHist2[stepType]);
     mrecoHist2->Write();
     divHist2->Write();
     
     fdivHist2 = (TH2D*)frecoHist2->Clone(Form("fake_step%d",iter));
-    fdivHist2->Divide(recoHist2);
+    fdivHist2->Divide(recoHist2[stepType]);
     frecoHist2->Write();
     fdivHist2->Write();
   }
   
   //*********************************************************************************************
   //*********************************************************************************************
-  //writing final correction tables (consolidating multiple steps of the same variable)
-  //once again 10 is an arbitrary number, increase if needed...
+  //Only executed on last step before exiting program
   if(iter>=s.nStep*s.fullIterations && s.terminateStep==stepType)
   {
+    //writing final correction tables (consolidating multiple steps of the same variable)
+    //once again 10 is an arbitrary number, increase if needed...
     std::cout << "Consolidating into final histograms by multiplying out efficiencies/fake rates per variable" << std::endl;
     TH1D * finalEff[10], *finalFake[10];
     TH2D * finalEff2[10], *finalFake2[10];
@@ -385,6 +389,110 @@ void iterate(Settings s,int iter, int stepType)
       if(type == 0 || type==2 || type==3 || type==4 || type == 5|| type == 6){ finalEff[i]->Write(); finalFake[i]->Write();}
       if(type == 1){ finalEff2[i]->Write(); finalFake2[i]->Write();}
     }
+   
+    //******************************************************************************************************* 
+    //writing calculating final closures in each variable checked after applying corrections
+    std::cout << "Calculating Final Closures..." << std::endl;
+    TH1D * finalEffClosure[10], *finalFakeClosure[10];
+    TH2D * finalEffClosure2[10], *finalFakeClosure2[10];
+    for(int i=0; i<7; i++)
+    {
+      int type = i;
+      if(type==0 || type==2 || type==3 || type==4 || type==5 || type == 6)
+      {
+        finalEffClosure[i] = (TH1D*)genHist[i]->Clone(Form("finalEffClosure_step%d",i));
+        finalFakeClosure[i] = (TH1D*)recoHist[i]->Clone(Form("finalFakeClosure_step%d",i));
+        finalEffClosure[i]->Reset();
+        finalFakeClosure[i]->Reset();
+      }
+      if(type==1)
+      {  
+        finalEffClosure2[i] = (TH2D*)genHist2[i]->Clone(Form("finalEffClosure_step%d",i));
+        finalFakeClosure2[i] = (TH2D*)recoHist2[i]->Clone(Form("finalFakeClosure_step%d",i));
+        finalEffClosure2[i]->Reset();
+        finalFakeClosure2[i]->Reset();
+      }
+    }
+    
+    //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+    //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+    skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+    reco = (TNtuple*)  skim->Get("Reco"); 
+    reco->SetBranchAddress("trkPt",&pt);
+    reco->SetBranchAddress("trkEta",&eta);
+    reco->SetBranchAddress("trkPhi",&phi);
+    reco->SetBranchAddress("trkDensity",&density);
+    reco->SetBranchAddress("weight",&weight);
+    reco->SetBranchAddress("centPU",&centPU);
+    reco->SetBranchAddress("rmin",&rmin);
+    reco->SetBranchAddress("jtpt",&maxJetPt);
+    reco->SetBranchAddress("trkStatus",&trkStatus);
+
+    //reading out of skim 
+    for(int i = 0; i<reco->GetEntries(); i++)
+    {
+      //applying efficiencies from all previous steps
+      float previousEffCorr = 1;
+      float previousFakeCorr = 1; 
+      reco->GetEntry(i);
+      for(int n=0; n<s.nStep; n++)//getting correction
+      {
+        int type = s.stepOrder.at(n%s.nStep);
+        if(type==0) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(pt));
+        if(type==1) previousEffCorr *= finalEff2[n]->GetBinContent(finalEff2[n]->GetXaxis()->FindBin(eta),finalEff2[n]->GetYaxis()->FindBin(phi));
+        if(type==2) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(centPU));
+        if(type==3) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(maxJetPt));
+        if(type==4) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(eta));
+        if(type==5) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(rmin));
+        if(type==6) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(density));
+        
+        if(type==0) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(pt));
+        if(type==1) previousFakeCorr *= finalFake2[n]->GetBinContent(finalFake2[n]->GetXaxis()->FindBin(eta),finalFake2[n]->GetYaxis()->FindBin(phi));
+        if(type==2) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(centPU));
+        if(type==3) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(maxJetPt));
+        if(type==4) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(eta));
+        if(type==5) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(rmin));
+        if(type==6) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(density));
+      }
+      if(i%10000==0) std::cout << "Fake: " <<previousFakeCorr << " Eff: " << previousEffCorr << std::endl;
+      if(previousFakeCorr<1) previousFakeCorr==0;
+      finalFakeClosure[0]->Fill(pt,weight/previousFakeCorr);
+      finalFakeClosure2[1]->Fill(eta,phi,weight/previousFakeCorr); 
+      finalFakeClosure[2]->Fill(centPU,weight/previousFakeCorr);
+      finalFakeClosure[3]->Fill(maxJetPt,weight/previousFakeCorr);
+      finalFakeClosure[4]->Fill(eta,weight/previousFakeCorr); 
+      finalFakeClosure[5]->Fill(rmin,weight/previousFakeCorr); 
+      finalFakeClosure[6]->Fill(density,weight/previousFakeCorr);
+      
+      if(trkStatus<0) continue;
+      if(previousEffCorr>1) previousEffCorr==1;
+      finalEffClosure[0]->Fill(pt,weight/previousEffCorr);
+      finalEffClosure2[1]->Fill(eta,phi,weight/previousEffCorr); 
+      finalEffClosure[2]->Fill(centPU,weight/previousEffCorr);
+      finalEffClosure[3]->Fill(maxJetPt,weight/previousEffCorr);
+      finalEffClosure[4]->Fill(eta,weight/previousEffCorr); 
+      finalEffClosure[5]->Fill(rmin,weight/previousEffCorr); 
+      finalEffClosure[6]->Fill(density,weight/previousEffCorr);
+    }
+    histFile->cd();
+    for(int i=0; i<7; i++)
+    {
+      if(i!=1)
+      {
+        finalFakeClosure[i]->Divide(recoHist[i]);
+        finalEffClosure[i]->Divide(genHist[i]);
+        finalFakeClosure[i]->Write();
+        finalEffClosure[i]->Write();
+      }
+      else
+      {
+        finalFakeClosure2[i]->Divide(recoHist2[i]);
+        finalEffClosure2[i]->Divide(genHist2[i]);
+        finalFakeClosure2[i]->Write();
+        finalEffClosure2[i]->Write();
+      }
+    }
+    std::cout << "Calculating Final Closures..." << std::endl;
   }
   histFile->Close();    
  

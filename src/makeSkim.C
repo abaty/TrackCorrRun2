@@ -149,7 +149,7 @@ void makeSkim(Settings s)
     if(s.nPb==2)
     {
       weight = getWeight(s,pthat,vz,hiBin);    
-      centPU = hiBin;
+      centPU = hiBin/2.0;
     }
     if(s.nPb==0) 
     {

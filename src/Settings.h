@@ -17,6 +17,7 @@ class Settings {
   //Settings that should be the same across all processes
    std::string jobName;
    bool reuseSkim;
+   bool checkClosure;
    int nPb, vz_window, nMC;
    bool doEff, doFake, doMult, doSecondary, doNoiseFilter, doPColl;
 
@@ -60,6 +61,7 @@ Settings::Settings(std::string inputFile)
     f >> doFake; getline(f,Dump);
     f >> doMult; getline(f,Dump);
     f >> doSecondary; getline(f,Dump);
+    f >> checkClosure; getline(f,Dump);
     getline(f,Dump);
     getline(f,Dump);
 
