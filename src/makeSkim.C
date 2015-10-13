@@ -47,8 +47,10 @@ void makeSkim(Settings s)
   //gen parameters
   int nParticle;
   float genPt[100000];
+  float mtrkPt[100000];
   float genEta[100000];
   float genPhi[100000];
+  int   mtrkQual[100000];
   float pNRec[100000];
 
   //other parameters
@@ -82,6 +84,8 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("pEta",&genEta);
   trkCh->SetBranchAddress("pPhi",&genPhi);
   trkCh->SetBranchAddress("pNRec",&pNRec);
+  trkCh->SetBranchAddress("mtrkPt",&mtrkPt);
+  trkCh->SetBranchAddress("mtrkQual",&mtrkQual);
   
   //centrality and vz
   centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -108,7 +112,7 @@ void makeSkim(Settings s)
   //Setup output Ntuples
   std::string trackVars;
   std::string particleVars;
-  particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt:pNRec";
+  particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual";
   trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU:rmin:jtpt:trkStatus";
 
   //TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
@@ -126,7 +130,7 @@ void makeSkim(Settings s)
   //grid resolution is 0.025x0.02503 in eta x phi space
   TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
   
-  for(int i = 1600000; i<1630000;i++)//i<trkCh->GetEntries(); i++)
+  for(int i = 0; i<100000; i++)//i<trkCh->GetEntries(); i++)
   {
     if(i%20000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
@@ -254,7 +258,7 @@ void makeSkim(Settings s)
       }
 
       localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
-      float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt,pNRec[j]};
+      float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j]};
       gen->Fill(genEntry); 
     }
   densityMap->Reset();

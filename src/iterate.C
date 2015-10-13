@@ -55,7 +55,7 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 //iteration code
 void iterate(Settings s,int iter, int stepType)
 {
-  float pt, eta, phi, density, weight, centPU, rmin, maxJetPt,trkStatus,pNRec; 
+  float pt, eta, phi, density, weight, centPU, rmin, maxJetPt,trkStatus,pNRec,mpt,mtrkQual; 
   
   TFile * histFile;
   if(iter==0) histFile = TFile::Open(Form("corrHists_job%d.root",s.job),"recreate");
@@ -82,9 +82,9 @@ void iterate(Settings s,int iter, int stepType)
     }
    
     TFile * skim;
-    if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-    else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-    //skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+    //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+    //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+    skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
     //for efficiency
     std::cout << "Doing Efficiency denominator" << std::endl;   
     TNtuple * gen = (TNtuple*)  skim->Get("Gen");
@@ -235,9 +235,9 @@ void iterate(Settings s,int iter, int stepType)
   }
 
   TFile * skim;
-  if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-  else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-  //skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+  //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+  //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+  skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
   TNtuple * reco = (TNtuple*)  skim->Get("Reco"); 
   reco->SetBranchAddress("trkPt",&pt);
   reco->SetBranchAddress("trkEta",&eta);
@@ -281,9 +281,30 @@ void iterate(Settings s,int iter, int stepType)
     if(stepType==4) frecoHist->Fill(eta,weight/previousFakeCorr); 
     if(stepType==5) frecoHist->Fill(rmin,weight/previousFakeCorr); 
     if(stepType==6) frecoHist->Fill(density,weight/previousFakeCorr);
+  }
+  
+  //eff part
+  TNtuple * gen = (TNtuple*)  skim->Get("Gen");
+  gen->SetBranchAddress("genPt",&pt);
+  gen->SetBranchAddress("genEta",&eta); 
+  gen->SetBranchAddress("genPhi",&phi);
+  gen->SetBranchAddress("genDensity",&density);
+  gen->SetBranchAddress("weight",&weight);
+  gen->SetBranchAddress("centPU",&centPU);
+  gen->SetBranchAddress("rmin",&rmin);
+  gen->SetBranchAddress("jtpt",&maxJetPt);
+  gen->SetBranchAddress("pNRec",&pNRec); 
+  gen->SetBranchAddress("mtrkPt",&mpt);
+  gen->SetBranchAddress("mtrkQual",&mtrkQual); 
 
-    //eff part
-    if(trkStatus<0) continue;
+  //reading out of skim 
+  for(int i = 0; i<gen->GetEntries(); i++)
+  {
+    //applying efficiencies from all previous steps
+    float previousEffCorr = 1;
+    float previousFakeCorr = 1; 
+    gen->GetEntry(i);
+    if(mtrkQual<1 || mpt<=0) continue;
     if(iter!=0)
     {
       for(int n = 0; n<iter; n++)
@@ -417,9 +438,9 @@ void iterate(Settings s,int iter, int stepType)
       }
     }
     
-    if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-    else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-    //skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+    //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+    //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+    skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
     reco = (TNtuple*)  skim->Get("Reco"); 
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);
@@ -435,9 +456,48 @@ void iterate(Settings s,int iter, int stepType)
     for(int i = 0; i<reco->GetEntries(); i++)
     {
       //applying efficiencies from all previous steps
-      float previousEffCorr = 1;
       float previousFakeCorr = 1; 
       reco->GetEntry(i);
+      for(int n=0; n<s.nStep; n++)//getting correction
+      {
+        int type = s.stepOrder.at(n%s.nStep);
+        if(type==0) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(pt));
+        if(type==1) previousFakeCorr *= finalFake2[n]->GetBinContent(finalFake2[n]->GetXaxis()->FindBin(eta),finalFake2[n]->GetYaxis()->FindBin(phi));
+        if(type==2) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(centPU));
+        if(type==3) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(maxJetPt));
+        if(type==4) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(eta));
+        if(type==5) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(rmin));
+        if(type==6) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(density));
+      }
+      if(previousFakeCorr<1) previousFakeCorr==1;
+      finalFakeClosure[0]->Fill(pt,weight/previousFakeCorr);
+      finalFakeClosure2[1]->Fill(eta,phi,weight/previousFakeCorr); 
+      finalFakeClosure[2]->Fill(centPU,weight/previousFakeCorr);
+      finalFakeClosure[3]->Fill(maxJetPt,weight/previousFakeCorr);
+      finalFakeClosure[4]->Fill(eta,weight/previousFakeCorr); 
+      finalFakeClosure[5]->Fill(rmin,weight/previousFakeCorr); 
+      finalFakeClosure[6]->Fill(density,weight/previousFakeCorr);  
+    }
+  
+    gen = (TNtuple*)  skim->Get("Gen");
+    gen->SetBranchAddress("genPt",&pt);
+    gen->SetBranchAddress("genEta",&eta); 
+    gen->SetBranchAddress("genPhi",&phi);
+    gen->SetBranchAddress("genDensity",&density);
+    gen->SetBranchAddress("weight",&weight);
+    gen->SetBranchAddress("centPU",&centPU);
+    gen->SetBranchAddress("rmin",&rmin);
+    gen->SetBranchAddress("jtpt",&maxJetPt);
+    gen->SetBranchAddress("pNRec",&pNRec); 
+    gen->SetBranchAddress("mtrkPt",&mpt);
+    gen->SetBranchAddress("mtrkQual",&mtrkQual); 
+    //reading out of skim 
+    for(int i = 0; i<gen->GetEntries(); i++)
+    {
+      //applying efficiencies from all previous steps
+      float previousEffCorr = 1;
+      gen->GetEntry(i);
+      if(mtrkQual<1 || mpt<=0) continue;
       for(int n=0; n<s.nStep; n++)//getting correction
       {
         int type = s.stepOrder.at(n%s.nStep);
@@ -447,26 +507,8 @@ void iterate(Settings s,int iter, int stepType)
         if(type==3) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(maxJetPt));
         if(type==4) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(eta));
         if(type==5) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(rmin));
-        if(type==6) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(density));
-        
-        if(type==0) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(pt));
-        if(type==1) previousFakeCorr *= finalFake2[n]->GetBinContent(finalFake2[n]->GetXaxis()->FindBin(eta),finalFake2[n]->GetYaxis()->FindBin(phi));
-        if(type==2) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(centPU));
-        if(type==3) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(maxJetPt));
-        if(type==4) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(eta));
-        if(type==5) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(rmin));
-        if(type==6) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(density));
+        if(type==6) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(density));  
       }
-      if(previousFakeCorr<1) previousFakeCorr==0;
-      finalFakeClosure[0]->Fill(pt,weight/previousFakeCorr);
-      finalFakeClosure2[1]->Fill(eta,phi,weight/previousFakeCorr); 
-      finalFakeClosure[2]->Fill(centPU,weight/previousFakeCorr);
-      finalFakeClosure[3]->Fill(maxJetPt,weight/previousFakeCorr);
-      finalFakeClosure[4]->Fill(eta,weight/previousFakeCorr); 
-      finalFakeClosure[5]->Fill(rmin,weight/previousFakeCorr); 
-      finalFakeClosure[6]->Fill(density,weight/previousFakeCorr);
-      
-      if(trkStatus<0) continue;
       if(previousEffCorr>1) previousEffCorr==1;
       finalEffClosure[0]->Fill(pt,weight/previousEffCorr);
       finalEffClosure2[1]->Fill(eta,phi,weight/previousEffCorr); 
@@ -476,6 +518,7 @@ void iterate(Settings s,int iter, int stepType)
       finalEffClosure[5]->Fill(rmin,weight/previousEffCorr); 
       finalEffClosure[6]->Fill(density,weight/previousEffCorr);
     }
+
     histFile->cd();
     for(int i=0; i<7; i++)
     {
