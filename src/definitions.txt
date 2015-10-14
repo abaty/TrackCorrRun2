@@ -10,7 +10,7 @@ Secondary is the ratio of matched 2ndary tracks to all matched tracks (>0 but sm
 
 Fake Rate is defined as the ratio of all reco'd tracks to all reco'd tracks w/ any gen particle matched to it (should be above 1)
 
-Multiple reco is the number of reco'd tracks that are matched to an already 'taken' gen track, divided by the number of gen particles having matched tracks (should be >=0 and is usually tiny)
+Multiple reco is the number of reco'd tracks that are matched to an already 'taken' gen track, divided by the number of gen particles (should be >=0 and is usually tiny)
 
 
 
@@ -18,5 +18,5 @@ The total correction is then
 
 measured/Fake = measured spectra that would be matched
 measured*(1-Secondary)/(Fake) = measured spectra that would be primary matched
-measured*(1-Secondary)/(Fake*(1+Multiple)) =  measured spectra that is primary matched and not a result of multiple reco
+measured*(1-Secondary)/(Fake*Eff) =  gen spectra that is primary matched with multi Reco
 measured*(1-Secondary)/(Fake*(1+Multiple)*Eff) = corrected to the 'gen spectra'
