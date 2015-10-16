@@ -14,7 +14,7 @@ class TrkCorr{
     void UpdateEventInfo();
     double getTrkCorr();
     const int nFiles = 20;
-    const int nSteps = 20;
+    const int nSteps = 4;
 
   private:
     double getArea();
@@ -56,14 +56,24 @@ void TrkCorr::TrkCorr()
     f[i] = TFile::Open(Form("trkCorrections/corrHists_job%d",i),"read");
     for(int j = 0; j<nSteps; j++)
     {
-      eff[i][j] = (TH1D*)f[i]->Get(Form(,j));
-      eff[i][j]->SetDirectory(0);
-      fake[i][j]= (TH1D*)f[i]->Get(Form(,j));
-      eff[i][j]->SetDirectory(0);
+      if(j!=1)
+      {
+        eff[i][j] = (TH1D*)f[i]->Get(Form("finalEff_step%d",j));
+        eff[i][j]->SetDirectory(0);
+        fake[i][j]= (TH1D*)f[i]->Get(Form("finalFake_step%d",j));
+        fake[i][j]->SetDirectory(0);
+      }
+      else 
+      {
+        eff2[i][j] = (TH1D*)f[i]->Get(Form("finalEff_step%d",j));
+        eff2[i][j]->SetDirectory(0);
+        fake2[i][j]= (TH1D*)f[i]->Get(Form("finalFake_step%d",j));
+        fake2[i][j]->SetDirectory(0);
+      }
     }
-    secondary[i] = (TH1D*)f[i]->Get();
+    secondary[i] = (TH1D*)f[i]->Get("SecondaryRate");
     secondary[i]->SetDirectory(0);
-    multiple[i] = (TH1D*)f[i]->Get();
+    multiple[i] = (TH1D*)f[i]->Get("MultipleRecoRate");
     multiple[i]->SetDirectory(0);
     f[i]->Close();
   }
@@ -99,7 +109,7 @@ void TrkCorr::UpdateEventInfo(TTree* trkTree, int evtNumber, bool resetTree)
 }
 
 //updating the event by event properties (centrality, local density, jets, etc)
-void TrkCorr::UpdateEventInfo(float *pt, float *eta, float *phi, bool *highPurity, int nTrk)
+void TrkCorr::UpdateEventInfo(float *pt, float *eta, float *phi, bool *highPurity, int nTrk=0)
 {
   localDensity->Reset();
 
@@ -146,7 +156,19 @@ void TrkCorr::UpdateEventInfo(float *pt, float *eta, float *phi, bool *highPurit
 
 double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBinPU)
 {
+  if(pt>0.5){  std::cout << "\nPt less than 500 MeV, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1};
+  if(eta<-2.4 || eta>2.4){  std::cout << "\nEta outside of |2.4|, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1};
+  if(hiBin<0 || hiBin>200){  std::cout << "\nhiBin not within 0 to 200, please place a cut to prevent this.  Returning a correction of 1" << std::endl; return1;}
+  
+  float eff = 1;
+  float fake = 1;
+  float sec = 0;
+  float mult = 0; 
 
+  if(fake<1) fake==1;
+  if(eff>1)  eff==1;
+
+  return (1.0-sec)/(eff*fake*(1+mult)); 
 }
 
 void TrkCorr::~TrkCorr()
