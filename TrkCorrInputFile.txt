@@ -48,8 +48,8 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 4                       # # of coarse Cent/PU Bins for the 5th coarse Trk Pt Bin
 0 10 20 50 100          # Cent/PU Bin Boundaries
 
-100 100 100 100           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
-100 100 100 100               #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
+50 50 50 50           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
+50 50 50 50               #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
 10 10 10 10                   #Event skip rates for 3rd pt bin and each Cent/PU Bin (speeds up computation)
 1 1 1 1                       #Event skip rates for 4th pt bin and each Cent/PU Bin (speeds up computation)
 1 1 1 1                       #Event skip rates for 5th pt bin and each Cent/PU Bin (speeds up computation)

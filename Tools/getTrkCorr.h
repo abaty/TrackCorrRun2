@@ -14,7 +14,7 @@
 class TrkCorr{
   public:
     void UpdateEventInfo(TTree* trkTree, int evtNumber, bool resetTree=0);
-    void UpdateEventInfo(float *pt, float *eta, float *phi, bool *highPurity, int nTrk);
+    void UpdateEventInfo(float *pt, float *eta, float *phi, int nTrk);
     double getTrkCorr(float pt, float eta, float phi, int hiBin);
     TrkCorr();
     ~TrkCorr();    
