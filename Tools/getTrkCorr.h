@@ -9,15 +9,21 @@
 #include "TTree.h"
 #include <iostream>
 
+//written for implementing a specific PbPb mode; nFiles, nSteps, and the names of historgams might need to be changed if another training is used...
+
 class TrkCorr{
   public:
-    void UpdateEventInfo();
-    double getTrkCorr();
-    const int nFiles = 20;
-    const int nSteps = 4;
+    void UpdateEventInfo(TTree* trkTree, int evtNumber, bool resetTree=0);
+    void UpdateEventInfo(float *pt, float *eta, float *phi, bool *highPurity, int nTrk);
+    double getTrkCorr(float pt, float eta, float phi, int hiBin);
+    TrkCorr();
+    ~TrkCorr();    
 
   private:
-    double getArea();
+    const static int nFiles = 20;
+    const static int nSteps = 4;
+    
+    double getArea(double eta1, double R);
 
     TH2D * localDensity;
     TH1D *       eff[nFiles][nSteps];
@@ -40,23 +46,23 @@ class TrkCorr{
     int nPhiBin;
 };
 
-void TrkCorr::TrkCorr()
+TrkCorr::TrkCorr()
 {
   std::cout << "Initializing tracking correction files..." << std::endl;
-  bool hasTree = false;
+  hasTree = false;
 
-  float dMapR = 0.1;
-  int nEtaBin = 192;
-  int nPhiBin = 251;
+  dMapR = 0.1;
+  nEtaBin = 192;
+  nPhiBin = 251;
   localDensity = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
 
   TFile * f[nFiles];
   for(int i = 0; i<nFiles; i++)
   {
-    f[i] = TFile::Open(Form("trkCorrections/corrHists_job%d",i),"read");
+    f[i] = TFile::Open(Form("trkCorrections/corrHists_job%d.root",i),"read");
     for(int j = 0; j<nSteps; j++)
     {
-      if(j!=1)
+      if(j!=2)
       {
         eff[i][j] = (TH1D*)f[i]->Get(Form("finalEff_step%d",j));
         eff[i][j]->SetDirectory(0);
@@ -65,9 +71,9 @@ void TrkCorr::TrkCorr()
       }
       else 
       {
-        eff2[i][j] = (TH1D*)f[i]->Get(Form("finalEff_step%d",j));
+        eff2[i][j] = (TH2D*)f[i]->Get(Form("finalEff_step%d",j));
         eff2[i][j]->SetDirectory(0);
-        fake2[i][j]= (TH1D*)f[i]->Get(Form("finalFake_step%d",j));
+        fake2[i][j]= (TH2D*)f[i]->Get(Form("finalFake_step%d",j));
         fake2[i][j]->SetDirectory(0);
       }
     }
@@ -104,12 +110,12 @@ void TrkCorr::UpdateEventInfo(TTree* trkTree, int evtNumber, bool resetTree)
     trkTree_->SetBranchAddress("highPurity",&highPurity_);
     hasTree = 1;
   }
-  _trkTree->GetEntry(evtNumber);
-  TrkCorr::UpdateEventInfo(&pt_,&eta_,&phi_,&highPurity_,nTrk_);
+  trkTree_->GetEntry(evtNumber);
+  TrkCorr::UpdateEventInfo(pt_,eta_,phi_,highPurity_,nTrk_);
 }
 
 //updating the event by event properties (centrality, local density, jets, etc)
-void TrkCorr::UpdateEventInfo(float *pt, float *eta, float *phi, bool *highPurity, int nTrk=0)
+void TrkCorr::UpdateEventInfo(float pt[], float eta[], float phi[], bool highPurity[], int nTrk)
 {
   localDensity->Reset();
 
@@ -121,57 +127,88 @@ void TrkCorr::UpdateEventInfo(float *pt, float *eta, float *phi, bool *highPurit
     //for case where we don't have to worry about wrap around
     if(TMath::Pi()-TMath::Abs(phi[j])>dMapR)
     {
-      for(int phi = localDensity->GetYaxis()->FindBin(phi[j]-dMapR); phi<=localDensity->GetYaxis()->FindBin(phi[j]+dMapR); phi++)
+      for(int phi_iter = localDensity->GetYaxis()->FindBin(phi[j]-dMapR); phi_iter<=localDensity->GetYaxis()->FindBin(phi[j]+dMapR); phi_iter++)
       {
-        float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi))),2),0.5);
+        float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi_iter))),2),0.5);
         //loop over the eta bins needed
-        for(int eta = localDensity->GetXaxis()->FindBin(eta[j]-dEtaMax); eta<=localDensity->GetXaxis()->FindBin(eta[j]+dEtaMax); eta++)
+        for(int eta_iter = localDensity->GetXaxis()->FindBin(eta[j]-dEtaMax); eta_iter<=localDensity->GetXaxis()->FindBin(eta[j]+dEtaMax); eta_iter++)
         {
-          if(TMath::Power(eta[j]-localDensity->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) localDensity->SetBinContent(eta,phi,localDensity->GetBinContent(eta,phi)+1); 
+          if(TMath::Power(eta[j]-localDensity->GetXaxis()->GetBinCenter(eta_iter),2)+TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi_iter))),2)<dMapR*dMapR ) localDensity->SetBinContent(eta_iter,phi_iter,localDensity->GetBinContent(eta_iter,phi_iter)+1); 
         }
       }
     }
     else
     //for case with -pi and pi wrap around 
-    for(int phi = 1; phi<=localDensity->GetYaxis()->FindBin(phi[j]+dMapR-(phi[j]>0?2*TMath::Pi():0)); phi++) 
+    for(int phi_iter = 1; phi_iter<=localDensity->GetYaxis()->FindBin(phi[j]+dMapR-(phi[j]>0?2*TMath::Pi():0)); phi_iter++) 
     {
       //loop over the eta bins needed
-      float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi))),2),0.5);
-      for(int eta = localDensity->GetXaxis()->FindBin(eta[j]-dEtaMax); eta<=localDensity->GetXaxis()->FindBin(eta[j]+dEtaMax); eta++)
+      float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi_iter))),2),0.5);
+      for(int eta_iter = localDensity->GetXaxis()->FindBin(eta[j]-dEtaMax); eta_iter<=localDensity->GetXaxis()->FindBin(eta[j]+dEtaMax); eta_iter++)
       {
-        if(TMath::Power(eta[j]-localDensity->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) localDensity->SetBinContent(eta,phi,localDensity->GetBinContent(eta,phi)+1); 
+        if(TMath::Power(eta[j]-localDensity->GetXaxis()->GetBinCenter(eta_iter),2)+TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi_iter))),2)<dMapR*dMapR ) localDensity->SetBinContent(eta_iter,phi_iter,localDensity->GetBinContent(eta_iter,phi_iter)+1); 
       }
     }
-    for(int phi = localDensity->GetYaxis()->FindBin(phi[j]-dMapR+(phi[j]<0?2*TMath::Pi():0)); phi<=nPhiBin; phi++) 
+    for(int phi_iter = localDensity->GetYaxis()->FindBin(phi[j]-dMapR+(phi[j]<0?2*TMath::Pi():0)); phi_iter<=nPhiBin; phi_iter++) 
     {  
       //loop over the eta bins needed
-      float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi))),2),0.5);
-      for(int eta = localDensity->GetXaxis()->FindBin(eta[j]-dEtaMax); eta<=localDensity->GetXaxis()->FindBin(eta[j]+dEtaMax); eta++)
+      float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi_iter))),2),0.5);
+      for(int eta_iter = localDensity->GetXaxis()->FindBin(eta[j]-dEtaMax); eta_iter<=localDensity->GetXaxis()->FindBin(eta[j]+dEtaMax); eta_iter++)
       {
-        if(TMath::Power(eta[j]-localDensity->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) localDensity->SetBinContent(eta,phi,localDensity->GetBinContent(eta,phi)+1); 
+        if(TMath::Power(eta[j]-localDensity->GetXaxis()->GetBinCenter(eta_iter),2)+TMath::Power(TMath::ACos(TMath::Cos(phi[j]-localDensity->GetYaxis()->GetBinCenter(phi_iter))),2)<dMapR*dMapR ) localDensity->SetBinContent(eta_iter,phi_iter,localDensity->GetBinContent(eta_iter,phi_iter)+1); 
       }
     }
   }
 }
 
-double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBinPU)
+double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin)
 {
-  if(pt>0.5){  std::cout << "\nPt less than 500 MeV, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1};
-  if(eta<-2.4 || eta>2.4){  std::cout << "\nEta outside of |2.4|, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1};
-  if(hiBin<0 || hiBin>200){  std::cout << "\nhiBin not within 0 to 200, please place a cut to prevent this.  Returning a correction of 1" << std::endl; return1;}
+  if(pt<0.5 || pt>=300){  std::cout << "\nPt less than 500 MeV or > 300 GeV, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1;}
+  if(eta<-2.4 || eta>2.4){  std::cout << "\nEta outside of |2.4|, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1;}
+  if(hiBin<0 || hiBin>199){  std::cout << "\nhiBin not within 0 to 200, please place a cut to prevent this.  Returning a correction of 1" << std::endl; return 1;}
   
-  float eff = 1;
-  float fake = 1;
-  float sec = 0;
-  float mult = 0; 
+  float netEff = 1;
+  float netFake = 1;
+  float netSec = 0;
+  float netMult = 0; 
 
-  if(fake<1) fake==1;
-  if(eff>1)  eff==1;
+  float density = localDensity->GetBinContent(localDensity->GetXaxis()->FindBin(eta), localDensity->GetYaxis()->FindBin(phi))/getArea(eta,dMapR);
+ 
+  //calculating what file to take corrections out of 
+  int coarseBin = 0;
+  int cent = hiBin/2;
+  if(cent>=10 && cent<20) coarseBin = coarseBin+1;
+  else if(cent>=20 && cent<50) coarseBin = coarseBin+2;
+  else if(cent>=50 && cent<100) coarseBin = coarseBin+3;
+  if(pt>=1 && pt<3) coarseBin = coarseBin+4;
+  else if(pt>=3 && pt<10) coarseBin = coarseBin+8;
+  else if(pt>=10 && pt<30) coarseBin = coarseBin+12;
+  else if(pt>=30 && pt<300) coarseBin = coarseBin+16;
+  //end bin calculation
+  
+  netMult = multiple[coarseBin]->GetBinContent(multiple[coarseBin]->FindBin(pt));
+  
+  netSec  = secondary[coarseBin]->GetBinContent(secondary[coarseBin]->FindBin(pt));
 
-  return (1.0-sec)/(eff*fake*(1+mult)); 
+  netEff *= eff[coarseBin][0]->GetBinContent(eff[coarseBin][0]->FindBin(pt));
+  netEff *= eff[coarseBin][1]->GetBinContent(eff[coarseBin][1]->FindBin(cent));
+  netEff *= eff2[coarseBin][2]->GetBinContent(eff2[coarseBin][2]->GetXaxis()->FindBin(eta),eff2[coarseBin][2]->GetYaxis()->FindBin(phi));
+  netEff *= eff[coarseBin][3]->GetBinContent(eff[coarseBin][3]->FindBin(density));
+  
+  netFake *= fake[coarseBin][0]->GetBinContent(fake[coarseBin][0]->FindBin(pt));
+  netFake *= fake[coarseBin][1]->GetBinContent(fake[coarseBin][1]->FindBin(cent));
+  netFake *= fake2[coarseBin][2]->GetBinContent(fake2[coarseBin][2]->GetXaxis()->FindBin(eta),fake2[coarseBin][2]->GetYaxis()->FindBin(phi));
+  netFake *= fake[coarseBin][3]->GetBinContent(fake[coarseBin][3]->FindBin(density));
+
+  if(netFake<1) netFake = 1;
+  if(netEff>1)  netEff = 1;
+
+
+  std::cout << "Efficiency: " << netEff << "\nFake Rate: " << (1-1./netFake) << "\nSecondary Rate: " << netSec << "\nMultiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
+
+  return (1.0-netSec)/(netEff*netFake*(1+netMult)); 
 }
 
-void TrkCorr::~TrkCorr()
+TrkCorr::~TrkCorr()
 {
   delete localDensity;
 }
