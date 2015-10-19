@@ -161,10 +161,10 @@ void makeSkim(Settings s)
       centPU = nVtx;
     }
 
-    //Filling density histogram (using highPurity tracks>3GeV)
+    //Filling density histogram (using all (even fakes) tracks>3GeV)
     for(int j = 0; j<nTrk; j++)
     {
-      if(TMath::Abs(trkEta[j])>2.4 || trkPt[j]<3 || highPurity[j]!=1) continue;
+      if(TMath::Abs(trkEta[j])>2.4 || trkPt[j]<3) continue;
       //loop over strip in phi (have to be careful about the -pi to pi wrap around...)
       //for case where we don't have to worry about wrap around
       if(TMath::Pi()-TMath::Abs(trkPhi[j])>dMapR)

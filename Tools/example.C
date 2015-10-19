@@ -1,24 +1,37 @@
 #include "getTrkCorr.h"
+#include "TFile.h"
+#include "TTree.h"
 #include <iostream>
 
 int example()
 {
  TrkCorr t;
  
- float pt[1000];
- float eta[1000];
- float phi[1000];
- bool highPurity[1000];
- int nTrk = 100;
+ float pt[100000];
+ float eta[100000];
+ float phi[100000];
+ int nTrk = -1;
+ int hiBin = -1;
 
- for(int i = 0; i<1000; i++)
+ TFile * f = TFile::Open("/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat220_Track9_Jet30_matchEqR_merged_forest_0.root","read");
+ TTree * tree = (TTree*)f->Get("anaTrack/trackTree");
+ tree->SetBranchAddress("trkPt",&pt);
+ tree->SetBranchAddress("trkEta",&eta);
+ tree->SetBranchAddress("trkPhi",&phi);
+ tree->SetBranchAddress("nTrk",&nTrk);
+ TTree * hi = (TTree*)f->Get("hiEvtAnalyzer/HiTree");
+ hi->SetBranchAddress("hiBin",&hiBin);
+ tree->AddFriend(hi);
+
+ for(int i = 0; i<5; i++)
  {
-   pt[i] = 0.5+i/10.0;
-   eta[i] = -2+i/100.0;
-   phi[i] = -2+i/100.0;
-   highPurity[i] = true;
+   tree->GetEntry(i);
+   t.UpdateEventInfo(pt,eta,phi,nTrk);
+   for(int j=0; j<nTrk; j++)
+   {
+     if(j>10) break;
+     std::cout << i << " " << j << " " << t.getTrkCorr(pt[j],eta[j],phi[j],hiBin) <<"\n"<< std::endl;
+   }
  }
 
- t.UpdateEventInfo(pt,eta,phi,highPurity,101);
- std::cout <<  t.getTrkCorr(0.5,1,-2,30) << std::endl;
 }

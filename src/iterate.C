@@ -36,8 +36,8 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
   {
     const int densityBins = 25;
     double densityAxis[densityBins+1]={0};
-    densityAxis[0]=0.0001; densityAxis[densityBins]=5000;
-    for(int i=i;i<densityBins;i++)  densityAxis[i]=i/(0.1*0.1*3.14159)+0.01;
+    densityAxis[0]=0; density[1]=0.001; densityAxis[densityBins]=5000;
+    for(int i=2;i<densityBins;i++)  densityAxis[i-1]=(i-1)/(0.1*0.1*3.14159)+0.001;
     hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",densityBins,densityAxis);
   }
   return hist;
