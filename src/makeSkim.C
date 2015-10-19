@@ -164,7 +164,7 @@ void makeSkim(Settings s)
     //Filling density histogram (using all (even fakes) tracks>3GeV)
     for(int j = 0; j<nTrk; j++)
     {
-      if(TMath::Abs(trkEta[j])>2.4 || trkPt[j]<3) continue;
+      if(TMath::Abs(trkEta[j])>2.4 || trkPt[j]<=3) continue;
       //loop over strip in phi (have to be careful about the -pi to pi wrap around...)
       //for case where we don't have to worry about wrap around
       if(TMath::Pi()-TMath::Abs(trkPhi[j])>dMapR)
@@ -223,7 +223,7 @@ void makeSkim(Settings s)
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
-      if(trkPt[j]<s.ptMin || trkPt[j]>s.ptMax) continue;
+      if(trkPt[j]=<s.ptMin || trkPt[j]>s.ptMax) continue;
 
       //find rmin parameters for the track
       float rmin = 999;
@@ -232,7 +232,7 @@ void makeSkim(Settings s)
         if(jtpt[k]<50) break;
         if(TMath::Abs(jteta[k])>2) continue;
         float R = TMath::Power(jteta[k]-trkEta[j],2) + TMath::Power(jtphi[k]-trkPhi[j],2);
-        if(rmin*rmin>R*R) rmin=R;
+        if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
       localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(trkEta[j]),densityMap->GetYaxis()->FindBin(trkPhi[j]))/getArea(trkEta[j],dMapR);
@@ -254,7 +254,7 @@ void makeSkim(Settings s)
         if(jtpt[k]<50) break;
         if(TMath::Abs(jteta[k])>2) continue;
         float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(jtphi[k]-genPhi[j],2);
-        if(rmin*rmin>R*R) rmin=R;
+        if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
       localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);

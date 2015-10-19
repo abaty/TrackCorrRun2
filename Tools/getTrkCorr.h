@@ -96,7 +96,7 @@ void TrkCorr::UpdateEventInfo(float pt[], float eta[], float phi[], int nTrk)
   //Filling density histogram (tracks with >3 GeV)
   for(int j = 0; j<nTrk; j++)
   {
-    if(TMath::Abs(eta[j])>2.4 || pt[j]<3) continue;
+    if(TMath::Abs(eta[j])>2.4 || pt[j]<=3) continue;
     //loop over strip in phi (have to be careful about the -pi to pi wrap around...)
     //for case where we don't have to worry about wrap around
     if(TMath::Pi()-TMath::Abs(phi[j])>dMapR)
