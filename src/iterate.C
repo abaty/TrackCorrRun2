@@ -29,17 +29,17 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
   if(stepType ==3) hist = new TH1D(Form("%s_maxJetPt",titlePrefix),";jtpt;",30,0,300); 
   if(stepType ==4) hist = new TH1D(Form("%s_eta",titlePrefix),";eta;",s.etaBinFine,-2.4,2.4);
 
-  const int rminBins = 21;
-  double rminBinning[rminBins+1] = {0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7,0.8,0.9,1,1.2,1.4,1.6,2,3,10};
+  const int rminBins = 16;
+  double rminBinning[rminBins+1] = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.2,1.4,1.6,2,3,10};
   if(stepType ==5) hist = new TH1D(Form("%s_rmin",titlePrefix),";rmin;",rminBins,rminBinning);
   if(stepType ==6)
   {
     const int densityBins = 10;
     double R = 0.1;
     double densityAxis[densityBins+1]={0};
-    densityAxis[0]=0; density[1]=1.0/(R*R*TMath::Pi()*2)-0.0001; densityAxis[densityBins]=100000;
-    for(int i=2;i<7;i++)  densityAxis[i]=(i-1)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
-    for(int i=7;i<densityBins;i++)  densityAxis[i]=(2*i-7)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
+    densityAxis[0]=0; densityAxis[1]=1.0/(R*R*TMath::Pi()*2)-0.0001; densityAxis[densityBins]=100000;
+    for(int i=2;i<6;i++)  densityAxis[i]=(i-1)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
+    for(int i=6;i<densityBins;i++)  densityAxis[i]=(2*i-6)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
     hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",densityBins,densityAxis);
   }
   return hist;

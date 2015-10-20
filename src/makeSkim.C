@@ -223,7 +223,7 @@ void makeSkim(Settings s)
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
-      if(trkPt[j]=<s.ptMin || trkPt[j]>s.ptMax) continue;
+      if(trkPt[j]<=s.ptMin || trkPt[j]>s.ptMax) continue;
 
       //find rmin parameters for the track
       float rmin = 999;

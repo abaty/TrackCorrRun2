@@ -41,6 +41,7 @@ g++ calcCorr.C $(root-config --cflags --libs) -Wall -O2 -o "calcCorr.exe"
 #g++ calcCorr.C $(root-config --cflags --libs) -Werror -Wall -O2 -o "calcCorr.exe"
 echo finished compilation
 echo
+sleep 1
 cat run.condor
 echo 
 echo running prepStep in 10s
