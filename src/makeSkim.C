@@ -85,8 +85,9 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("pPhi",&genPhi);
   trkCh->SetBranchAddress("pNRec",&pNRec);
   trkCh->SetBranchAddress("mtrkPt",&mtrkPt);
-  trkCh->SetBranchAddress("mtrkQual",&mtrkQual);
-  
+//  trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
+  trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
+
   //centrality and vz
   centCh = new TChain("hiEvtAnalyzer/HiTree");
   for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
@@ -115,8 +116,8 @@ void makeSkim(Settings s)
   particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual";
   trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU:rmin:jtpt:trkStatus";
 
-  TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
-  //TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
+  //TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
+  TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
 
@@ -130,9 +131,9 @@ void makeSkim(Settings s)
   //grid resolution is 0.025x0.02503 in eta x phi space
   TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
   
-  for(int i = 0; i<trkCh->GetEntries(); i++)
+  for(int i = 0; i<10000; i++)//trkCh->GetEntries(); i++)
   {
-    if(i%20000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
+    if(i%2000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
    

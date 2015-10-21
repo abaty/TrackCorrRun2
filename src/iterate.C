@@ -50,6 +50,13 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
   TH2D * hist;
   if(s.ptMin>=10){s.etaBinFine = s.etaBinFine/2; s.phiBinFine = s.phiBinFine/2;}
   if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",s.etaBinFine,-2.4,2.4,s.phiBinFine,-TMath::Pi(),TMath::Pi());
+  if(stepType ==7)
+  {
+    const int ptBins = s.ptBinFine+1;
+    double ptAxis[ptBins];
+    for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
+    hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",s.etaBinFine,-2.4,2.4,ptBins,s.ptMin,s.ptMax);
+  }
   return hist;
 }
 
@@ -69,9 +76,9 @@ void iterate(Settings s,int iter, int stepType)
     TH1D *genPre[20], *mrecoPre[20];
     TH2D *genPre2[20], *mrecoPre2[20];
     std::cout << "Denominator info not yet calculated; calculating and saving it..." << std::endl;
-    for(int i = 0; i<7; i++)
+    for(int i = 0; i<8; i++)
     {
-      if(i != 1)
+      if(i != 1 && i!=7)
       {
         genPre[i] = makeTH1(s,i,"gen");
         mrecoPre[i] = makeTH1(s,i,"mreco");
@@ -84,9 +91,9 @@ void iterate(Settings s,int iter, int stepType)
     }
    
     TFile * skim;
-    if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-    else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-    //skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+    //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+    //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+    skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
     //for efficiency
     std::cout << "Doing Efficiency denominator" << std::endl;   
     TNtuple * gen = (TNtuple*)  skim->Get("Gen");
@@ -110,6 +117,7 @@ void iterate(Settings s,int iter, int stepType)
       genPre[4]->Fill(eta,weight); 
       genPre[5]->Fill(rmin,weight);
       genPre[6]->Fill(density,weight);
+      genPre2[7]->Fill(eta,pt,weight);
     }
 
     //for fake
@@ -135,6 +143,7 @@ void iterate(Settings s,int iter, int stepType)
       mrecoPre[4]->Fill(eta,weight); 
       mrecoPre[5]->Fill(rmin,weight);
       mrecoPre[6]->Fill(density,weight);
+      mrecoPre2[7]->Fill(eta,pt,weight);
     }
   
     //Secondary calculation (no iterations)
@@ -192,6 +201,7 @@ void iterate(Settings s,int iter, int stepType)
   genHist[4] = (TH1D*)histFile->Get("gen_eta"); 
   genHist[5] = (TH1D*)histFile->Get("gen_rmin"); 
   genHist[6] = (TH1D*)histFile->Get("gen_density");
+  genHist2[7] = (TH2D*)histFile->Get("gen_etaPt");
   std::cout << "Efficiency denominator histogram available now." << std::endl;
   recoHist[0] = (TH1D*)histFile->Get("mreco_pt");
   recoHist2[1] = (TH2D*)histFile->Get("mreco_accept"); 
@@ -200,6 +210,7 @@ void iterate(Settings s,int iter, int stepType)
   recoHist[4] = (TH1D*)histFile->Get("mreco_eta"); 
   recoHist[5] = (TH1D*)histFile->Get("mreco_rmin");
   recoHist[6] = (TH1D*)histFile->Get("mreco_density");
+  recoHist2[7] = (TH2D*)histFile->Get("mreco_etaPt");
   std::cout << "Fake denominator histogram available now." << std::endl;
 	   
   //************************************************************************************************************
@@ -217,7 +228,7 @@ void iterate(Settings s,int iter, int stepType)
       previousEff[i] = (TH1D*)histFile->Get(Form("eff_step%d",i)); 
       previousFake[i] = (TH1D*)histFile->Get(Form("fake_step%d",i));
     }
-    if(type==1)
+    if(type==1 || type==7)
     {  
       previousEff2[i] = (TH2D*)histFile->Get(Form("eff_step%d",i)); 
       previousFake2[i] = (TH2D*)histFile->Get(Form("fake_step%d",i));
@@ -230,16 +241,16 @@ void iterate(Settings s,int iter, int stepType)
     mrecoHist = makeTH1(s,stepType,Form("mreco_eff_step%d",iter));
     frecoHist = makeTH1(s,stepType,Form("reco_fake_step%d",iter));
   }
-  if(stepType == 1)
+  if(stepType == 1 || stepType == 1)
   {
     mrecoHist2 = makeTH2(s,stepType,Form("mreco_eff_step%d",iter));
     frecoHist2 = makeTH2(s,stepType,Form("reco_fake_step%d",iter));
   }
 
   TFile * skim;
-  if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-  else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-  //skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+  //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+  //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+  skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
   TNtuple * reco = (TNtuple*)  skim->Get("Reco"); 
   reco->SetBranchAddress("trkPt",&pt);
   reco->SetBranchAddress("trkEta",&eta);
@@ -272,6 +283,7 @@ void iterate(Settings s,int iter, int stepType)
         if(type==4) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(eta));
         if(type==5) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(rmin));
         if(type==6) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(density));
+        if(type==7) previousFakeCorr *= previousFake2[n]->GetBinContent(previousFake2[n]->GetXaxis()->FindBin(eta),previousFake2[n]->GetYaxis()->FindBin(pt));
       } 
     }
     if(previousFakeCorr==0) std::cout <<  "\nWarning!!! A correction is going to infinity.  This usually indicates an empty bin somewhere, try using a coarser binning or more events! \n" << std::endl;
@@ -283,6 +295,7 @@ void iterate(Settings s,int iter, int stepType)
     if(stepType==4) frecoHist->Fill(eta,weight/previousFakeCorr); 
     if(stepType==5) frecoHist->Fill(rmin,weight/previousFakeCorr); 
     if(stepType==6) frecoHist->Fill(density,weight/previousFakeCorr);
+    if(stepType==7) frecoHist2->Fill(eta,pt,weight/previousFakeCorr);
   }
   
   //eff part
@@ -319,6 +332,7 @@ void iterate(Settings s,int iter, int stepType)
         if(type==4) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(eta));
         if(type==5) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(rmin));
         if(type==6) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(density));
+        if(type==7) previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(pt));
       } 
     }
     if(previousEffCorr==0) std::cout <<  "\nWarning!!! A correction is going to infinity.  This usually indicates an empty bin somewhere, try using a coarser binning or more events! \n" << std::endl; 
@@ -330,6 +344,7 @@ void iterate(Settings s,int iter, int stepType)
     if(stepType==4) mrecoHist->Fill(eta,weight/previousEffCorr); 
     if(stepType==5) mrecoHist->Fill(rmin,weight/previousEffCorr); 
     if(stepType==6) mrecoHist->Fill(density,weight/previousEffCorr);
+    if(stepType==7) mrecoHist2->Fill(eta,pt,weight/previousEffCorr);
   }
   skim->Close();
  
@@ -348,7 +363,7 @@ void iterate(Settings s,int iter, int stepType)
     frecoHist->Write();
     fdivHist->Write(); 
   }
-  if(stepType==1)
+  if(stepType==1 || stepType==7)
   {
     divHist2 = (TH2D*)mrecoHist2->Clone(Form("eff_step%d",iter));
     divHist2->Divide(genHist2[stepType]);
@@ -379,7 +394,7 @@ void iterate(Settings s,int iter, int stepType)
         finalEff[i] = (TH1D*)previousEff[i]->Clone(Form("finalEff_step%d",i));
         finalFake[i] = (TH1D*)previousFake[i]->Clone(Form("finalFake_step%d",i));
       }
-      if(type == 1)
+      if(type == 1 ||  type==7)
       {
         finalEff2[i] = (TH2D*)previousEff2[i]->Clone(Form("finalEff_step%d",i));
         finalFake2[i] = (TH2D*)previousFake2[i]->Clone(Form("finalFake_step%d",i));
@@ -393,7 +408,7 @@ void iterate(Settings s,int iter, int stepType)
         finalEff[n%s.nStep]->Multiply(previousEff[n]);
         finalFake[n%s.nStep]->Multiply(previousFake[n]); 
       }
-      if(type2==1)
+      if(type2==1 || type2==7)
       {
         finalEff2[n%s.nStep]->Multiply(previousEff2[n]);
         finalFake2[n%s.nStep]->Multiply(previousFake2[n]); 
@@ -404,7 +419,7 @@ void iterate(Settings s,int iter, int stepType)
       finalEff[iter%s.nStep]->Multiply((TH1D*)histFile->Get(Form("eff_step%d",iter)));
       finalFake[iter%s.nStep]->Multiply((TH1D*)histFile->Get(Form("fake_step%d",iter)));
     }
-    if(stepType == 1)
+    if(stepType == 1 || stepType == 7)
     {
       finalEff2[iter%s.nStep]->Multiply((TH2D*)histFile->Get(Form("eff_step%d",iter)));
       finalFake2[iter%s.nStep]->Multiply((TH2D*)histFile->Get(Form("fake_step%d",iter)));
@@ -413,7 +428,7 @@ void iterate(Settings s,int iter, int stepType)
     {
       int type = s.stepOrder.at(i%s.nStep); 
       if(type == 0 || type==2 || type==3 || type==4 || type == 5|| type == 6){ finalEff[i]->Write(); finalFake[i]->Write();}
-      if(type == 1){ finalEff2[i]->Write(); finalFake2[i]->Write();}
+      if(type == 1 || type == 7){ finalEff2[i]->Write(); finalFake2[i]->Write();}
     }
    
     //******************************************************************************************************* 
@@ -421,7 +436,7 @@ void iterate(Settings s,int iter, int stepType)
     std::cout << "Calculating Final Closures..." << std::endl;
     TH1D * finalEffClosure[10], *finalFakeClosure[10];
     TH2D * finalEffClosure2[10], *finalFakeClosure2[10];
-    for(int i=0; i<7; i++)
+    for(int i=0; i<8; i++)
     {
       int type = i;
       if(type==0 || type==2 || type==3 || type==4 || type==5 || type == 6)
@@ -431,7 +446,7 @@ void iterate(Settings s,int iter, int stepType)
         finalEffClosure[i]->Reset();
         finalFakeClosure[i]->Reset();
       }
-      if(type==1)
+      if(type==1 || type==7)
       {  
         finalEffClosure2[i] = (TH2D*)genHist2[i]->Clone(Form("finalEffClosure_step%d",i));
         finalFakeClosure2[i] = (TH2D*)recoHist2[i]->Clone(Form("finalFakeClosure_step%d",i));
@@ -439,10 +454,11 @@ void iterate(Settings s,int iter, int stepType)
         finalFakeClosure2[i]->Reset();
       }
     }
-    
-    if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-    else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-    //skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+   
+ 
+    //if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+    //else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+    skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
     reco = (TNtuple*)  skim->Get("Reco"); 
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);
@@ -470,6 +486,7 @@ void iterate(Settings s,int iter, int stepType)
         if(type==4) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(eta));
         if(type==5) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(rmin));
         if(type==6) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(density));
+        if(type==7) previousFakeCorr *= finalFake2[n]->GetBinContent(finalFake2[n]->GetXaxis()->FindBin(eta),finalFake2[n]->GetYaxis()->FindBin(pt));
       }
       if(previousFakeCorr<1) previousFakeCorr==1;
       finalFakeClosure[0]->Fill(pt,weight/previousFakeCorr);
@@ -479,6 +496,7 @@ void iterate(Settings s,int iter, int stepType)
       finalFakeClosure[4]->Fill(eta,weight/previousFakeCorr); 
       finalFakeClosure[5]->Fill(rmin,weight/previousFakeCorr); 
       finalFakeClosure[6]->Fill(density,weight/previousFakeCorr);  
+      finalFakeClosure2[7]->Fill(eta,pt,weight/previousFakeCorr);  
     }
   
     gen = (TNtuple*)  skim->Get("Gen");
@@ -510,6 +528,7 @@ void iterate(Settings s,int iter, int stepType)
         if(type==4) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(eta));
         if(type==5) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(rmin));
         if(type==6) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(density));  
+        if(type==7) previousEffCorr *= finalEff2[n]->GetBinContent(finalEff2[n]->GetXaxis->FindBin(eta), finalEff2[n]->GetYaxis()->FindBin(pt));  
       }
       if(previousEffCorr>1) previousEffCorr==1;
       finalEffClosure[0]->Fill(pt,weight/previousEffCorr);
@@ -519,12 +538,13 @@ void iterate(Settings s,int iter, int stepType)
       finalEffClosure[4]->Fill(eta,weight/previousEffCorr); 
       finalEffClosure[5]->Fill(rmin,weight/previousEffCorr); 
       finalEffClosure[6]->Fill(density,weight/previousEffCorr);
+      finalEffClosure2[7]->Fill(eta,pt,weight/previousEffCorr);
     }
 
     histFile->cd();
-    for(int i=0; i<7; i++)
+    for(int i=0; i<8; i++)
     {
-      if(i!=1)
+      if(i!=1 && i!=7)
       {
         finalFakeClosure[i]->Divide(recoHist[i]);
         finalEffClosure[i]->Divide(genHist[i]);
