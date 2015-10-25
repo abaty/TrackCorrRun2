@@ -13,9 +13,8 @@
 
 class TrkCorr{
   public:
-    void UpdateEventInfo(TTree* trkTree, int evtNumber, bool resetTree=0);
     void UpdateEventInfo(float *pt, float *eta, float *phi, int nTrk);
-    double getTrkCorr(float pt, float eta, float phi, int hiBin);
+    double getTrkCorr(float pt, float eta, float phi, int hiBin, int correction=0);
     TrkCorr();
     ~TrkCorr();    
 
@@ -134,7 +133,8 @@ void TrkCorr::UpdateEventInfo(float pt[], float eta[], float phi[], int nTrk)
   }
 }
 
-double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin)
+//correction=0 is total, 1 is eff, 2 is fake, 3 is second, 4 is mult
+double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin, int correction)
 {
   if(pt<0.5 || pt>=300){  std::cout << "\nPt less than 500 MeV or > 300 GeV, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1;}
   if(eta<-2.4 || eta>2.4){  std::cout << "\nEta outside of |2.4|, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1;}
@@ -182,7 +182,11 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin)
   std::cout << "Secondary Rate: " <<  netSec << std::endl;
   std::cout << "Multiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
 
-  return (1.0-netSec)/(netEff*netFake*(1+netMult)); 
+  if(correction==1) return 1/(netEff);
+  else if(correction==2) return 1/(netFake);
+  else if(correction==3) return 1-netSec;
+  else if(correction==4) return 1/(1+netMult);
+  else return (1.0-netSec)/(netEff*netFake*(1+netMult)); 
 }
 
 TrkCorr::~TrkCorr()
