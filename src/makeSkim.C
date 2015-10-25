@@ -116,8 +116,8 @@ void makeSkim(Settings s)
   particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual";
   trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU:rmin:jtpt:trkStatus";
 
-  //TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
-  TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
+  TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
+  //TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
 

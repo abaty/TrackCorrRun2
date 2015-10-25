@@ -14,20 +14,17 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 1                  # Require data passing pCollisionEventSelection?
 
 #MC and reweighting options
-7                   #Number of Input MC samples
-/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat30_Track9_Jet30_matchEqR_merged_forest_0.root              #List of MC samples
-/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat50_Track9_Jet30_matchEqR_merged_forest_0.root
-/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat80_Track9_Jet30_matchEqR_merged_forest_0.root
-/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat120_Track9_Jet30_matchEqR_merged_forest_0.root
-/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat220_Track9_Jet30_matchEqR_merged_forest_0.root
-/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat280_Track9_Jet30_matchEqR_merged_forest_0.root
-/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat370_Track9_Jet30_matchEqR_merged_forest_0.root
+4                   #Number of Input MC samples
+/mnt/hadoop/cms/store/user/dgulhan/mergedForest/hiForest_HydjetNcoll_Pyquen_DiJet_pt80to9999_5020GeV/hiForest_HydjetNcoll_Pyquen_DiJet_pt80to9999_5020GeV_cfi_753_patch1_750reco_nophoton_v2.root              #List of MC samples
+/mnt/hadoop/cms/store/user/dgulhan/hiForest_HydjetNcoll_Pyquen_DiJet_pt120to9999_5020GeV_cfi_750_run2_mc_HIon_BS_calomatching/HydjetNcoll_Pyquen_DiJet_pt120to9999_5020GeV_cfi_GEN_SIM_750_run2_mc_HIon_BS_v2_merged_forest_2_0.root
+/mnt/hadoop/cms/store/user/dgulhan/hiForest_HydjetNcoll_Pyquen_DiJet_pt220to9999_5020GeV_cfi_750_run2_mc_HIon_BS_calomatching/hiForest_HydjetNcoll_Pyquen_DiJet_pt220to9999_5020GeV_cfi_750_run2_mc_HIon_BS_calomatching_merged_forest_3_0.root
+/mnt/hadoop/cms/store/user/dgulhan/hiForest_HydjetNcoll_Pyquen_DiJet_pt370to9999_5020GeV_cfi_750_run2_mc_HIon_BS_CS_calomatching/hiForest_HydjetNcoll_Pyquen_DiJet_pt370to9999_5020GeV_cfi_750_run2_mc_HIon_BS_CS_calomatching_merged_forest_4_0.root
 
 
 
 1                       # Do pthat reweighting?
-30 50 80 120 220 280 370 1000000     # (N+1) pthat Boundaries for (N) MC samples; (for pthat reweighting)
-0.009725 9.26E-4 8.736e-5 1.1e-5 2.3047e-7 4.729e-8 5.934E-09             # Total MC cross section for each pthat interval (For the interval pthat(N) to pthat(N+1)!!! NOT for pthat(N) to infinity)
+80 120 220 370 1000000     # (N+1) pthat Boundaries for (N) MC samples; (for pthat reweighting)
+3.797E-04 5.899E-05 2.368E-06  1.088E-07             # Total MC cross section for each pthat interval (For the interval pthat(N) to pthat(N+1)!!! NOT for pthat(N) to infinity)
 
 1                       # Do vertex reweighting?
 1                       # Do Centrality/PU reweighting (Cent for PbPb, PU for pp, none for pPb)
@@ -48,9 +45,9 @@ PbPb_TrkCorr_SEDTARGETDATE     #job name
 4                       # # of coarse Cent/PU Bins for the 5th coarse Trk Pt Bin
 0 10 20 50 100          # Cent/PU Bin Boundaries
 
-10 10 10 10           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
-10 10 10 10               #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
-2 2 2 2                   #Event skip rates for 3rd pt bin and each Cent/PU Bin (speeds up computation)
+1 1 1 1           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
+1 1 1 1               #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
+1 1 1 1                   #Event skip rates for 3rd pt bin and each Cent/PU Bin (speeds up computation)
 1 1 1 1                       #Event skip rates for 4th pt bin and each Cent/PU Bin (speeds up computation)
 1 1 1 1                       #Event skip rates for 5th pt bin and each Cent/PU Bin (speeds up computation)
 
