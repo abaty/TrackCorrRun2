@@ -4,6 +4,7 @@
 #include "TFile.h"
 #include "TNtuple.h"
 #include "TMath.h"
+#include "HistogramMaker.h"
 #include <iostream>
 
 
@@ -241,7 +242,7 @@ void iterate(Settings s,int iter, int stepType)
     mrecoHist = makeTH1(s,stepType,Form("mreco_eff_step%d",iter));
     frecoHist = makeTH1(s,stepType,Form("reco_fake_step%d",iter));
   }
-  if(stepType == 1 || stepType == 1)
+  if(stepType == 1 || stepType == 7)
   {
     mrecoHist2 = makeTH2(s,stepType,Form("mreco_eff_step%d",iter));
     frecoHist2 = makeTH2(s,stepType,Form("reco_fake_step%d",iter));

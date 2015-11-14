@@ -40,7 +40,6 @@ class TrkCorr{
 TrkCorr::TrkCorr()
 {
   std::cout << "Initializing tracking correction files..." << std::endl;
-
   dMapR = 0.1;
   nEtaBin = 192;
   nPhiBin = 251;
@@ -67,8 +66,8 @@ TrkCorr::TrkCorr()
         fake2[i][j]->SetDirectory(0);
       }
     }
-    secondary[i] = (TH1D*)f[i]->Get("SecondaryRate");
-    secondary[i]->SetDirectory(0);
+//    secondary[i] = (TH1D*)f[i]->Get("SecondaryRate");
+//    secondary[i]->SetDirectory(0);
     multiple[i] = (TH1D*)f[i]->Get("MultipleRecoRate");
     multiple[i]->SetDirectory(0);
     f[i]->Close();
@@ -90,7 +89,6 @@ double TrkCorr::getArea(double eta1, double R)
 //updating the event by event properties (centrality, local density, jets, etc)
 void TrkCorr::UpdateEventInfo(float pt[], float eta[], float phi[], int nTrk)
 {
-  localDensity->Reset();
 
   //Filling density histogram (tracks with >3 GeV)
   for(int j = 0; j<nTrk; j++)
@@ -133,6 +131,7 @@ void TrkCorr::UpdateEventInfo(float pt[], float eta[], float phi[], int nTrk)
   }
 }
 
+
 //correction=0 is total, 1 is eff, 2 is fake, 3 is second, 4 is mult
 double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin, int correction)
 {
@@ -158,11 +157,10 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin, int correc
   else if(pt>=10 && pt<30) coarseBin = coarseBin+12;
   else if(pt>=30 && pt<300) coarseBin = coarseBin+16;
   //end bin calculation
-  
+ 
   netMult = multiple[coarseBin]->GetBinContent(multiple[coarseBin]->FindBin(pt));
   
-  netSec  = secondary[coarseBin]->GetBinContent(secondary[coarseBin]->FindBin(pt));
-
+//  netSec  = secondary[coarseBin]->GetBinContent(secondary[coarseBin]->FindBin(pt));
   netEff *= eff[coarseBin][0]->GetBinContent(eff[coarseBin][0]->FindBin(pt));
   netEff *= eff[coarseBin][1]->GetBinContent(eff[coarseBin][1]->FindBin(cent));
   netEff *= eff2[coarseBin][2]->GetBinContent(eff2[coarseBin][2]->GetXaxis()->FindBin(eta),eff2[coarseBin][2]->GetYaxis()->FindBin(phi));
@@ -175,22 +173,25 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin, int correc
 
   if(netFake<1) netFake = 1;
   if(netEff>1)  netEff = 1;
-
+/*
   std::cout << "pt: " << pt << " cent: " << cent << " eta: " << eta << " phi: " << phi << " density: " << density << std::endl;
   std::cout << "Efficiency: " << netEff << " (pt: " << eff[coarseBin][0]->GetBinContent(eff[coarseBin][0]->FindBin(pt)) << " cent: " <<  eff[coarseBin][1]->GetBinContent(eff[coarseBin][1]->FindBin(cent)) << " eta/phi: " << eff2[coarseBin][2]->GetBinContent(eff2[coarseBin][2]->GetXaxis()->FindBin(eta),eff2[coarseBin][2]->GetYaxis()->FindBin(phi)) << " density: " << eff[coarseBin][3]->GetBinContent(eff[coarseBin][3]->FindBin(density)) <<")"<< std::endl;
   std::cout << "Fake Rate: " << (1-1./netFake) << " (pt: " << 1-1./fake[coarseBin][0]->GetBinContent(fake[coarseBin][0]->FindBin(pt)) << " cent: " << 1-1./fake[coarseBin][1]->GetBinContent(fake[coarseBin][1]->FindBin(cent)) << " eta/phi: " << 1-1./fake2[coarseBin][2]->GetBinContent(fake2[coarseBin][2]->GetXaxis()->FindBin(eta),fake2[coarseBin][2]->GetYaxis()->FindBin(phi)) << " density: " << fake[coarseBin][3]->GetBinContent(fake[coarseBin][3]->FindBin(density)) <<")"<< std::endl;
-  std::cout << "Secondary Rate: " <<  netSec << std::endl;
+//  std::cout << "Secondary Rate: " <<  netSec << std::endl;
   std::cout << "Multiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
+*/
+
+  if(1/netEff>1000 || 1/netEff<1) std::cout << "problem here!" << pt << " " << eta << " " << phi << " " << cent << std::endl;
 
   if(correction==1) return 1/(netEff);
   else if(correction==2) return 1/(netFake);
-  else if(correction==3) return 1-netSec;
+//  else if(correction==3) return 1-netSec;
   else if(correction==4) return 1/(1+netMult);
-  else return (1.0-netSec)/(netEff*netFake*(1+netMult)); 
+//  else return (1.0-netSec)/(netEff*netFake*(1+netMult));
+  else return 1.0/(netEff*netFake*(1+netMult)); 
 }
 
 TrkCorr::~TrkCorr()
 {
-  delete localDensity;
 }
 #endif
