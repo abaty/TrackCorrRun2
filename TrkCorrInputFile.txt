@@ -11,7 +11,7 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 #Data event Cuts
 15                  # Window range in cm for vertex z cut (default is |vz|<15) (Might need to rethink vertex requirements and reweighting for high PU pp)
 1                  # Require data passing NoiseFilter?
-1                  # Require data passing pCollisionEventSelection?
+0                  # Require data passing pCollisionEventSelection?
 
 #MC and reweighting options
 11                   #Number of Input MC samples
@@ -19,7 +19,7 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 /mnt/hadoop/cms/store/user/dgulhan/mergedForest/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3_merged_forest_30_0.root
 /mnt/hadoop/cms/store/user/dgulhan/mergedForest/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3_merged_forest_50_0.root
 /mnt/hadoop/cms/store/user/dgulhan/mergedForest/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3_merged_forest_80_0.root
-/mnt/hadoop/cms/store/user/dgulhan/mergedForest/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3_merged_forest_120_0.root
+/mnt/hadoop/cms/store/user/dgulhan/mergedForest/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3_merged_forest_120_1.root
 /mnt/hadoop/cms/store/user/dgulhan/mergedForest/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3_merged_forest_170_0.root
 /mnt/hadoop/cms/store/user/dgulhan/mergedForest/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3_merged_forest_220_0.root
 /mnt/hadoop/cms/store/user/dgulhan/mergedForest/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3_merged_forest_280_0.root
@@ -33,7 +33,7 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 15 30 50 80 120 170 220 280 370 460 540 1000000     # (N+1) pthat Boundaries for (N) MC samples; (for pthat reweighting)
 4.9235E-1 3.048E-2 3.5721E-3 4.2494E-4 5.873E-5 9.199E-6 2.2564E-6 6.336e-7 1.0884e-7 2.215e-8 1.001E-08            # Total MC cross section for each pthat interval (For the interval pthat(N) to pthat(N+1)!!! NOT for pthat(N) to infinity)
 
-1                       # Do vertex reweighting?
+0                       # Do vertex reweighting?
 0                       # Do Centrality/PU reweighting (Cent for PbPb, PU for pp, none for pPb)
 /mnt/hadoop/cms/store/user/velicanu/HIRun2011-14Mar2014-v2-6lumi-jet80-forest-v4-merged/0.root                  # Data file to reweight the vertex to
 
@@ -74,8 +74,8 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 
 #Advanced Settings
 #Algorithm properties
-4                # Number of steps
+3                # Number of steps
 0 1 6          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
 3                # Full iterations to run before terminating
 0                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
-akVs3Calo          # jet definition
+ak3Calo          # jet definition
