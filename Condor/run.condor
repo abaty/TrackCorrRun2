@@ -12,6 +12,6 @@ Rank         = Mips
 +AccountingGroup = "group_cmshi.user_flag"
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = run.sh,calcCorr.exe,TrkCorrInputFile.txt,PbPb_TrkCorr_SEDTARGETDATE_Weights.root
+transfer_input_files = run.sh,calcCorr.exe,TrkCorrInputFile.txt,pp_TrkCorr_SEDTARGETDATE_Weights.root
 
 Queue njobs
