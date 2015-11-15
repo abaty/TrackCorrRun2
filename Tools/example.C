@@ -14,7 +14,7 @@ int example()
  int hiBin = -1;
 
  TFile * f = TFile::Open("/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/HiForest_PYTHIA_HYDJET_pthat220_Track9_Jet30_matchEqR_merged_forest_0.root","read");
- TTree * tree = (TTree*)f->Get("anaTrack/trackTree");
+ TTree * tree = (TTree*)f->Get("ppTrack/trackTree");
  tree->SetBranchAddress("trkPt",&pt);
  tree->SetBranchAddress("trkEta",&eta);
  tree->SetBranchAddress("trkPhi",&phi);

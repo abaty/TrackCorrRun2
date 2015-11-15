@@ -125,7 +125,7 @@ void closureTest(Settings s)
 
   //Setup input trees  
   //track tree     
-  trkCh = new TChain("anaTrack/trackTree");
+  trkCh = new TChain("ppTrack/trackTree");
   for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str()); 
   trkCh->SetBranchAddress("nTrk",&nTrk); 
   trkCh->SetBranchAddress("trkPt",&trkPt);

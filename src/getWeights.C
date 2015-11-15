@@ -45,7 +45,7 @@ void produceWeights(Settings s)
     //stuff needed for pileup RW
     if(s.doCentPU && s.nPb==0)
     {
-      trk = (TTree*) f->Get("anaTrack/trackTree");
+      trk = (TTree*) f->Get("ppTrack/trackTree");
       trk->SetBranchAddress("nVtx",&nVtx);
       evtSel->AddFriend(trk);
     }
@@ -117,7 +117,7 @@ void produceWeights(Settings s)
     //stuff needed for pileup RW
     if(s.doCentPU && s.nPb==0)      
     {
-      trkCh = new TChain("anaTrack/trackTree");
+      trkCh = new TChain("ppTrack/trackTree");
       for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str());  
       trkCh->SetBranchAddress("nVtx",&nVtx);
       jet->AddFriend(trkCh);
