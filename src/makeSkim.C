@@ -58,7 +58,7 @@ void makeSkim(Settings s)
   
   //event parameters
   int hiBin;
-  float vz;
+  float vz=-99;
   float pthat;
   int nref;
   float jtpt[100];
@@ -89,11 +89,11 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
 
   //centrality and vz
-  centCh = new TChain("hiEvtAnalyzer/HiTree");
-  for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
-  centCh->SetBranchAddress("vz",&vz);
-  if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
-  trkCh->AddFriend(centCh);  
+  //centCh = new TChain("hiEvtAnalyzer/HiTree");
+  //for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
+  //centCh->SetBranchAddress("vz",&vz);
+  //if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
+  //trkCh->AddFriend(centCh);  
   
   //pthat and jets
   jet = new TChain(Form("%sJetAnalyzer/t",s.jetDefinition.c_str()));
@@ -105,10 +105,10 @@ void makeSkim(Settings s)
   jet->SetBranchAddress("jtphi",&jtphi);
   trkCh->AddFriend(jet);
   
-  evtCh = new TChain("skimanalysis/HltTree");
-  for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
-  evtCh->SetBranchAddress("pcollisionEventSelection",&pcoll);
-  trkCh->AddFriend(evtCh);
+  //evtCh = new TChain("skimanalysis/HltTree");
+  //for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
+  //evtCh->SetBranchAddress("pcollisionEventSelection",&pcoll);
+  //trkCh->AddFriend(evtCh);
 
   //Setup output Ntuples
   std::string trackVars;
@@ -140,14 +140,15 @@ void makeSkim(Settings s)
     //some event selections on centrality, vz, or just throwing away some events because stats not needed 
     if((s.nPb==2) && ((hiBin/2 < s.centPUMin) || (hiBin/2 >= s.centPUMax))) continue;
     if((s.nPb==0) && ((nVtx < s.centPUMin) || (nVtx >= s.centPUMax))) continue;
-    if(TMath::Abs(vz)>s.vz_window) continue;
+    //if(TMath::Abs(vz)>s.vz_window) continue;
     if(processed%(s.nSkip) !=0)
     {
       processed++;
       continue;
     }
     if(s.nPb==2) trkCh->GetEntry(i);
-    if(pcoll==0 || pthat>800) continue;
+    //if(pcoll==0 || pthat>800) continue;
+    if( pthat>800) continue;
   
     //getting weight parameters
     int centPU;

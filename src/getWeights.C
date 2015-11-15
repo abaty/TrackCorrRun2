@@ -51,10 +51,10 @@ void produceWeights(Settings s)
     }
     
     //stuff needed for centrality RW and vtx
-    centTree = (TTree*) f->Get("hiEvtAnalyzer/HiTree");
+    /*centTree = (TTree*) f->Get("hiEvtAnalyzer/HiTree");
     centTree->SetBranchAddress("vz",&vz);
     if(s.doCentPU && s.nPb==2)  centTree->SetBranchAddress("hiBin",&hiBin);
-    evtSel->AddFriend(centTree);  
+    evtSel->AddFriend(centTree);  */
 
     //Calculating data distributions
     if(s.doVtx)
@@ -111,7 +111,7 @@ void produceWeights(Settings s)
     //stuff for pcoll
     evtCh = new TChain("skimanalysis/HltTree");
     for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
-    evtCh->SetBranchAddress("pcollisionEventSelection", &pcoll);
+    //evtCh->SetBranchAddress("pcollisionEventSelection", &pcoll);
     jet->AddFriend(evtCh);
  
     //stuff needed for pileup RW
@@ -124,17 +124,18 @@ void produceWeights(Settings s)
     }
     
     //stuff needed for centrality RW and vtx
-    centCh = new TChain("hiEvtAnalyzer/HiTree");
+    /*centCh = new TChain("hiEvtAnalyzer/HiTree");
     for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
     centCh->SetBranchAddress("vz",&vz);
     if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
-    jet->AddFriend(centCh);  
+    jet->AddFriend(centCh);  */
       
     //Calculating MC distributions
     if(s.doPthat)
     {
       MCPthat->GetDirectory()->cd();
-      jet->Draw("pthat>>MCPthat", Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
+      //jet->Draw("pthat>>MCPthat", Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
+      jet->Draw("pthat>>MCPthat", "");
       MCPthat->SetDirectory(0);
       MCPthat->Draw();
       c1->SaveAs("../../evalPlots/MCPthat.png");
@@ -142,7 +143,8 @@ void produceWeights(Settings s)
     if(s.doVtx)
     {
       MCVz->GetDirectory()->cd();
-      jet->Draw("vz>>MCVz",Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
+      //jet->Draw("vz>>MCVz",Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
+      jet->Draw("vz>>MCVz",Form("TMath::Abs(vz)<%d",s.vz_window));
       MCVz->SetDirectory(0);
       MCVz->Scale(1.0/(double)MCVz->GetEntries());
       MCVz->Draw();
@@ -151,7 +153,8 @@ void produceWeights(Settings s)
     if(s.doCentPU && s.nPb==2)
     {
       MCCentPU->GetDirectory()->cd();
-      jet->Draw("hiBin>>MCCentPU",Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
+      //jet->Draw("hiBin>>MCCentPU",Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
+      jet->Draw("hiBin>>MCCentPU",Form("TMath::Abs(vz)<%d",s.vz_window));
       MCCentPU->SetDirectory(0);
       MCCentPU->Scale(1.0/(double)MCCentPU->GetEntries());
       MCCentPU->Draw();
@@ -160,7 +163,8 @@ void produceWeights(Settings s)
     else if(s.doCentPU && s.nPb==0)
     {
       MCCentPU->GetDirectory()->cd();
-      jet->Draw("nVtx>>MCCentPU",Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
+      //jet->Draw("nVtx>>MCCentPU",Form("TMath::Abs(vz)<%d && pcollisionEventSelection",s.vz_window));
+      jet->Draw("nVtx>>MCCentPU",Form("TMath::Abs(vz)<%d",s.vz_window));
       MCCentPU->SetDirectory(0);
       MCCentPU->Scale(1.0/(double)MCCentPU->GetEntries());
       MCCentPU->Draw();
