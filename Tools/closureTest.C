@@ -141,8 +141,8 @@ void closureTest(Settings s)
   trkCh->SetBranchAddress("pPhi",&genPhi);
   trkCh->SetBranchAddress("pNRec",&pNRec);
   trkCh->SetBranchAddress("mtrkPt",&mtrkPt);
-  trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
-  //trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
+  //trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
+  trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
   
   //centrality and vz
   centCh = new TChain("hiEvtAnalyzer/HiTree");
