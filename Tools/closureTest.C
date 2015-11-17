@@ -98,6 +98,7 @@ void closureTest(Settings s)
   float trkPhi[75000];
   float trkStatus[75000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
   bool highPurity[75000];
+  float trkMVA[75000];
   int nVtx;
 
   //gen parameters
@@ -132,6 +133,7 @@ void closureTest(Settings s)
   trkCh->SetBranchAddress("trkEta",&trkEta);
   trkCh->SetBranchAddress("trkPhi",&trkPhi);
   trkCh->SetBranchAddress("highPurity",&highPurity);
+  trkCh->SetBranchAddress("trkMVA",&trkMVA);
   trkCh->SetBranchAddress("trkStatus",&trkStatus);
   if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
@@ -240,10 +242,12 @@ void closureTest(Settings s)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
+      if(trkMVA[j]<0.5 && trkMVA[j]!=-99) continue;  //iterative good fix
+      if(trkPt[j]>1.2*maxJetPt) continue;                //iterative good fix
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
-      if(trkPt[j]<0.5 || trkPt[j]>300) continue;
+      if(trkPt[j]<0.5 || trkPt[j]>=300) continue;
 
       //find rmin parameters for the track
       float rmin = 999;

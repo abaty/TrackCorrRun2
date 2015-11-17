@@ -42,6 +42,7 @@ void makeSkim(Settings s)
   float trkPhi[100000];
   float trkStatus[100000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
   bool highPurity[100000];
+  float trkMVA[100000];
   int nVtx;
 
   //gen parameters
@@ -77,6 +78,7 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("trkPhi",&trkPhi);
   trkCh->SetBranchAddress("highPurity",&highPurity);
   trkCh->SetBranchAddress("trkStatus",&trkStatus);
+  trkCh->SetBranchAddress("trkMVA",&trkMVA);
   if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
   trkCh->SetBranchAddress("nParticle",&nParticle);
@@ -222,6 +224,8 @@ void makeSkim(Settings s)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
+      if(trkMVA[j]<0.5 && trkMVA[j]!=-99) continue;  //iterative good fix
+      if(trkPt[j]>1.2*maxJetPt) continue;                //iterative good fix
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
