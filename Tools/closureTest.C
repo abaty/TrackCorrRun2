@@ -145,11 +145,11 @@ void closureTest(Settings s)
   trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
   
   //centrality and vz
-  centCh = new TChain("hiEvtAnalyzer/HiTree");
-  for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
-  centCh->SetBranchAddress("vz",&vz);
-  if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
-  trkCh->AddFriend(centCh);  
+  //centCh = new TChain("hiEvtAnalyzer/HiTree");
+  //for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
+  //centCh->SetBranchAddress("vz",&vz);
+  //if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
+  //trkCh->AddFriend(centCh);  
   
   //pthat and jets
   jet = new TChain(Form("%sJetAnalyzer/t",s.jetDefinition.c_str()));
@@ -161,10 +161,10 @@ void closureTest(Settings s)
   jet->SetBranchAddress("jtphi",&jtphi);
   trkCh->AddFriend(jet);
   
-  evtCh = new TChain("skimanalysis/HltTree");
-  for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
-  evtCh->SetBranchAddress("pcollisionEventSelection",&pcoll);
-  trkCh->AddFriend(evtCh);
+  //evtCh = new TChain("skimanalysis/HltTree");
+  //for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
+  //evtCh->SetBranchAddress("pcollisionEventSelection",&pcoll);
+  //trkCh->AddFriend(evtCh);
 
   //Histograms to hold stuff...
   TFile * outF = TFile::Open("outputClosures.root","recreate");
@@ -209,9 +209,9 @@ void closureTest(Settings s)
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
    
-    if(TMath::Abs(vz)>s.vz_window) continue;
+    //if(TMath::Abs(vz)>s.vz_window) continue;
     if(s.nPb==2) trkCh->GetEntry(i);
-    if(pcoll==0 || pthat>800) continue;
+    if(pthat>800) continue;
   
     //getting weight parameters
     int centPU;
@@ -266,7 +266,7 @@ void closureTest(Settings s)
       //FakeNoCorr[6]->Fill(density,weight);
       FakeNoCorr2[7]->Fill(trkEta[j],trkPt[j],weight);   
 
-      float fake = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin,2);
+      float fake = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],2);
       FakeCorr[0]->Fill(trkPt[j],weight*fake);
       FakeCorr2[1]->Fill(trkEta[j],trkPhi[j],weight*fake);
       FakeCorr[2]->Fill(centPU,weight*fake);
@@ -276,7 +276,7 @@ void closureTest(Settings s)
       //FakeCorr[6]->Fill(density,weight*fake);
       FakeCorr2[7]->Fill(trkEta[j],trkPt[j],weight*fake);   
 
-      float correction = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin);
+      float correction = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j]);
       FinalCorr[0]->Fill(trkPt[j],weight*correction);
       FinalCorr2[1]->Fill(trkEta[j],trkPhi[j],weight*correction);
       FinalCorr[2]->Fill(centPU,weight*correction);
@@ -335,7 +335,7 @@ void closureTest(Settings s)
       //EffNoCorr[6]->Fill(density,weight);
       EffNoCorr2[7]->Fill(genEta[j],genPt[j],weight);
 	  
-      float eff = trkCorr->getTrkCorr(genPt[j],genEta[j],genPhi[j],hiBin,1);
+      float eff = trkCorr->getTrkCorr(genPt[j],genEta[j],genPhi[j],1);
       EffCorr[0]->Fill(genPt[j],weight*eff);
       EffCorr2[1]->Fill(genEta[j],genPhi[j],weight*eff);
       EffCorr[2]->Fill(centPU,weight*eff);

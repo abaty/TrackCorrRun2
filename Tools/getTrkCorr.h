@@ -14,7 +14,7 @@
 class TrkCorr{
   public:
     void UpdateEventInfo(float *pt, float *eta, float *phi, int nTrk);
-    double getTrkCorr(float pt, float eta, float phi, int hiBin, int correction=0);
+    double getTrkCorr(float pt, float eta, float phi, int correction=0);
     TrkCorr();
     ~TrkCorr();    
 
@@ -133,11 +133,11 @@ void TrkCorr::UpdateEventInfo(float pt[], float eta[], float phi[], int nTrk)
 
 
 //correction=0 is total, 1 is eff, 2 is fake, 3 is second, 4 is mult
-double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin, int correction)
+double TrkCorr::getTrkCorr(float pt, float eta, float phi, int correction)
 {
   if(pt<0.5 || pt>=300){  std::cout << "\nPt less than 500 MeV or > 300 GeV, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1;}
   if(eta<-2.4 || eta>2.4){  std::cout << "\nEta outside of |2.4|, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1;}
-  if(hiBin<0 || hiBin>199){  std::cout << "\nhiBin not within 0 to 200, please place a cut to prevent this.  Returning a correction of 1" << std::endl; return 1;}
+  //if(hiBin<0 || hiBin>199){  std::cout << "\nhiBin not within 0 to 200, please place a cut to prevent this.  Returning a correction of 1" << std::endl; return 1;}
   
   float netEff = 1;
   float netFake = 1;
@@ -148,26 +148,26 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin, int correc
  
   //calculating what file to take corrections out of 
   int coarseBin = 0;
-  int cent = hiBin/2;
-  if(cent>=10 && cent<20) coarseBin = coarseBin+1;
-  else if(cent>=20 && cent<50) coarseBin = coarseBin+2;
-  else if(cent>=50 && cent<100) coarseBin = coarseBin+3;
-  if(pt>=1 && pt<3) coarseBin = coarseBin+4;
-  else if(pt>=3 && pt<10) coarseBin = coarseBin+8;
-  else if(pt>=10 && pt<30) coarseBin = coarseBin+12;
-  else if(pt>=30 && pt<300) coarseBin = coarseBin+16;
+  //int cent = hiBin/2;
+  //if(cent>=10 && cent<20) coarseBin = coarseBin+1;
+  //else if(cent>=20 && cent<50) coarseBin = coarseBin+2;
+  //else if(cent>=50 && cent<100) coarseBin = coarseBin+3;
+  if(pt>=1 && pt<3) coarseBin = coarseBin+1;
+  else if(pt>=3 && pt<10) coarseBin = coarseBin+2;
+  else if(pt>=10 && pt<30) coarseBin = coarseBin+3;
+  else if(pt>=30 && pt<300) coarseBin = coarseBin+4;
   //end bin calculation
  
   netMult = multiple[coarseBin]->GetBinContent(multiple[coarseBin]->FindBin(pt));
   
 //  netSec  = secondary[coarseBin]->GetBinContent(secondary[coarseBin]->FindBin(pt));
   netEff *= eff[coarseBin][0]->GetBinContent(eff[coarseBin][0]->FindBin(pt));
-  netEff *= eff[coarseBin][1]->GetBinContent(eff[coarseBin][1]->FindBin(cent));
+  //netEff *= eff[coarseBin][1]->GetBinContent(eff[coarseBin][1]->FindBin(cent));
   netEff *= eff2[coarseBin][2]->GetBinContent(eff2[coarseBin][2]->GetXaxis()->FindBin(eta),eff2[coarseBin][2]->GetYaxis()->FindBin(phi));
   netEff *= eff[coarseBin][3]->GetBinContent(eff[coarseBin][3]->FindBin(density));
   
   netFake *= fake[coarseBin][0]->GetBinContent(fake[coarseBin][0]->FindBin(pt));
-  netFake *= fake[coarseBin][1]->GetBinContent(fake[coarseBin][1]->FindBin(cent));
+  //netFake *= fake[coarseBin][1]->GetBinContent(fake[coarseBin][1]->FindBin(cent));
   netFake *= fake2[coarseBin][2]->GetBinContent(fake2[coarseBin][2]->GetXaxis()->FindBin(eta),fake2[coarseBin][2]->GetYaxis()->FindBin(phi));
   netFake *= fake[coarseBin][3]->GetBinContent(fake[coarseBin][3]->FindBin(density));
 
@@ -181,7 +181,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int hiBin, int correc
   std::cout << "Multiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
 */
 
-  if(1/netEff>1000 || 1/netEff<1) std::cout << "problem here!" << pt << " " << eta << " " << phi << " " << cent << std::endl;
+  if(1/netEff>1000 || 1/netEff<1) std::cout << "problem here!" << pt << " " << eta << " " << phi << " " << std::endl;
 
   if(correction==1) return 1/(netEff);
   else if(correction==2) return 1/(netFake);
