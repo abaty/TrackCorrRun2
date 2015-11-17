@@ -89,6 +89,7 @@ double TrkCorr::getArea(double eta1, double R)
 //updating the event by event properties (centrality, local density, jets, etc)
 void TrkCorr::UpdateEventInfo(float pt[], float eta[], float phi[], int nTrk)
 {
+  localDensity->Reset();
 
   //Filling density histogram (tracks with >3 GeV)
   for(int j = 0; j<nTrk; j++)
