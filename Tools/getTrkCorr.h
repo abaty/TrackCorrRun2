@@ -89,6 +89,7 @@ double TrkCorr::getArea(double eta1, double R)
 //updating the event by event properties (centrality, local density, jets, etc)
 void TrkCorr::UpdateEventInfo(float pt[], float eta[], float phi[], int nTrk)
 {
+  localDensity->Reset();
 
   //Filling density histogram (tracks with >3 GeV)
   for(int j = 0; j<nTrk; j++)
@@ -181,7 +182,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int correction)
   std::cout << "Multiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
 */
 
-  if(1/netEff>1000 || 1/netEff<1) std::cout << "problem here!" << netEff <<  " " <<pt << " " << eta << " " << phi << " " << std::endl;
+  if(1/netEff>1000) std::cout << "problem here!" << netEff <<  " " <<pt << " " << eta << " " << phi << " " << density << " " << coarseBin << std::endl;
 
   if(correction==1) return 1/(netEff);
   else if(correction==2) return 1/(netFake);
