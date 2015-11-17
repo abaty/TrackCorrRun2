@@ -19,8 +19,8 @@ class TrkCorr{
     ~TrkCorr();    
 
   private:
-    const static int nFiles = 20;
-    const static int nSteps = 4;
+    const static int nFiles = 5;
+    const static int nSteps = 3;
     
     double getArea(double eta1, double R);
 
@@ -51,7 +51,7 @@ TrkCorr::TrkCorr()
     f[i] = TFile::Open(Form("trkCorrections/corrHists_job%d.root",i),"read");
     for(int j = 0; j<nSteps; j++)
     {
-      if(j!=2)
+      if(j!=1)
       {
         eff[i][j] = (TH1D*)f[i]->Get(Form("finalEff_step%d",j));
         eff[i][j]->SetDirectory(0);
@@ -159,17 +159,17 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int correction)
   //end bin calculation
  
   netMult = multiple[coarseBin]->GetBinContent(multiple[coarseBin]->FindBin(pt));
-  
+
 //  netSec  = secondary[coarseBin]->GetBinContent(secondary[coarseBin]->FindBin(pt));
   netEff *= eff[coarseBin][0]->GetBinContent(eff[coarseBin][0]->FindBin(pt));
   //netEff *= eff[coarseBin][1]->GetBinContent(eff[coarseBin][1]->FindBin(cent));
-  netEff *= eff2[coarseBin][2]->GetBinContent(eff2[coarseBin][2]->GetXaxis()->FindBin(eta),eff2[coarseBin][2]->GetYaxis()->FindBin(phi));
-  netEff *= eff[coarseBin][3]->GetBinContent(eff[coarseBin][3]->FindBin(density));
+  netEff *= eff2[coarseBin][1]->GetBinContent(eff2[coarseBin][1]->GetXaxis()->FindBin(eta),eff2[coarseBin][1]->GetYaxis()->FindBin(phi));
+  netEff *= eff[coarseBin][2]->GetBinContent(eff[coarseBin][2]->FindBin(density));
   
   netFake *= fake[coarseBin][0]->GetBinContent(fake[coarseBin][0]->FindBin(pt));
   //netFake *= fake[coarseBin][1]->GetBinContent(fake[coarseBin][1]->FindBin(cent));
-  netFake *= fake2[coarseBin][2]->GetBinContent(fake2[coarseBin][2]->GetXaxis()->FindBin(eta),fake2[coarseBin][2]->GetYaxis()->FindBin(phi));
-  netFake *= fake[coarseBin][3]->GetBinContent(fake[coarseBin][3]->FindBin(density));
+  netFake *= fake2[coarseBin][1]->GetBinContent(fake2[coarseBin][1]->GetXaxis()->FindBin(eta),fake2[coarseBin][1]->GetYaxis()->FindBin(phi));
+  netFake *= fake[coarseBin][2]->GetBinContent(fake[coarseBin][2]->FindBin(density));
 
   if(netFake<1) netFake = 1;
   if(netEff>1)  netEff = 1;
@@ -181,7 +181,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int correction)
   std::cout << "Multiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
 */
 
-  if(1/netEff>1000 || 1/netEff<1) std::cout << "problem here!" << pt << " " << eta << " " << phi << " " << std::endl;
+  if(1/netEff>1000 || 1/netEff<1) std::cout << "problem here!" << netEff <<  " " <<pt << " " << eta << " " << phi << " " << std::endl;
 
   if(correction==1) return 1/(netEff);
   else if(correction==2) return 1/(netFake);
