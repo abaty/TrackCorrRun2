@@ -319,7 +319,7 @@ void iterate(Settings s,int iter, int stepType)
     float previousEffCorr = 1;
     float previousFakeCorr = 1; 
     gen->GetEntry(i);
-    if(mtrkQual<1 || mpt<=0) continue;
+    if(mtrkQual<1 || mtrkMVA<0.5 || mpt<=0) continue;
     if(iter!=0)
     {
       for(int n = 0; n<iter; n++)

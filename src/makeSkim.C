@@ -52,6 +52,7 @@ void makeSkim(Settings s)
   float genEta[100000];
   float genPhi[100000];
   int   mtrkQual[100000];
+  float   mtrkMVA[100000];
   float pNRec[100000];
 
   //other parameters
@@ -89,6 +90,7 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("mtrkPt",&mtrkPt);
 //  trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
   trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
+  trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
 
   //centrality and vz
   //centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -225,7 +227,7 @@ void makeSkim(Settings s)
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
       if(trkMVA[j]<0.5 && trkMVA[j]!=-99) continue;  //iterative good fix
-      if(trkPt[j]>1.2*maxJetPt) continue;                //iterative good fix
+      if(trkPt[j]>maxJetPt) continue;                //iterative good fix
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
@@ -252,7 +254,9 @@ void makeSkim(Settings s)
     {
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
-    
+
+      if(mtrkQual[j]!=0 && (mtrkMVA[j]<0.5 || mtrkPt[j]>maxJetPt)) mtrkQual[j]=0;   //iterative good fix   
+ 
       //find rmin parameters for the track
       float rmin = 999;
       for(int k = 0; k<nref; k++)

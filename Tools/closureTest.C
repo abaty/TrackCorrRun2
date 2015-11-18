@@ -108,6 +108,7 @@ void closureTest(Settings s)
   float genEta[75000];
   float genPhi[75000];
   int   mtrkQual[75000];
+  float mtrkMVA[75000];
   float pNRec[75000];
 
   //other parameters
@@ -145,6 +146,7 @@ void closureTest(Settings s)
   trkCh->SetBranchAddress("mtrkPt",&mtrkPt);
   //trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
   trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
+  trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
   
   //centrality and vz
   //centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -207,7 +209,6 @@ void closureTest(Settings s)
   std::cout << "starting event loop" << std::endl; 
   for(int i = 0; i<trkCh->GetEntries(); i++)
   {
-    if(i%15!=0) continue;//for faster testing
 
     if(i%50000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
@@ -245,7 +246,7 @@ void closureTest(Settings s)
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
       if(trkMVA[j]<0.5 && trkMVA[j]!=-99) continue;  //iterative good fix
-      if(trkPt[j]>1.2*maxJetPt) continue;                //iterative good fix
+      if(trkPt[j]>maxJetPt) continue;                //iterative good fix
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
@@ -332,6 +333,7 @@ void closureTest(Settings s)
       genPre2[7]->Fill(genEta[j],genPt[j],weight);
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
+      if(mtrkQual[j]!=0 && (mtrkMVA[j]<0.5 || mtrkPt[j]>maxJetPt)) mtrkQual[j]=0;
       if(mtrkQual[j]<1 || mtrkPt[j]<=0) continue;
       EffNoCorr[0]->Fill(genPt[j],weight);
       EffNoCorr2[1]->Fill(genEta[j],genPhi[j],weight);
