@@ -207,6 +207,8 @@ void closureTest(Settings s)
   std::cout << "starting event loop" << std::endl; 
   for(int i = 0; i<trkCh->GetEntries(); i++)
   {
+    if(i%15!=0) continue;//for faster testing
+
     if(i%50000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);

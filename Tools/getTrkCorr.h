@@ -66,8 +66,8 @@ TrkCorr::TrkCorr()
         fake2[i][j]->SetDirectory(0);
       }
     }
-//    secondary[i] = (TH1D*)f[i]->Get("SecondaryRate");
-//    secondary[i]->SetDirectory(0);
+    secondary[i] = (TH1D*)f[i]->Get("SecondaryRate");
+    secondary[i]->SetDirectory(0);
     multiple[i] = (TH1D*)f[i]->Get("MultipleRecoRate");
     multiple[i]->SetDirectory(0);
     f[i]->Close();
@@ -161,7 +161,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int correction)
  
   netMult = multiple[coarseBin]->GetBinContent(multiple[coarseBin]->FindBin(pt));
 
-//  netSec  = secondary[coarseBin]->GetBinContent(secondary[coarseBin]->FindBin(pt));
+  netSec  = secondary[coarseBin]->GetBinContent(secondary[coarseBin]->FindBin(pt));
   netEff *= eff[coarseBin][0]->GetBinContent(eff[coarseBin][0]->FindBin(pt));
   //netEff *= eff[coarseBin][1]->GetBinContent(eff[coarseBin][1]->FindBin(cent));
   netEff *= eff2[coarseBin][1]->GetBinContent(eff2[coarseBin][1]->GetXaxis()->FindBin(eta),eff2[coarseBin][1]->GetYaxis()->FindBin(phi));
@@ -186,10 +186,10 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, int correction)
 
   if(correction==1) return 1/(netEff);
   else if(correction==2) return 1/(netFake);
-//  else if(correction==3) return 1-netSec;
+  else if(correction==3) return 1-netSec;
   else if(correction==4) return 1/(1+netMult);
-//  else return (1.0-netSec)/(netEff*netFake*(1+netMult));
-  else return 1.0/(netEff*netFake*(1+netMult)); 
+  else return (1.0-netSec)/(netEff*netFake*(1+netMult));
+//  else return 1.0/(netEff*netFake*(1+netMult)); 
 }
 
 TrkCorr::~TrkCorr()
