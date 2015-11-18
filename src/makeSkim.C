@@ -255,7 +255,7 @@ void makeSkim(Settings s)
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
 
-      if(mtrkQual[j]!=0 && (mtrkMVA[j]<0.5 || mtrkPt[j]>maxJetPt)) mtrkQual[j]=0;   //iterative good fix   
+      if(mtrkQual[j]!=0 && mtrkMVA[j]<0.5) mtrkQual[j]=0;   //iterative good fix   
  
       //find rmin parameters for the track
       float rmin = 999;

@@ -333,7 +333,7 @@ void closureTest(Settings s)
       genPre2[7]->Fill(genEta[j],genPt[j],weight);
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
-      if(mtrkQual[j]!=0 && (mtrkMVA[j]<0.5 || mtrkPt[j]>maxJetPt)) mtrkQual[j]=0;
+      if(mtrkQual[j]!=0 && mtrkMVA[j]<0.5)) mtrkQual[j]=0;
       if(mtrkQual[j]<1 || mtrkPt[j]<=0) continue;
       EffNoCorr[0]->Fill(genPt[j],weight);
       EffNoCorr2[1]->Fill(genEta[j],genPhi[j],weight);
