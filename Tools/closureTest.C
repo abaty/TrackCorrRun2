@@ -208,7 +208,7 @@ void closureTest(Settings s)
 
   //event loop
   std::cout << "starting event loop" << std::endl; 
-  for(int i = 0; i<trkCh->GetEntries(); i=i+1000)
+  for(int i = 0; i<trkCh->GetEntries(); i=i++)
   {
 
     if(i%50000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
