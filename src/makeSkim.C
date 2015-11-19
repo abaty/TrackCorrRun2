@@ -51,7 +51,8 @@ void makeSkim(Settings s)
   float mtrkPt[100000];
   float genEta[100000];
   float genPhi[100000];
-  int   mtrkQual[100000];
+  //int   mtrkQual[100000];
+  bool   mtrkQual[100000];//for 5.02 samples
   float   mtrkMVA[100000];
   float pNRec[100000];
 
