@@ -43,6 +43,8 @@ void makeSkim(Settings s)
   float trkStatus[100000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
   bool highPurity[100000];
   float trkMVA[100000];
+  float trkPtError[100000];
+  unsigned char trkNHit[100000];
   int nVtx;
 
   //gen parameters
@@ -54,6 +56,8 @@ void makeSkim(Settings s)
   //int   mtrkQual[100000];
   bool   mtrkQual[100000];//for 5.02 samples
   float   mtrkMVA[100000];
+  float   mtrkPtError[100000];
+  int   mtrkNHit[100000];
   float pNRec[100000];
 
   //other parameters
@@ -81,6 +85,8 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("highPurity",&highPurity);
   trkCh->SetBranchAddress("trkStatus",&trkStatus);
   trkCh->SetBranchAddress("trkMVA",&trkMVA);
+  trkCh->SetBranchAddress("trkPtError",&trkPtError);
+  trkCh->SetBranchAddress("trkNHit",&trkNHit);
   if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
   trkCh->SetBranchAddress("nParticle",&nParticle);
@@ -92,6 +98,8 @@ void makeSkim(Settings s)
 //  trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
   trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
   trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
+  trkCh->SetBranchAddress("mtrkPtError",&mtrkPtError); 
+  trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
 
   //centrality and vz
   //centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -227,7 +235,7 @@ void makeSkim(Settings s)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
-      if(trkMVA[j]<0.5 && trkMVA[j]!=-99) continue;  //iterative good fix
+      if((trkMVA[j]<0.5 && trkMVA[j]!=-99) || (int)trkNHit[j]<8 || trkPtError[j]/trkPt[j]>0.2) continue;  //iterative good fix
       if(trkPt[j]>maxJetPt) continue;                //iterative good fix
       //TODO: Calo matching here
       //other cut here as well maybe?
@@ -256,7 +264,7 @@ void makeSkim(Settings s)
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
 
-      if(mtrkQual[j]!=0 && mtrkMVA[j]<0.5) mtrkQual[j]=0;   //iterative good fix   
+      if((mtrkQual[j]!=0 && mtrkMVA[j]<0.5 && mtrkMVA[j]!=-99) || mtrkNHit[j]<8 || mtrkPtError[j]/mtrkPt[j]>0.2) mtrkQual[j]=0;   //iterative good fix + pixel tracks rejection 
  
       //find rmin parameters for the track
       float rmin = 999;

@@ -99,6 +99,8 @@ void closureTest(Settings s)
   float trkStatus[75000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
   bool highPurity[75000];
   float trkMVA[75000];
+  float trkNHit[75000];
+  float trkPtError[75000];
   int nVtx;
 
   //gen parameters
@@ -110,6 +112,8 @@ void closureTest(Settings s)
   //int   mtrkQual[75000];
   bool   mtrkQual[75000];//for 5.02 samples
   float mtrkMVA[75000];
+  float mtrkNHit[75000];
+  float mtrkPtError[75000];
   float pNRec[75000];
 
   //other parameters
@@ -137,6 +141,8 @@ void closureTest(Settings s)
   trkCh->SetBranchAddress("highPurity",&highPurity);
   trkCh->SetBranchAddress("trkMVA",&trkMVA);
   trkCh->SetBranchAddress("trkStatus",&trkStatus);
+  trkCh->SetBranchAddress("trkNHit",&trkNHit);
+  trkCh->SetBranchAddress("trkPtError",&trkPtError);
   if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
   trkCh->SetBranchAddress("nParticle",&nParticle);
@@ -148,6 +154,8 @@ void closureTest(Settings s)
   //trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
   trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
   trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
+  trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit);
+  trkCh->SetBranchAddress("mtrkPtError",&mtrkPtError);
   
   //centrality and vz
   //centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -208,7 +216,7 @@ void closureTest(Settings s)
 
   //event loop
   std::cout << "starting event loop" << std::endl; 
-  for(int i = 0; i<10000;i++)//trkCh->GetEntries(); i=i++)
+  for(int i = 0; i<trkCh->GetEntries(); i++)
   {
 
     if(i%50000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
@@ -246,7 +254,7 @@ void closureTest(Settings s)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
-      if(trkMVA[j]<0.5 && trkMVA[j]!=-99) continue;  //iterative good fix
+      if((trkMVA[j]<0.5 && trkMVA[j]!=-99) || trkNHit[j]<8 || trkPtError[j]/trkPt[j]>0.2) continue;  //iterative good fix
       if(trkPt[j]>maxJetPt) continue;                //iterative good fix
       //TODO: Calo matching here
       //other cut here as well maybe?
@@ -334,7 +342,7 @@ void closureTest(Settings s)
       genPre2[7]->Fill(genEta[j],genPt[j],weight);
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
-      if(mtrkQual[j]!=0 && mtrkMVA[j]<0.5) mtrkQual[j]=0;
+      if((mtrkQual[j]!=0 && mtrkMVA[j]<0.5 && mtrkMVA[j]!=99) || mtrkNHit[j]<8 || mtrkPtError[j]/mtrkPt[j]>0.2) mtrkQual[j]=0;
       if(mtrkQual[j]<1 || mtrkPt[j]<=0) continue;
       EffNoCorr[0]->Fill(genPt[j],weight);
       EffNoCorr2[1]->Fill(genEta[j],genPhi[j],weight);
