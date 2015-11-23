@@ -45,6 +45,12 @@ void makeSkim(Settings s)
   float trkMVA[100000];
   float trkPtError[100000];
   unsigned char trkNHit[100000];
+  float trkDxy1[100000];
+  float trkDxyError1[100000];
+  float trkDz1[100000];
+  float trkDzError1[100000];
+  float trkPfHcal[100000];
+  float trkPfEcal[100000];
   int nVtx;
 
   //gen parameters
@@ -58,6 +64,12 @@ void makeSkim(Settings s)
   float   mtrkMVA[100000];
   float   mtrkPtError[100000];
   int   mtrkNHit[100000];
+  float mtrkDxy1[100000];
+  float mtrkDxyError1[100000];
+  float mtrkDz1[100000];
+  float mtrkDzError1[100000];
+  float mtrkPfHcal[100000];
+  float mtrkPfEcal[100000];
   float pNRec[100000];
 
   //other parameters
@@ -87,6 +99,13 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("trkMVA",&trkMVA);
   trkCh->SetBranchAddress("trkPtError",&trkPtError);
   trkCh->SetBranchAddress("trkNHit",&trkNHit);
+  trkCh->SetBranchAddress("trkDxy1",&trkDxy1);
+  trkCh->SetBranchAddress("trkDxyError1",&trkDxyError1);
+  trkCh->SetBranchAddress("trkDz1",&trkDz1);
+  trkCh->SetBranchAddress("trkDzError1",&trkDzError1);
+  trkCh->SetBranchAddress("pfHcal",&pfHcal); 
+  trkCh->SetBranchAddress("pfEcal",&pfEcal); 
+ 
   if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
   trkCh->SetBranchAddress("nParticle",&nParticle);
@@ -100,6 +119,12 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
   trkCh->SetBranchAddress("mtrkPtError",&mtrkPtError); 
   trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
+  trkCh->SetBranchAddress("mtrkDxy1",&mtrkDxy1);
+  trkCh->SetBranchAddress("mtrkDxyError1",&mtrkDxyError1);
+  trkCh->SetBranchAddress("mtrkDz1",&mtrkDz1);
+  trkCh->SetBranchAddress("mtrkDzError1",&mtrkDzError1);
+  trkCh->SetBranchAddress("mtrkPfHcal",&mtrkPfHcal); 
+  trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal); 
 
   //centrality and vz
   //centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -234,13 +259,10 @@ void makeSkim(Settings s)
     for(int j = 0; j<nTrk; j++)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
-      if(highPurity[j]!=1) continue;
-      if((trkMVA[j]<0.5 && trkMVA[j]!=-99) || (int)trkNHit[j]<8 || trkPtError[j]/trkPt[j]>0.2) continue;  //iterative good fix
-      if(trkPt[j]>maxJetPt) continue;                //iterative good fix
-      //TODO: Calo matching here
-      //other cut here as well maybe?
-      //trkStauts cut here?
       if(trkPt[j]<=s.ptMin || trkPt[j]>s.ptMax) continue;
+      if(highPurity[j]!=1) continue;
+      if((trkMVA[j]<0.5 && trkMVA[j]!=-99) || (int)trkNHit[j]<8 || trkPtError[j]/trkPt[j]>0.3 || trkDz1[j]/trkDzError1[j]>3 || trkDxy1[j]/trkDxyError1[j]>3) continue;
+      if((trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>15 && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>pfHcal[j]+pfEcal[j]) continue; //Calo Matching 
 
       //find rmin parameters for the track
       float rmin = 999;
@@ -264,7 +286,8 @@ void makeSkim(Settings s)
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
 
-      if((mtrkQual[j]!=0 && mtrkMVA[j]<0.5 && mtrkMVA[j]!=-99) || mtrkNHit[j]<8 || mtrkPtError[j]/mtrkPt[j]>0.2) mtrkQual[j]=0;   //iterative good fix + pixel tracks rejection 
+      if((mtrkMVA[j]<0.5 && mtrkMVA[j]!=-99) || mtrkNHit[j]<8 || mtrkPtError[j]/mtrkPt[j]>0.3 || mtrkDz1[j]/mtrkDzError1[j]>3 || mtrkDxy1[j]/mtrkDxyError1[j]>3) mtrkQual[j]=0;   //iterative good fix + pixel tracks rejection 
+      if((mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(pEta[j])>15 && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(pEta[j])>mtrkPfHcal[j]+mtrkPfEcal[j]) mtrkQual[j]=0; //Calo Matching 
  
       //find rmin parameters for the track
       float rmin = 999;

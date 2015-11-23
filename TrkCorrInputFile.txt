@@ -58,7 +58,7 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 1                       #Event skip rates for 4th pt bin and each Cent/PU Bin (speeds up computation)
 1                       #Event skip rates for 5th pt bin and each Cent/PU Bin (speeds up computation)
 
-4 4 4 4 1                      # Multiple Reco and 2ndary pt fine binning
+4 4 4 4 4                      # Multiple Reco and 2ndary pt fine binning
 
 #Fine Binning Options
 10         #Pt Fine Binning
