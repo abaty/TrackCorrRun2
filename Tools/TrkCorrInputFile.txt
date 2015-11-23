@@ -1,6 +1,6 @@
 #General options (The number of line skips in this doc is important)
-pp_5p02_TrkCorr_v0_2015_11_19__08_27_44     #job name
-0                   #Reuse previous data skims?
+pp_5p02_TrkCorr_v0_2015_11_19__20_38_24     #job name
+1                   #Reuse previous data skims?
 0                   #Number of Pb nuclei (0=pp, 1=pPb, 2=PbPb)
 1                   #Do Efficiency? (Hardcoded to do it fow now)
 1                   #Do Fake Rate?  (Hardcoded to do it for now)
@@ -74,8 +74,8 @@ pp_5p02_TrkCorr_v0_2015_11_19__08_27_44     #job name
 
 #Advanced Settings
 #Algorithm properties
-3                # Number of steps
-0 1 6          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy)
-3                # Full iterations to run before terminating
-0                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
+1                # Number of steps
+7          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 6 = hit Occupancy, 7 = eta plus pt)
+1                # Full iterations to run before terminating
+7                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
 ak3Calo          # jet definition

@@ -15,17 +15,17 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 
 #MC and reweighting options
 11                   #Number of Input MC samples
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat15/0.root              #List of MC samples
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat30/0.root             
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat50/0.root             
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat80/0.root             
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat120/0.root             
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat170/0.root             
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat220/0.root             
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat280/0.root             
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat370/0.root             
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat460/0.root             
-/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_HiForestPPSignalJECv3/pthat540/0.root             
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD15_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root #List of MC samples
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD30_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD50_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD80_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD120_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD170_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD220_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD280_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD370_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD460_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/HiForest_PYTHIA_QCD_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/HiForest_PYTHIA_QCD540_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root
 
 
 
