@@ -49,8 +49,8 @@ void makeSkim(Settings s)
   float trkDxyError1[100000];
   float trkDz1[100000];
   float trkDzError1[100000];
-  float trkPfHcal[100000];
-  float trkPfEcal[100000];
+  float pfHcal[100000];
+  float pfEcal[100000];
   int nVtx;
 
   //gen parameters
@@ -287,7 +287,7 @@ void makeSkim(Settings s)
       if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
 
       if((mtrkMVA[j]<0.5 && mtrkMVA[j]!=-99) || mtrkNHit[j]<8 || mtrkPtError[j]/mtrkPt[j]>0.3 || mtrkDz1[j]/mtrkDzError1[j]>3 || mtrkDxy1[j]/mtrkDxyError1[j]>3) mtrkQual[j]=0;   //iterative good fix + pixel tracks rejection 
-      if((mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(pEta[j])>15 && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(pEta[j])>mtrkPfHcal[j]+mtrkPfEcal[j]) mtrkQual[j]=0; //Calo Matching 
+      if((mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(genEta[j])>15 && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(genEta[j])>mtrkPfHcal[j]+mtrkPfEcal[j]) mtrkQual[j]=0; //Calo Matching 
  
       //find rmin parameters for the track
       float rmin = 999;
