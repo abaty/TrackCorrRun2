@@ -99,6 +99,12 @@ void closureTest(Settings s)
   float trkStatus[75000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
   bool highPurity[75000];
   float trkMVA[75000];
+  float pfHcal[100000];
+  float pfEcal[100000];
+  float trkDxy1[100000];
+  float trkDxyError1[100000];
+  float trkDz1[100000];
+  float trkDzError1[100000];
   int nVtx;
 
   //gen parameters
@@ -143,6 +149,12 @@ void closureTest(Settings s)
   trkCh->SetBranchAddress("highPurity",&highPurity);
   trkCh->SetBranchAddress("trkMVA",&trkMVA);
   trkCh->SetBranchAddress("trkStatus",&trkStatus);
+  trkCh->SetBranchAddress("trkDxy1",&trkDxy1);
+  trkCh->SetBranchAddress("trkDxyError1",&trkDxyError1);
+  trkCh->SetBranchAddress("trkDz1",&trkDz1);
+  trkCh->SetBranchAddress("trkDzError1",&trkDzError1);
+  trkCh->SetBranchAddress("pfHcal",&pfHcal); 
+  trkCh->SetBranchAddress("pfEcal",&pfEcal); 
   if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
   trkCh->SetBranchAddress("nParticle",&nParticle);
@@ -258,8 +270,8 @@ void closureTest(Settings s)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
-      if(trkMVA[j]<0.5 && trkMVA[j]!=-99) continue;  //iterative good fix
-      if(trkPt[j]>maxJetPt) continue;                //iterative good fix
+      if((trkMVA[j]<0.5 && trkMVA[j]!=-99) || trkNHit[j]<8 || trkPtError[j]/trkPt[j]>0.3 || trkDz1[j]/trkDzError1[j]>3 ||trkDxy1[j]/trkDxyError1[j]>3) trkQual[j]=0;  
+      if((trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>15 && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>trkPfHcal[j]+trkPfEcal[j]) trkQual[j]=0; //Calo Matching 
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?

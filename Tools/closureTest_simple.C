@@ -105,8 +105,8 @@ void closureTest(Settings s)
   float trkDxyError1[100000];
   float trkDz1[100000];
   float trkDzError1[100000];
-  float trkPfHcal[100000];
-  float trkPfEcal[100000];
+  float pfHcal[100000];
+  float pfEcal[100000];
   int nVtx;
 
   //gen parameters
@@ -120,6 +120,12 @@ void closureTest(Settings s)
   float mtrkMVA[75000];
   float mtrkNHit[75000];
   float mtrkPtError[75000];
+  float mtrkDxy1[100000];
+  float mtrkDxyError1[100000];
+  float mtrkDz1[100000];
+  float mtrkDzError1[100000];
+  float mtrkPfHcal[100000];
+  float mtrkPfEcal[100000];
   float pNRec[75000];
 
   //other parameters
@@ -168,6 +174,12 @@ void closureTest(Settings s)
   trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
   trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit);
   trkCh->SetBranchAddress("mtrkPtError",&mtrkPtError);
+  trkCh->SetBranchAddress("mtrkDxy1",&mtrkDxy1);
+  trkCh->SetBranchAddress("mtrkDxyError1",&mtrkDxyError1);
+  trkCh->SetBranchAddress("mtrkDz1",&mtrkDz1);
+  trkCh->SetBranchAddress("mtrkDzError1",&mtrkDzError1);
+  trkCh->SetBranchAddress("mtrkPfHcal",&mtrkPfHcal); 
+  trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal); 
   
   //centrality and vz
   //centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -354,7 +366,8 @@ void closureTest(Settings s)
       genPre2[7]->Fill(genEta[j],genPt[j],weight);
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
-      if((mtrkQual[j]!=0 && mtrkMVA[j]<0.5 && mtrkMVA[j]!=99) || mtrkNHit[j]<8 || mtrkPtError[j]/mtrkPt[j]>0.2) mtrkQual[j]=0;
+      if((mtrkMVA[j]<0.5 && mtrkMVA[j]!=-99) || (int)mtrkNHit[j]<8 || mtrkPtError[j]/mtrkPt[j]>0.3 || mtrkDz1[j]/mtrkDzError1[j]>3 || mtrkDxy1[j]/mtrkDxyError1[j]>3) continue;
+      if((mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(genEta[j])>15 && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(genEta[j])>mtrkPfHcal[j]+mtrkPfEcal[j]) continue; //Calo Matching 
       if(mtrkQual[j]<1 || mtrkPt[j]<=0) continue;
       EffNoCorr[0]->Fill(genPt[j],weight);
       EffNoCorr2[1]->Fill(genEta[j],genPhi[j],weight);
