@@ -118,7 +118,7 @@ void closureTest(Settings s)
   //int   mtrkQual[75000];
   bool   mtrkQual[75000];//for 5.02 samples
   float mtrkMVA[75000];
-  float mtrkNHit[75000];
+  int mtrkNHit[75000];
   float mtrkPtError[75000];
   float mtrkDxy1[100000];
   float mtrkDxyError1[100000];
