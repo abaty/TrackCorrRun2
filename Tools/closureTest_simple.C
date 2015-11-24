@@ -99,7 +99,7 @@ void closureTest(Settings s)
   float trkStatus[75000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
   bool highPurity[75000];
   float trkMVA[75000];
-  float trkNHit[75000];
+  unsigned char trkNHit[75000];
   float trkPtError[75000];
   float trkDxy1[100000];
   float trkDxyError1[100000];
@@ -240,7 +240,7 @@ void closureTest(Settings s)
 
   //event loop
   std::cout << "starting event loop" << std::endl; 
-  for(int i = 0; i<trkCh->GetEntries(); i++)
+  for(int i = 0; i<1000; i++)
   {
 
     if(i%50000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
