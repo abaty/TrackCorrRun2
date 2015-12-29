@@ -54,7 +54,7 @@ void makeSkim(Settings s)
   float trkChi2[100000];
   unsigned char trkNlayer[100000];
   unsigned char trkAlgo[100000];
-  float trkNdof[100000];
+  unsigned char trkNdof[100000];
   int nVtx;
 
   //gen parameters
