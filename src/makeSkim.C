@@ -54,6 +54,7 @@ void makeSkim(Settings s)
   float trkChi2[100000];
   unsigned char trkNlayer[100000];
   unsigned char trkAlgo[100000];
+  float trkNdof[100000];
   int nVtx;
 
   //gen parameters
@@ -76,6 +77,7 @@ void makeSkim(Settings s)
   int   mtrkAlgo[100000];
   int   mtrkNlayer[100000];
   float mtrkChi2[100000];
+  float mtrkNdof[100000];
   float pNRec[100000];
 
   //other parameters
@@ -114,6 +116,7 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("trkChi2",&trkChi2); 
   trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
   trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
+  trkCh->SetBranchAddress("trkNdof",&trkNdof); 
  
   if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
@@ -137,6 +140,7 @@ void makeSkim(Settings s)
   trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
   trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
   trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
+  trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof); 
 
   //centrality and vz
   //centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -275,7 +279,7 @@ void makeSkim(Settings s)
       if(highPurity[j]!=1) continue;
       if(trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
       //track triggger cuts
-      if((int)trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkChi2[j]/(float)trkNHit[j]/(float)trkNlayer[j]>0.15) continue;
+      if((int)trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15) continue;
       if(s.doCaloMatch && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>15 && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>pfHcal[j]+pfEcal[j]) continue; //Calo Matching 
 
       //find rmin parameters for the track
@@ -300,7 +304,7 @@ void makeSkim(Settings s)
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
 
-      if(mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkAlgo[j]<4 || (int)mtrkAlgo[j]>8 || mtrkChi2[j]/(float)mtrkNHit[j]/(float)mtrkNlayer[j]>0.15) mtrkQual[j]=0;   //iterative good fix + pixel tracks rejection 
+      if(mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkAlgo[j]<4 || (int)mtrkAlgo[j]>8 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15) mtrkQual[j]=0;   //iterative good fix + pixel tracks rejection 
       if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;   //iterative good fix + pixel tracks rejection 
       if(s.doCaloMatch && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(genEta[j])>15 && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(genEta[j])>mtrkPfHcal[j]+mtrkPfEcal[j]) mtrkQual[j]=0; //Calo Matching 
  
