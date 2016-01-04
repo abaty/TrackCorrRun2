@@ -37,48 +37,48 @@ void makeSkim(Settings s)
 
   //track
   int nTrk;
-  float trkPt[100000];
-  float trkEta[100000];
-  float trkPhi[100000];
-  float trkStatus[100000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
-  bool highPurity[100000];
-  float trkMVA[100000];
-  float trkPtError[100000];
-  unsigned char trkNHit[100000];
-  float trkDxy1[100000];
-  float trkDxyError1[100000];
-  float trkDz1[100000];
-  float trkDzError1[100000];
-  float pfHcal[100000];
-  float pfEcal[100000];
-  float trkChi2[100000];
-  unsigned char trkNlayer[100000];
-  unsigned char trkAlgo[100000];
-  unsigned char trkNdof[100000];
+  float trkPt[60000];
+  float trkEta[60000];
+  float trkPhi[60000];
+  float trkStatus[60000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
+  bool highPurity[60000];
+  float trkMVA[60000];
+  float trkPtError[60000];
+  unsigned char trkNHit[60000];
+  float trkDxy1[60000];
+  float trkDxyError1[60000];
+  float trkDz1[60000];
+  float trkDzError1[60000];
+  float pfHcal[60000];
+  float pfEcal[60000];
+  float trkChi2[60000];
+  unsigned char trkNlayer[60000];
+  unsigned char trkAlgo[60000];
+  unsigned char trkNdof[60000];
   int nVtx;
 
   //gen parameters
   int nParticle;
-  float genPt[100000];
-  float mtrkPt[100000];
-  float genEta[100000];
-  float genPhi[100000];
-  //int   mtrkQual[100000];
-  bool   mtrkQual[100000];//for 5.02 samples
-  float   mtrkMVA[100000];
-  float   mtrkPtError[100000];
-  int   mtrkNHit[100000];
-  float mtrkDxy1[100000];
-  float mtrkDxyError1[100000];
-  float mtrkDz1[100000];
-  float mtrkDzError1[100000];
-  float mtrkPfHcal[100000];
-  float mtrkPfEcal[100000];
-  int   mtrkAlgo[100000];
-  int   mtrkNlayer[100000];
-  float mtrkChi2[100000];
-  float mtrkNdof[100000];
-  float pNRec[100000];
+  float genPt[60000];
+  float mtrkPt[60000];
+  float genEta[60000];
+  float genPhi[60000];
+  //int   mtrkQual[60000];
+  bool   mtrkQual[60000];//for 5.02 samples
+  float   mtrkMVA[60000];
+  float   mtrkPtError[60000];
+  int   mtrkNHit[60000];
+  float mtrkDxy1[60000];
+  float mtrkDxyError1[60000];
+  float mtrkDz1[60000];
+  float mtrkDzError1[60000];
+  float mtrkPfHcal[60000];
+  float mtrkPfEcal[60000];
+  int   mtrkAlgo[60000];
+  int   mtrkNlayer[60000];
+  float mtrkChi2[60000];
+  int   mtrkNdof[60000];
+  float pNRec[60000];
 
   //other parameters
   float localTrackDensity = 0;
@@ -169,6 +169,7 @@ void makeSkim(Settings s)
   std::string particleVars;
   particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual";
   trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU:rmin:jtpt:trkStatus";
+
 
   TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
   //TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
