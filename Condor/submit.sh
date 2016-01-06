@@ -20,8 +20,7 @@ cp run.sh $now
 
 #insert blacklist code
 blacklist=""
-for i in $(cat /net/hisrv0001/home/abaty/condor_blacklist/condor_blacklist.txt); do
-  
+for i in $(cat /net/hisrv0001/home/abaty/condor_blacklist/condor_blacklist.txt); do 
   blacklist=$blacklist$i" \&\& "
 done
 blacklist=$blacklist"endoflinetag"

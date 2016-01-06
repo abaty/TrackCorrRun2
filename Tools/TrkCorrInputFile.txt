@@ -1,5 +1,5 @@
 #General options (The number of line skips in this doc is important)
-pp_5p02_TrkCorr_v0_2015_12_09__18_41_43     #job name
+pp_5p02_TrkCorr_v0_2015_12_17__20_26_24     #job name
 0                   #Reuse previous data skims?
 0                   #Number of Pb nuclei (0=pp, 1=pPb, 2=PbPb)
 1                   #Do Efficiency? (Hardcoded to do it fow now)
@@ -62,7 +62,7 @@ pp_5p02_TrkCorr_v0_2015_12_09__18_41_43     #job name
 
 #Fine Binning Options
 10         #Pt Fine Binning
-20         #Eta Fine Binning
+24         #Eta Fine Binning
 20         #Phi Fine Binning
 10         #Cent Fine Binning
 10         #Jets Fine Binning (not implemented currently)
