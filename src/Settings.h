@@ -38,6 +38,8 @@ class Settings {
    int nStep, fullIterations, terminateStep;
    std::vector<int> stepOrder;
    std::string jetDefinition;
+   
+   std::string trackTreeName;
 
    Settings(std::string);
 };
@@ -212,7 +214,10 @@ Settings::Settings(std::string inputFile)
     for(int i = 0; i<nStep; i++) std::cout << stepOrder.at(i);
     std::cout << std::endl;
     std::cout << fullIterations << " " << terminateStep << " " << jetDefinition << std::endl;
-    
+   
+
+    if(nPb==0) trackTreeName = "ppTrack";
+    if(nPb==2) trackTreeName = "anaTrack";
   }
   else
   {  
