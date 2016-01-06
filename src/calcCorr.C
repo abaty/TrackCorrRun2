@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 
-void calcCorr(int job)
+void calcCorr(int job,bool doCondor = false)
 {
   TH1::SetDefaultSumw2();
   TH2::SetDefaultSumw2();
@@ -36,7 +36,7 @@ void calcCorr(int job)
   //will need to do something with 'job number' for fake events eventually depending on the condor implementation...
   if(!s.reuseSkim) 
   {
-    makeSkim(s);
+    makeSkim(s,doCondor);
   }
 
   //***********************************************************************************************
@@ -49,7 +49,7 @@ void calcCorr(int job)
     int stepType = s.stepOrder.at(i%s.nStep);
     std::cout << "This iteration is type " << stepType << std::endl; 
 
-    iterate(s,i,stepType);
+    iterate(s,i,stepType,doCondor);
 
     //check to see if we are done yet 
     if(i>=s.nStep*s.fullIterations && s.terminateStep==stepType) break;
@@ -67,7 +67,7 @@ int main(int argc, const char* argv[])
 
   int job = std::atoi(argv[1]);
   int effVsFake = std::atoi(argv[2]);
-  calcCorr(job);
+  calcCorr(job,true);
  
   return 0;
 }
