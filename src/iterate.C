@@ -32,7 +32,7 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
   const int rminBins = 16;
   double rminBinning[rminBins+1] = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.2,1.4,1.6,2,3,10};
   if(stepType ==5) hist = new TH1D(Form("%s_rmin",titlePrefix),";rmin;",rminBins,rminBinning);
-  if(stepType ==6)
+  /*if(stepType ==6)
   {
     const int densityBins = 10;
     double R = 0.1;
@@ -41,7 +41,7 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
     for(int i=2;i<6;i++)  densityAxis[i]=(i-1)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
     for(int i=6;i<densityBins;i++)  densityAxis[i]=(2*i-6)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
     hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",densityBins,densityAxis);
-  }
+  }*/
   return hist;
 }
 
@@ -64,7 +64,7 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 //iteration code
 void iterate(Settings s,int iter, int stepType, bool doCondor)
 {
-  float pt, eta, phi, density, weight, centPU, rmin, maxJetPt,trkStatus,pNRec,mpt,mtrkQual; 
+  float pt, eta, phi, weight, centPU, rmin, maxJetPt,trkStatus,pNRec,mpt,mtrkQual; 
   
   TFile * histFile;
   if(iter==0) histFile = TFile::Open(Form("corrHists_job%d.root",s.job),"recreate");
@@ -78,6 +78,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     std::cout << "Denominator info not yet calculated; calculating and saving it..." << std::endl;
     for(int i = 0; i<8; i++)
     {
+      if(i==6) continue;
       if(i != 1 && i!=7)
       {
         genPre[i] = makeTH1(s,i,"gen");
@@ -103,7 +104,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     gen->SetBranchAddress("genPt",&pt);
     gen->SetBranchAddress("genEta",&eta); 
     gen->SetBranchAddress("genPhi",&phi);
-    gen->SetBranchAddress("genDensity",&density);
+//    gen->SetBranchAddress("genDensity",&density);
     gen->SetBranchAddress("weight",&weight);
     gen->SetBranchAddress("centPU",&centPU);
     gen->SetBranchAddress("rmin",&rmin);
@@ -119,7 +120,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
       genPre[3]->Fill(maxJetPt,weight);
       genPre[4]->Fill(eta,weight); 
       genPre[5]->Fill(rmin,weight);
-      genPre[6]->Fill(density,weight);
+      //genPre[6]->Fill(density,weight);
       genPre2[7]->Fill(eta,pt,weight);
     }
 
@@ -129,7 +130,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);
     reco->SetBranchAddress("trkPhi",&phi);
-    reco->SetBranchAddress("trkDensity",&density);
+//    reco->SetBranchAddress("trkDensity",&density);
     reco->SetBranchAddress("weight",&weight);
     reco->SetBranchAddress("centPU",&centPU);
     reco->SetBranchAddress("rmin",&rmin);
@@ -145,7 +146,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
       mrecoPre[3]->Fill(maxJetPt,weight);
       mrecoPre[4]->Fill(eta,weight); 
       mrecoPre[5]->Fill(rmin,weight);
-      mrecoPre[6]->Fill(density,weight);
+      //mrecoPre[6]->Fill(density,weight);
       mrecoPre2[7]->Fill(eta,pt,weight);
     }
   
@@ -203,7 +204,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
   genHist[3] = (TH1D*)histFile->Get("gen_maxJetPt");
   genHist[4] = (TH1D*)histFile->Get("gen_eta"); 
   genHist[5] = (TH1D*)histFile->Get("gen_rmin"); 
-  genHist[6] = (TH1D*)histFile->Get("gen_density");
+  //genHist[6] = (TH1D*)histFile->Get("gen_density");
   genHist2[7] = (TH2D*)histFile->Get("gen_etaPt");
   std::cout << "Efficiency denominator histogram available now." << std::endl;
   recoHist[0] = (TH1D*)histFile->Get("mreco_pt");
@@ -212,7 +213,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
   recoHist[3] = (TH1D*)histFile->Get("mreco_maxJetPt");
   recoHist[4] = (TH1D*)histFile->Get("mreco_eta"); 
   recoHist[5] = (TH1D*)histFile->Get("mreco_rmin");
-  recoHist[6] = (TH1D*)histFile->Get("mreco_density");
+  //recoHist[6] = (TH1D*)histFile->Get("mreco_density");
   recoHist2[7] = (TH2D*)histFile->Get("mreco_etaPt");
   std::cout << "Fake denominator histogram available now." << std::endl;
 	   
@@ -226,7 +227,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
   for(int i=0; i<iter; i++)
   {
     int type = s.stepOrder.at(i%s.nStep); 
-    if(type==0 || type==2 || type==3 || type==4 || type==5 || type == 6)
+    if(type==0 || type==2 || type==3 || type==4 || type==5)
     {
       previousEff[i] = (TH1D*)histFile->Get(Form("eff_step%d",i)); 
       previousFake[i] = (TH1D*)histFile->Get(Form("fake_step%d",i));
@@ -239,7 +240,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
   }
 
   //setting up stuff for reading out of skim
-  if(stepType == 0 || stepType==2 || stepType==3 || stepType==4 || stepType==5 || stepType == 6)
+  if(stepType == 0 || stepType==2 || stepType==3 || stepType==4 || stepType==5)
   {
     mrecoHist = makeTH1(s,stepType,Form("mreco_eff_step%d",iter));
     frecoHist = makeTH1(s,stepType,Form("reco_fake_step%d",iter));
@@ -261,7 +262,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
   reco->SetBranchAddress("trkPt",&pt);
   reco->SetBranchAddress("trkEta",&eta);
   reco->SetBranchAddress("trkPhi",&phi);
-  reco->SetBranchAddress("trkDensity",&density);
+//  reco->SetBranchAddress("trkDensity",&density);
   reco->SetBranchAddress("weight",&weight);
   reco->SetBranchAddress("centPU",&centPU);
   reco->SetBranchAddress("rmin",&rmin);
@@ -288,7 +289,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
         if(type==3) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(maxJetPt));
         if(type==4) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(eta));
         if(type==5) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(rmin));
-        if(type==6) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(density));
+//        if(type==6) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(density));
         if(type==7) previousFakeCorr *= previousFake2[n]->GetBinContent(previousFake2[n]->GetXaxis()->FindBin(eta),previousFake2[n]->GetYaxis()->FindBin(pt));
       } 
     }
@@ -300,7 +301,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     if(stepType==3) frecoHist->Fill(maxJetPt,weight/previousFakeCorr);
     if(stepType==4) frecoHist->Fill(eta,weight/previousFakeCorr); 
     if(stepType==5) frecoHist->Fill(rmin,weight/previousFakeCorr); 
-    if(stepType==6) frecoHist->Fill(density,weight/previousFakeCorr);
+//    if(stepType==6) frecoHist->Fill(density,weight/previousFakeCorr);
     if(stepType==7) frecoHist2->Fill(eta,pt,weight/previousFakeCorr);
   }
   
@@ -309,7 +310,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
   gen->SetBranchAddress("genPt",&pt);
   gen->SetBranchAddress("genEta",&eta); 
   gen->SetBranchAddress("genPhi",&phi);
-  gen->SetBranchAddress("genDensity",&density);
+//  gen->SetBranchAddress("genDensity",&density);
   gen->SetBranchAddress("weight",&weight);
   gen->SetBranchAddress("centPU",&centPU);
   gen->SetBranchAddress("rmin",&rmin);
@@ -337,7 +338,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
         if(type==3) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(maxJetPt));
         if(type==4) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(eta));
         if(type==5) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(rmin));
-        if(type==6) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(density));
+//        if(type==6) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(density));
         if(type==7) previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(pt));
       } 
     }
@@ -349,7 +350,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     if(stepType==3) mrecoHist->Fill(maxJetPt,weight/previousEffCorr);
     if(stepType==4) mrecoHist->Fill(eta,weight/previousEffCorr); 
     if(stepType==5) mrecoHist->Fill(rmin,weight/previousEffCorr); 
-    if(stepType==6) mrecoHist->Fill(density,weight/previousEffCorr);
+//    if(stepType==6) mrecoHist->Fill(density,weight/previousEffCorr);
     if(stepType==7) mrecoHist2->Fill(eta,pt,weight/previousEffCorr);
   }
   skim->Close();
@@ -357,7 +358,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
   //saving reco and efficiencies/fake rates 
   std::cout << "Calculating updated Efficiency/Fake Rate and saving histograms" << std::endl;
   histFile->cd();    
-  if(stepType==0 || stepType == 2 || stepType == 3 || stepType==4 || stepType==5 || stepType==6)
+  if(stepType==0 || stepType == 2 || stepType == 3 || stepType==4 || stepType==5)
   {
     divHist = (TH1D*)mrecoHist->Clone(Form("eff_step%d",iter));
     divHist->Divide(genHist[stepType]);
@@ -395,7 +396,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     for(int i=0; i<s.nStep; i++)
     {
       int type = s.stepOrder.at(i%s.nStep); 
-      if(type == 0 || type==2 || type==3 || type==4 || type==5 || type == 6)
+      if(type == 0 || type==2 || type==3 || type==4 || type==5)
       {
         finalEff[i] = (TH1D*)previousEff[i]->Clone(Form("finalEff_step%d",i));
         finalFake[i] = (TH1D*)previousFake[i]->Clone(Form("finalFake_step%d",i));
@@ -409,7 +410,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     for(int n = s.nStep; n<iter; n++)
     {
       int type2 = s.stepOrder.at(n%s.nStep);
-      if(type2==0 || type2==2 || type2==3 || type2==4 || type2==5 || type2==6)
+      if(type2==0 || type2==2 || type2==3 || type2==4 || type2==5)
       {
         finalEff[n%s.nStep]->Multiply(previousEff[n]);
         finalFake[n%s.nStep]->Multiply(previousFake[n]); 
@@ -420,7 +421,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
         finalFake2[n%s.nStep]->Multiply(previousFake2[n]); 
       }
     }  
-    if(stepType == 0 || stepType==2 || stepType==3 || stepType==4 || stepType==5 || stepType == 6)
+    if(stepType == 0 || stepType==2 || stepType==3 || stepType==4 || stepType==5)
     {
       finalEff[iter%s.nStep]->Multiply((TH1D*)histFile->Get(Form("eff_step%d",iter)));
       finalFake[iter%s.nStep]->Multiply((TH1D*)histFile->Get(Form("fake_step%d",iter)));
@@ -433,7 +434,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     for(int i=0; i<s.nStep; i++)
     {
       int type = s.stepOrder.at(i%s.nStep); 
-      if(type == 0 || type==2 || type==3 || type==4 || type == 5|| type == 6){ finalEff[i]->Write(); finalFake[i]->Write();}
+      if(type == 0 || type==2 || type==3 || type==4 || type == 5){ finalEff[i]->Write(); finalFake[i]->Write();}
       if(type == 1 || type == 7){ finalEff2[i]->Write(); finalFake2[i]->Write();}
     }
    
@@ -445,7 +446,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     for(int i=0; i<8; i++)
     {
       int type = i;
-      if(type==0 || type==2 || type==3 || type==4 || type==5 || type == 6)
+      if(type==0 || type==2 || type==3 || type==4 || type==5)
       {
         finalEffClosure[i] = (TH1D*)genHist[i]->Clone(Form("finalEffClosure_step%d",i));
         finalFakeClosure[i] = (TH1D*)recoHist[i]->Clone(Form("finalFakeClosure_step%d",i));
@@ -471,7 +472,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);
     reco->SetBranchAddress("trkPhi",&phi);
-    reco->SetBranchAddress("trkDensity",&density);
+    //reco->SetBranchAddress("trkDensity",&density);
     reco->SetBranchAddress("weight",&weight);
     reco->SetBranchAddress("centPU",&centPU);
     reco->SetBranchAddress("rmin",&rmin);
@@ -493,7 +494,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
         if(type==3) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(maxJetPt));
         if(type==4) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(eta));
         if(type==5) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(rmin));
-        if(type==6) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(density));
+      //  if(type==6) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(density));
         if(type==7) previousFakeCorr *= finalFake2[n]->GetBinContent(finalFake2[n]->GetXaxis()->FindBin(eta),finalFake2[n]->GetYaxis()->FindBin(pt));
       }
       if(previousFakeCorr<1) previousFakeCorr==1;
@@ -503,7 +504,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
       finalFakeClosure[3]->Fill(maxJetPt,weight/previousFakeCorr);
       finalFakeClosure[4]->Fill(eta,weight/previousFakeCorr); 
       finalFakeClosure[5]->Fill(rmin,weight/previousFakeCorr); 
-      finalFakeClosure[6]->Fill(density,weight/previousFakeCorr);  
+     // finalFakeClosure[6]->Fill(density,weight/previousFakeCorr);  
       finalFakeClosure2[7]->Fill(eta,pt,weight/previousFakeCorr);  
     }
   
@@ -511,7 +512,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     gen->SetBranchAddress("genPt",&pt);
     gen->SetBranchAddress("genEta",&eta); 
     gen->SetBranchAddress("genPhi",&phi);
-    gen->SetBranchAddress("genDensity",&density);
+    //gen->SetBranchAddress("genDensity",&density);
     gen->SetBranchAddress("weight",&weight);
     gen->SetBranchAddress("centPU",&centPU);
     gen->SetBranchAddress("rmin",&rmin);
@@ -535,7 +536,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
         if(type==3) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(maxJetPt));
         if(type==4) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(eta));
         if(type==5) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(rmin));
-        if(type==6) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(density));  
+      //  if(type==6) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(density));  
         if(type==7) previousEffCorr *= finalEff2[n]->GetBinContent(finalEff2[n]->GetXaxis()->FindBin(eta), finalEff2[n]->GetYaxis()->FindBin(pt));  
       }
       if(previousEffCorr>1) previousEffCorr==1;
@@ -545,13 +546,14 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
       finalEffClosure[3]->Fill(maxJetPt,weight/previousEffCorr);
       finalEffClosure[4]->Fill(eta,weight/previousEffCorr); 
       finalEffClosure[5]->Fill(rmin,weight/previousEffCorr); 
-      finalEffClosure[6]->Fill(density,weight/previousEffCorr);
+      //finalEffClosure[6]->Fill(density,weight/previousEffCorr);
       finalEffClosure2[7]->Fill(eta,pt,weight/previousEffCorr);
     }
 
     histFile->cd();
     for(int i=0; i<8; i++)
     {
+      if(i==6) continue;
       if(i!=1 && i!=7)
       {
         finalFakeClosure[i]->Divide(recoHist[i]);

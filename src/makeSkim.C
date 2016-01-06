@@ -11,6 +11,7 @@
 #include <iostream>
 
 //calculates the area falling outside the acceptance (circle overlapping a rectagle)
+/*
 double getArea(double eta1, double R)
 {  
   if(TMath::Abs(eta1)<(2.4-R)) return TMath::Pi()*R*R;
@@ -20,7 +21,7 @@ double getArea(double eta1, double R)
     double area = R*R*(TMath::Pi()-(theta-TMath::Sin(theta))/2.0);
     return area;
   }
-}
+}*/
 
 void makeSkim(Settings s, bool doCondor)
 {
@@ -81,7 +82,7 @@ void makeSkim(Settings s, bool doCondor)
   float pNRec[60000];
 
   //other parameters
-  float localTrackDensity = 0;
+  //float localTrackDensity = 0;
   
   //event parameters
   int hiBin;
@@ -167,8 +168,8 @@ void makeSkim(Settings s, bool doCondor)
   //Setup output Ntuples
   std::string trackVars;
   std::string particleVars;
-  particleVars="genPt:genEta:genPhi:genDensity:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual";
-  trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU:rmin:jtpt:trkStatus";
+  particleVars="genPt:genEta:genPhi:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual";
+  trackVars=   "trkPt:trkEta:trkPhi:weight:centPU:rmin:jtpt:trkStatus";
 
 
   TFile * skimOut;
@@ -181,7 +182,7 @@ void makeSkim(Settings s, bool doCondor)
   //Actual skimming
   int processed = 0;
   //cone size for filling density map
-  float dMapR = 0.1;
+  /*float dMapR = 0.1;
   int nEtaBin = 192;
   int nPhiBin = 251;
   //grid resolution is 0.025x0.02503 in eta x phi space
@@ -264,7 +265,7 @@ void makeSkim(Settings s, bool doCondor)
       }   
     }//end density map fill
     
-    /*TCanvas * c1 = new TCanvas("c1","c1",800,800);
+    TCanvas * c1 = new TCanvas("c1","c1",800,800);
     densityMap->Draw("colz");
     c1->SaveAs("Density_check.png");
     delete c1;*/
@@ -297,9 +298,9 @@ void makeSkim(Settings s, bool doCondor)
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
-      localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(trkEta[j]),densityMap->GetYaxis()->FindBin(trkPhi[j]))/getArea(trkEta[j],dMapR);
+      //localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(trkEta[j]),densityMap->GetYaxis()->FindBin(trkPhi[j]))/getArea(trkEta[j],dMapR);
       
-      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j]};
+      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j]};
       reco->Fill(trkEntry);
     }
  
@@ -323,14 +324,14 @@ void makeSkim(Settings s, bool doCondor)
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
-      localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
-      float genEntry[] = {genPt[j],genEta[j],genPhi[j],localTrackDensity,weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j]};
+      //localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
+      float genEntry[] = {genPt[j],genEta[j],genPhi[j],weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j]};
       gen->Fill(genEntry); 
     }
-  densityMap->Reset();
+  //densityMap->Reset();
   processed++;
   }
-  delete densityMap;
+  //delete densityMap;
 
   std::cout << "Writing skim..." << std::endl;
   skimOut->Write();
