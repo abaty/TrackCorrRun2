@@ -19,7 +19,7 @@ class Settings {
    bool reuseSkim;
    bool checkClosure;
    int nPb, vz_window, nMC;
-   bool doEff, doFake, doMult, doSecondary, doNoiseFilter, doPColl;
+   bool doEff, doFake, doMult, doSecondary;
 
    bool doPthat, doVtx, doCentPU;
    std::vector<std::string> MCFiles;
@@ -69,8 +69,6 @@ Settings::Settings(std::string inputFile)
 
     //Event Cuts
     f >> vz_window; getline(f,Dump);
-    f >> doNoiseFilter; getline(f,Dump);
-    f >> doPColl; getline(f,Dump);
     getline(f,Dump);
     getline(f,Dump);
     
@@ -185,7 +183,7 @@ Settings::Settings(std::string inputFile)
     std::cout << "Dumping Settings" << std::endl;
     std::cout << jobName << std::endl;
     std::cout << nPb << " " << doEff << " " << doFake << " " << doMult << " " << doSecondary << std::endl; 
-    std::cout << vz_window << " " << doNoiseFilter << " " << doPColl << std::endl;
+    std::cout << vz_window << std::endl;
     std::cout << nMC << std::endl;
     for(int i = 0; i<nMC; i++) std::cout << MCFiles.at(i) << std::endl;
     std::cout << doPthat << std::endl;
