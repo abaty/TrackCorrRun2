@@ -22,7 +22,7 @@ double getArea(double eta1, double R)
   }
 }
 
-void makeSkim(Settings s)
+void makeSkim(Settings s, bool doCondor)
 {
   std::cout << "\nJob number: " << s.job << "\nCorresponds to the following parameters\nnSkip: " << s.nSkip
   << "\nptMin: " << s.ptMin << "\nptMax: " << s.ptMax << "\ncentMin: " << s.centPUMin << "\ncentMax " << s.centPUMax << std::endl;
@@ -171,8 +171,9 @@ void makeSkim(Settings s)
   trackVars=   "trkPt:trkEta:trkPhi:trkDensity:weight:centPU:rmin:jtpt:trkStatus";
 
 
-  TFile * skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
-  //TFile * skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
+  TFile * skimOut;
+  if(doCondor) skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
+  else         skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
 
@@ -185,8 +186,11 @@ void makeSkim(Settings s)
   int nPhiBin = 251;
   //grid resolution is 0.025x0.02503 in eta x phi space
   TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
-  
-  for(int i = 0; i<trkCh->GetEntries(); i++)
+ 
+  int numberOfEntries = 0;
+  if(doCondor) numberOfEntries = trkCh->GetEntries();
+  else         numberOfEntries = 2000; 
+  for(int i = 0; i<numberOfEntries; i++)
   {
     if(i%2000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);

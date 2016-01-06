@@ -62,7 +62,7 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 
 
 //iteration code
-void iterate(Settings s,int iter, int stepType)
+void iterate(Settings s,int iter, int stepType, bool doCondor)
 {
   float pt, eta, phi, density, weight, centPU, rmin, maxJetPt,trkStatus,pNRec,mpt,mtrkQual; 
   
@@ -91,9 +91,12 @@ void iterate(Settings s,int iter, int stepType)
     }
    
     TFile * skim;
-    if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-    else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-    //skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+    if(doCondor)
+    {
+      if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+      else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+    }
+    else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
     //for efficiency
     std::cout << "Doing Efficiency denominator" << std::endl;   
     TNtuple * gen = (TNtuple*)  skim->Get("Gen");
@@ -248,9 +251,12 @@ void iterate(Settings s,int iter, int stepType)
   }
 
   TFile * skim;
-  if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-  else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-  //skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+  if(doCondor)
+  {
+    if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+    else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+  }
+  else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
   TNtuple * reco = (TNtuple*)  skim->Get("Reco"); 
   reco->SetBranchAddress("trkPt",&pt);
   reco->SetBranchAddress("trkEta",&eta);
@@ -455,10 +461,12 @@ void iterate(Settings s,int iter, int stepType)
       }
     }
    
- 
-    if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-    else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
-    //skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+    if(doCondor)
+    { 
+      if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
+      else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+    }
+    else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
     reco = (TNtuple*)  skim->Get("Reco"); 
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);
