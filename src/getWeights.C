@@ -22,8 +22,8 @@ void produceWeights(Settings s)
   std::cout << "Starting weight calculation" << std::endl;
   std::cout << "Calculating data distributions..." << std::endl;
   
-  float pthat
-  float vz[100];
+  float pthat;
+  float zVtx;
   int nVtx, hiBin;
   int pcoll, noiseFilter;
   int pHBHENoiseFilterResultProducer , pPAprimaryVertexFilter , pBeamScrapingFilter;
@@ -48,9 +48,10 @@ void produceWeights(Settings s)
     {
       evtSel->SetBranchAddress("pPAprimaryVertexFilter",&pPAprimaryVertexFilter);
       evtSel->SetBranchAddress("pBeamScrapingFilter",&pBeamScrapingFilter);  
+    }
     else if(s.nPb==2)
     {
-      evtSel->SetBranchAddress("pClusterCompaitiblityFilter",pClusterCompaitiblityFilter);  
+      evtSel->SetBranchAddress("pClusterCompaitiblityFilter",&pClusterCompaitiblityFilter);  
       evtSel->SetBranchAddress("pprimaryVertexFilter",&pprimaryVertexFilter);  
       evtSel->SetBranchAddress("phfCoincFilter3",&phfCoincFilter3);  
     }
@@ -58,7 +59,7 @@ void produceWeights(Settings s)
     //stuff needed for pileup RW
     trk = (TTree*) f->Get(Form("%s/trackTree",s.trackTreeName.c_str()));
     trk->SetBranchAddress("nVtx",&nVtx);
-    trk->SetBranchAddress("zVtx",&vz);
+    trk->SetBranchAddress("zVtx",&zVtx);
     evtSel->AddFriend(trk);
     
     //stuff needed for centrality RW and vtx
@@ -76,7 +77,7 @@ void produceWeights(Settings s)
     if(s.doVtx)
     {
       dVz = new TH1D("dVz",";vz;Events",30,-15,15);
-      evtSel->Draw("vz[0]>>dVz",Form("%s && TMath::Abs(vz[0])<%d",eventSelectionString.c_str(),s.vz_window));
+      evtSel->Draw("zVtx>>dVz",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window));
       dVz->SetDirectory(0);
       dVz->Scale(1.0/(double)dVz->GetEntries());
       dVz->Draw();
@@ -85,7 +86,7 @@ void produceWeights(Settings s)
     if(s.doCentPU && s.nPb==2)
     {
       dCentPU = new TH1D("dCentPU",";hiBin;Events",100,0,200);
-      evtSel->Draw("hiBin>>dCentPU",Form("%s && TMath::Abs(vz[0])<%d",eventSelectionString.c_str(),s.vz_window));
+      evtSel->Draw("hiBin>>dCentPU",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window));
       dCentPU->SetDirectory(0);
       dCentPU->Scale(1.0/(double)dCentPU->GetEntries());
       dCentPU->Draw();
@@ -94,7 +95,7 @@ void produceWeights(Settings s)
     else if(s.doCentPU && s.nPb==0)
     {
       dCentPU = new TH1D("dCentPU",";nVtx;Events",30,0,30);
-      evtSel->Draw("nVtx>>dCentPU",Form("%s && TMath::Abs(vz[0])<%d",eventSelectionString.c_str(),s.vz_window));
+      evtSel->Draw("nVtx>>dCentPU",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window));
       dCentPU->SetDirectory(0);
       dCentPU->Scale(1.0/(double)dCentPU->GetEntries());
       dCentPU->Draw();
@@ -131,6 +132,7 @@ void produceWeights(Settings s)
     {
       evtCh->SetBranchAddress("pPAprimaryVertexFilter",&pPAprimaryVertexFilter);
       evtCh->SetBranchAddress("pBeamScrapingFilter",&pBeamScrapingFilter);  
+    }
     else if(s.nPb==2)
     {
       //evtCh->SetBranchAddress("pClusterCompaitiblityFilter",pClusterCompaitiblityFilter);  
@@ -143,7 +145,7 @@ void produceWeights(Settings s)
     trkCh = new TChain(Form("%s/trackTree",s.trackTreeName.c_str()));
     for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str());  
     trkCh->SetBranchAddress("nVtx",&nVtx);
-    trkCh->SetBranchAddress("zVtx",&vz);
+    trkCh->SetBranchAddress("zVtx",&zVtx);
     jet->AddFriend(trkCh);
     
     //stuff needed for centrality RW and vtx
@@ -156,13 +158,16 @@ void produceWeights(Settings s)
     }
     
     std::string eventSelectionString_MC;
-    if(s.nPb==0) eventSelectionString_MC = "pPAprimaryVertexFilter && pBeamScrapingFilter";
-    else if(s.nPb==2) eventSelectionString_MC = "pprimaryVertexFilter && phfCoincFilter3";       
+    //to be used with updated samples
+    //if(s.nPb==0) eventSelectionString_MC = "pPAprimaryVertexFilter && pBeamScrapingFilter";
+    //else if(s.nPb==2) eventSelectionString_MC = "pprimaryVertexFilter && phfCoincFilter3";       
+    if(s.nPb==0) eventSelectionString_MC = "1";
+    else if(s.nPb==2) eventSelectionString_MC = "1";       
     //Calculating MC distributions
     if(s.doPthat)
     {
       MCPthat->GetDirectory()->cd();
-      jet->Draw("pthat>>MCPthat", Form("TMath::Abs(vz[0])<%d && %s",s.vz_window,eventSelectionString_MC.c_str()));
+      jet->Draw("pthat>>MCPthat", Form("TMath::Abs(zVtx)<%d && %s",s.vz_window,eventSelectionString_MC.c_str()));
       MCPthat->SetDirectory(0);
       MCPthat->Draw();
       c1->SaveAs("../../evalPlots/MCPthat.png");
@@ -170,7 +175,7 @@ void produceWeights(Settings s)
     if(s.doVtx)
     {
       MCVz->GetDirectory()->cd();
-      jet->Draw("vz[0]>>MCVz",Form("TMath::Abs(vz[0])<%d && %s",s.vz_window,eventSelectionString_MC.c_str()));
+      jet->Draw("zVtx>>MCVz",Form("TMath::Abs(zVtx)<%d && %s",s.vz_window,eventSelectionString_MC.c_str()));
       MCVz->SetDirectory(0);
       MCVz->Scale(1.0/(double)MCVz->GetEntries());
       MCVz->Draw();
@@ -179,7 +184,7 @@ void produceWeights(Settings s)
     if(s.doCentPU && s.nPb==2)
     {
       MCCentPU->GetDirectory()->cd();
-      jet->Draw("hiBin>>MCCentPU",Form("TMath::Abs(vz[0])<%d && %s",s.vz_window,eventSelectionString_MC.c_str()));
+      jet->Draw("hiBin>>MCCentPU",Form("TMath::Abs(zVtx)<%d && %s",s.vz_window,eventSelectionString_MC.c_str()));
       MCCentPU->SetDirectory(0);
       MCCentPU->Scale(1.0/(double)MCCentPU->GetEntries());
       MCCentPU->Draw();
@@ -188,7 +193,7 @@ void produceWeights(Settings s)
     else if(s.doCentPU && s.nPb==0)
     {
       MCCentPU->GetDirectory()->cd();
-      jet->Draw("nVtx>>MCCentPU",Form("TMath::Abs(vz[0])<%d && %s",s.vz_window,eventSelectionString_MC.c_str()));
+      jet->Draw("nVtx>>MCCentPU",Form("TMath::Abs(zVtx)<%d && %s",s.vz_window,eventSelectionString_MC.c_str()));
       MCCentPU->SetDirectory(0);
       MCCentPU->Scale(1.0/(double)MCCentPU->GetEntries());
       MCCentPU->Draw();
@@ -207,8 +212,7 @@ void produceWeights(Settings s)
       {
         if(i==1) numberOfEvents.push_back(0);
         if(MCPthat->GetBinCenter(i)>s.pthatBins.at(j) && MCPthat->GetBinCenter(i)<s.pthatBins.at(j+1)) numberOfEvents.at(j) += MCPthat->GetBinContent(i);
-      }
-      
+      }  
     }
 
 
