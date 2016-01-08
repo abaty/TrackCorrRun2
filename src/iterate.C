@@ -397,13 +397,13 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
       int type = s.stepOrder.at(i%s.nStep); 
       if(type == 0 || type==2 || type==3 || type==4 || type==5)
       {
-        finalEff[i] = (TH1D*)previousEff[i]->Clone(Form("finalEff_step%d",i));
-        finalFake[i] = (TH1D*)previousFake[i]->Clone(Form("finalFake_step%d",i));
+        finalEff[i] = (TH1D*)previousEff[i]->Clone(Form("finalEff_type%d",i));
+        finalFake[i] = (TH1D*)previousFake[i]->Clone(Form("finalFake_type%d",i));
       }
       if(type == 1 ||  type==7)
       {
-        finalEff2[i] = (TH2D*)previousEff2[i]->Clone(Form("finalEff_step%d",i));
-        finalFake2[i] = (TH2D*)previousFake2[i]->Clone(Form("finalFake_step%d",i));
+        finalEff2[i] = (TH2D*)previousEff2[i]->Clone(Form("finalEff_type%d",i));
+        finalFake2[i] = (TH2D*)previousFake2[i]->Clone(Form("finalFake_type%d",i));
       }
     }
     for(int n = s.nStep; n<iter; n++)
@@ -447,15 +447,15 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
       int type = i;
       if(type==0 || type==2 || type==3 || type==4 || type==5)
       {
-        finalEffClosure[i] = (TH1D*)genHist[i]->Clone(Form("finalEffClosure_step%d",i));
-        finalFakeClosure[i] = (TH1D*)recoHist[i]->Clone(Form("finalFakeClosure_step%d",i));
+        finalEffClosure[i] = (TH1D*)genHist[i]->Clone(Form("finalEffClosure_var%d",i));
+        finalFakeClosure[i] = (TH1D*)recoHist[i]->Clone(Form("finalFakeClosure_var%d",i));
         finalEffClosure[i]->Reset();
         finalFakeClosure[i]->Reset();
       }
       if(type==1 || type==7)
       {  
-        finalEffClosure2[i] = (TH2D*)genHist2[i]->Clone(Form("finalEffClosure_step%d",i));
-        finalFakeClosure2[i] = (TH2D*)recoHist2[i]->Clone(Form("finalFakeClosure_step%d",i));
+        finalEffClosure2[i] = (TH2D*)genHist2[i]->Clone(Form("finalEffClosure_var%d",i));
+        finalFakeClosure2[i] = (TH2D*)recoHist2[i]->Clone(Form("finalFakeClosure_var%d",i));
         finalEffClosure2[i]->Reset();
         finalFakeClosure2[i]->Reset();
       }
