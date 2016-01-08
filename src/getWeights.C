@@ -27,7 +27,7 @@ void produceWeights(Settings s)
   int nVtx, hiBin;
   int pcoll, noiseFilter;
   int pHBHENoiseFilterResultProducer , pPAprimaryVertexFilter , pBeamScrapingFilter;
-  int pClusterCompaitiblityFilter, pprimaryVertexFilter, phfCoincFilter3;
+  int pClusterCompatiblityFilter, pprimaryVertexFilter, phfCoincFilter3;
 
   TH1D * dVz;
   TH1D * dCentPU;
@@ -51,7 +51,7 @@ void produceWeights(Settings s)
     }
     else if(s.nPb==2)
     {
-      evtSel->SetBranchAddress("pClusterCompaitiblityFilter",&pClusterCompaitiblityFilter);  
+      evtSel->SetBranchAddress("pClusterCompatiblityFilter",&pClusterCompatiblityFilter);  
       evtSel->SetBranchAddress("pprimaryVertexFilter",&pprimaryVertexFilter);  
       evtSel->SetBranchAddress("phfCoincFilter3",&phfCoincFilter3);  
     }
@@ -73,7 +73,7 @@ void produceWeights(Settings s)
     //Calculating data distributions
     std::string eventSelectionString;
     if(s.nPb==0) eventSelectionString = "pPAprimaryVertexFilter && pBeamScrapingFilter";
-    else if(s.nPb==2) eventSelectionString = "pClusterCompaitiblityFilter && pprimaryVertexFilter && phfCoincFilter3"; 
+    else if(s.nPb==2) eventSelectionString = "pClusterCompatiblityFilter && pprimaryVertexFilter && phfCoincFilter3"; 
     if(s.doVtx)
     {
       dVz = new TH1D("dVz",";vz;Events",30,-15,15);
@@ -135,7 +135,7 @@ void produceWeights(Settings s)
     }
     else if(s.nPb==2)
     {
-      //evtCh->SetBranchAddress("pClusterCompaitiblityFilter",pClusterCompaitiblityFilter);  
+      //evtCh->SetBranchAddress("pClusterCompatiblityFilter",pClusterCompatiblityFilter);  
       evtCh->SetBranchAddress("pprimaryVertexFilter",&pprimaryVertexFilter);  
       evtCh->SetBranchAddress("phfCoincFilter3",&phfCoincFilter3);  
     }

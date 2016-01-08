@@ -33,7 +33,7 @@ class Settings {
    std::vector<std::vector<double> > centPUBinCoarse, eventSkip;
 
    int highPurityDef;
-   bool doCaloMatch, doOtherCut;
+   bool doCaloMatch, doTrackTriggerCuts, doOtherCut;
 
    int nStep, fullIterations, terminateStep;
    std::vector<int> stepOrder;
@@ -161,6 +161,7 @@ Settings::Settings(std::string inputFile)
     getline(f,Dump);   
     f >> highPurityDef; getline(f,Dump); 
     f >> doCaloMatch; getline(f,Dump); 
+    f >> doTrackTriggerCuts; getline(f,Dump); 
     f >> doOtherCut; getline(f,Dump); 
     getline(f,Dump); 
     getline(f,Dump);  
@@ -207,7 +208,7 @@ Settings::Settings(std::string inputFile)
     }
     std::cout << std::endl;
     std::cout << ptBinFine << " " << etaBinFine << " " << phiBinFine << " " << centPUBinFine << " " << jetBinFine<<std::endl;
-    std::cout << highPurityDef << " " << doCaloMatch << " " << doOtherCut << std::endl;
+    std::cout << highPurityDef << " " << doCaloMatch << " " << doTrackTriggerCuts << " " << doOtherCut << std::endl;
     std::cout << nStep << std::endl;
     for(int i = 0; i<nStep; i++) std::cout << stepOrder.at(i);
     std::cout << std::endl;

@@ -68,6 +68,7 @@ root://eoscms.cern.ch///store/group/phys_heavyions/velicanu/forest/HIRun2015/HIM
 #Track Quality Cuts
 1        #High Purity Definition (0 = none (bad), 1 = loose, 2 = tight) (To Be Done)
 0        #Do Calo Matching?  (To Be Done)
+0        #Do Extra Track Trigger Cuts?
 0        #Other Track Cuts?  (To Be Done)
 
 #Advanced Settings

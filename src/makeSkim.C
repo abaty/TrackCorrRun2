@@ -64,7 +64,6 @@ void makeSkim(Settings s, bool doCondor)
   float mtrkPt[60000];
   float genEta[60000];
   float genPhi[60000];
-  //int   mtrkQual[60000];
   bool   mtrkQual[60000];//for 5.02 samples
   float   mtrkMVA[60000];
   float   mtrkPtError[60000];
@@ -86,18 +85,19 @@ void makeSkim(Settings s, bool doCondor)
   
   //event parameters
   int hiBin;
-  float vz=-99;
+  float zVtx[100];
   float pthat;
   int nref;
   float jtpt[100];
   float jtphi[100];
   float jteta[100];
   float weight = 1;
-  int pcoll;
+  int pHBHENoiseFilterResultProducer , pPAprimaryVertexFilter , pBeamScrapingFilter;
+  int pClusterCompatiblityFilter, pprimaryVertexFilter, phfCoincFilter3;
 
   //Setup input trees  
   //track tree     
-  trkCh = new TChain("ppTrack/trackTree");
+  trkCh = new TChain(Form("%s/trackTree",s.trackTreeName.c_str()));
   for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str()); 
   trkCh->SetBranchAddress("nTrk",&nTrk); 
   trkCh->SetBranchAddress("trkPt",&trkPt);
@@ -105,21 +105,14 @@ void makeSkim(Settings s, bool doCondor)
   trkCh->SetBranchAddress("trkPhi",&trkPhi);
   trkCh->SetBranchAddress("highPurity",&highPurity);
   trkCh->SetBranchAddress("trkStatus",&trkStatus);
-  trkCh->SetBranchAddress("trkMVA",&trkMVA);
+  //trkCh->SetBranchAddress("trkMVA",&trkMVA);
   trkCh->SetBranchAddress("trkPtError",&trkPtError);
-  trkCh->SetBranchAddress("trkNHit",&trkNHit);
   trkCh->SetBranchAddress("trkDxy1",&trkDxy1);
   trkCh->SetBranchAddress("trkDxyError1",&trkDxyError1);
   trkCh->SetBranchAddress("trkDz1",&trkDz1);
   trkCh->SetBranchAddress("trkDzError1",&trkDzError1);
-  trkCh->SetBranchAddress("pfHcal",&pfHcal); 
-  trkCh->SetBranchAddress("pfEcal",&pfEcal); 
-  trkCh->SetBranchAddress("trkChi2",&trkChi2); 
-  trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
-  trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
-  trkCh->SetBranchAddress("trkNdof",&trkNdof); 
- 
-  if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
+  trkCh->SetBranchAddress("nVtx",&nVtx);
+  trkCh->SetBranchAddress("zVtx",&zVtx); 
   
   trkCh->SetBranchAddress("nParticle",&nParticle);
   trkCh->SetBranchAddress("pPt",&genPt);
@@ -127,28 +120,42 @@ void makeSkim(Settings s, bool doCondor)
   trkCh->SetBranchAddress("pPhi",&genPhi);
   trkCh->SetBranchAddress("pNRec",&pNRec);
   trkCh->SetBranchAddress("mtrkPt",&mtrkPt);
-//  trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
-  trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
-  trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
+  trkCh->SetBranchAddress("mhighPurity",&mtrkQual); 
+  //trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA); 
   trkCh->SetBranchAddress("mtrkPtError",&mtrkPtError); 
-  trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
   trkCh->SetBranchAddress("mtrkDxy1",&mtrkDxy1);
   trkCh->SetBranchAddress("mtrkDxyError1",&mtrkDxyError1);
   trkCh->SetBranchAddress("mtrkDz1",&mtrkDz1);
   trkCh->SetBranchAddress("mtrkDzError1",&mtrkDzError1);
-  trkCh->SetBranchAddress("mtrkPfHcal",&mtrkPfHcal); 
-  trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal); 
-  trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
-  trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
-  trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
-  trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof); 
+  if(s.doTrackTriggerCuts)
+  {
+    trkCh->SetBranchAddress("trkNHit",&trkNHit);
+    trkCh->SetBranchAddress("trkChi2",&trkChi2); 
+    trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
+    trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
+    trkCh->SetBranchAddress("trkNdof",&trkNdof); 
+    trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
+    trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
+    trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
+    trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
+    trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof);
+  } 
+  if(s.doCaloMatch)
+  {
+    trkCh->SetBranchAddress("pfHcal",&pfHcal); 
+    trkCh->SetBranchAddress("pfEcal",&pfEcal); 
+    trkCh->SetBranchAddress("mtrkPfHcal",&mtrkPfHcal); 
+    trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal); 
+  }
 
-  //centrality and vz
-  //centCh = new TChain("hiEvtAnalyzer/HiTree");
-  //for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
-  //centCh->SetBranchAddress("vz",&vz);
-  //if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
-  //trkCh->AddFriend(centCh);  
+  //centrality
+  if(s.doCentPU && s.nPb==2)
+  {
+    centCh = new TChain("hiEvtAnalyzer/HiTree");
+    for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
+    centCh->SetBranchAddress("hiBin",&hiBin);
+    trkCh->AddFriend(centCh);  
+  }
   
   //pthat and jets
   jet = new TChain(Form("%sJetAnalyzer/t",s.jetDefinition.c_str()));
@@ -160,10 +167,20 @@ void makeSkim(Settings s, bool doCondor)
   jet->SetBranchAddress("jtphi",&jtphi);
   trkCh->AddFriend(jet);
   
-  //evtCh = new TChain("skimanalysis/HltTree");
-  //for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
-  //evtCh->SetBranchAddress("pcollisionEventSelection",&pcoll);
-  //trkCh->AddFriend(evtCh);
+  evtCh = new TChain("skimanalysis/HltTree");
+  for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
+  if(s.nPb==0)
+  {
+    evtCh->SetBranchAddress("pPAprimaryVertexFilter",&pPAprimaryVertexFilter);
+    evtCh->SetBranchAddress("pBeamScrapingFilter",&pBeamScrapingFilter);  
+  }
+  else if(s.nPb==2)
+  {
+    //evtCh->SetBranchAddress("pClusterCompatiblityFilter",pClusterCompatiblityFilter);  
+    evtCh->SetBranchAddress("pprimaryVertexFilter",&pprimaryVertexFilter);  
+    evtCh->SetBranchAddress("phfCoincFilter3",&phfCoincFilter3);  
+  }
+  trkCh->AddFriend(evtCh);
 
   //Setup output Ntuples
   std::string trackVars;
@@ -186,7 +203,7 @@ void makeSkim(Settings s, bool doCondor)
   int nEtaBin = 192;
   int nPhiBin = 251;
   //grid resolution is 0.025x0.02503 in eta x phi space
-  TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());
+  TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());*/
  
   int numberOfEntries = 0;
   if(doCondor) numberOfEntries = trkCh->GetEntries();
@@ -195,34 +212,36 @@ void makeSkim(Settings s, bool doCondor)
   {
     if(i%2000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
-    else trkCh->GetEntry(i);
+    trkCh->GetEntry(i);
    
     //some event selections on centrality, vz, or just throwing away some events because stats not needed 
     if((s.nPb==2) && ((hiBin/2 < s.centPUMin) || (hiBin/2 >= s.centPUMax))) continue;
     if((s.nPb==0) && ((nVtx < s.centPUMin) || (nVtx >= s.centPUMax))) continue;
-    //if(TMath::Abs(vz)>s.vz_window) continue;
+    if(TMath::Abs(zVtx[0])>s.vz_window) continue;
     if(processed%(s.nSkip) !=0)
     {
       processed++;
       continue;
     }
-    if(s.nPb==2) trkCh->GetEntry(i);
-    //if(pcoll==0 || pthat>800) continue;
-    if( pthat>800) continue;
+    if(pthat>800) continue;
+    if(s.nPb==0 && (pPAprimaryVertexFilter==0 || BeamScrapingFilter==0)) continue;
+    //if(s.nPb==2 && (pClusterCompatiblityFilter==0 || pprimaryVertexFilter==0 || phfCoincFilter3==0)) continue;
+    if(s.nPb==2 && (pprimaryVertexFilter==0 || phfCoincFilter3==0)) continue;
   
     //getting weight parameters
     int centPU;
     if(s.nPb==2)
     {
-      weight = getWeight(s,pthat,vz,hiBin);    
+      weight = getWeight(s,pthat,zVtx[0],hiBin);    
       centPU = hiBin/2.0;
     }
     if(s.nPb==0) 
     {
-      weight = getWeight(s,pthat,vz,nVtx);
+      weight = getWeight(s,pthat,zVtx[0],nVtx);
       centPU = nVtx;
     }
 
+    /*
     //Filling density histogram (using all (even fakes) tracks>3GeV)
     for(int j = 0; j<nTrk; j++)
     {
@@ -285,7 +304,7 @@ void makeSkim(Settings s, bool doCondor)
       if(highPurity[j]!=1) continue;
       if(trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
       //track triggger cuts
-      if((int)trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15) continue;
+      if(s.doTrackTriggerCuts && ((int)trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue;
       if(s.doCaloMatch && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>15 && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>pfHcal[j]+pfEcal[j]) continue; //Calo Matching 
 
       //find rmin parameters for the track
@@ -310,8 +329,8 @@ void makeSkim(Settings s, bool doCondor)
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
 
-      if(mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkAlgo[j]<4 || (int)mtrkAlgo[j]>8 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15) mtrkQual[j]=0;   //iterative good fix + pixel tracks rejection 
-      if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;   //iterative good fix + pixel tracks rejection 
+      if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
+      if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkAlgo[j]<4 || (int)mtrkAlgo[j]>8 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
       if(s.doCaloMatch && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(genEta[j])>15 && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(genEta[j])>mtrkPfHcal[j]+mtrkPfEcal[j]) mtrkQual[j]=0; //Calo Matching 
  
       //find rmin parameters for the track
