@@ -176,7 +176,7 @@ void makeSkim(Settings s, bool doCondor)
   }
   else if(s.nPb==2)
   {
-    //evtCh->SetBranchAddress("pClusterCompatiblityFilter",pClusterCompatiblityFilter);  
+    evtCh->SetBranchAddress("pClusterCompatiblityFilter",&pClusterCompatiblityFilter);  
     evtCh->SetBranchAddress("pprimaryVertexFilter",&pprimaryVertexFilter);  
     evtCh->SetBranchAddress("phfCoincFilter3",&phfCoincFilter3);  
   }
@@ -224,7 +224,7 @@ void makeSkim(Settings s, bool doCondor)
       continue;
     }
     if(pthat>800) continue;
-    if(s.nPb==0 && (pPAprimaryVertexFilter==0 || BeamScrapingFilter==0)) continue;
+    //if(s.nPb==0 && (pPAprimaryVertexFilter==0 || pBeamScrapingFilter==0)) continue;
     //if(s.nPb==2 && (pClusterCompatiblityFilter==0 || pprimaryVertexFilter==0 || phfCoincFilter3==0)) continue;
     if(s.nPb==2 && (pprimaryVertexFilter==0 || phfCoincFilter3==0)) continue;
   
@@ -303,8 +303,7 @@ void makeSkim(Settings s, bool doCondor)
       if(trkPt[j]<=s.ptMin || trkPt[j]>s.ptMax) continue;
       if(highPurity[j]!=1) continue;
       if(trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
-      //track triggger cuts
-      if(s.doTrackTriggerCuts && ((int)trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue;
+      if(s.doTrackTriggerCuts && ((int)trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
       if(s.doCaloMatch && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>15 && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>pfHcal[j]+pfEcal[j]) continue; //Calo Matching 
 
       //find rmin parameters for the track

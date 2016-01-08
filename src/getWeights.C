@@ -135,7 +135,7 @@ void produceWeights(Settings s)
     }
     else if(s.nPb==2)
     {
-      //evtCh->SetBranchAddress("pClusterCompatiblityFilter",pClusterCompatiblityFilter);  
+      evtCh->SetBranchAddress("pClusterCompatiblityFilter",&pClusterCompatiblityFilter);  
       evtCh->SetBranchAddress("pprimaryVertexFilter",&pprimaryVertexFilter);  
       evtCh->SetBranchAddress("phfCoincFilter3",&phfCoincFilter3);  
     }

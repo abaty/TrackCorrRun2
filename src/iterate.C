@@ -6,7 +6,6 @@
 #include "TMath.h"
 #include <iostream>
 
-
 //settings for the histograms used
 TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
 {
@@ -104,7 +103,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     gen->SetBranchAddress("genPt",&pt);
     gen->SetBranchAddress("genEta",&eta); 
     gen->SetBranchAddress("genPhi",&phi);
-//    gen->SetBranchAddress("genDensity",&density);
+    //gen->SetBranchAddress("genDensity",&density);
     gen->SetBranchAddress("weight",&weight);
     gen->SetBranchAddress("centPU",&centPU);
     gen->SetBranchAddress("rmin",&rmin);
@@ -130,7 +129,7 @@ void iterate(Settings s,int iter, int stepType, bool doCondor)
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);
     reco->SetBranchAddress("trkPhi",&phi);
-//    reco->SetBranchAddress("trkDensity",&density);
+    //reco->SetBranchAddress("trkDensity",&density);
     reco->SetBranchAddress("weight",&weight);
     reco->SetBranchAddress("centPU",&centPU);
     reco->SetBranchAddress("rmin",&rmin);
