@@ -93,7 +93,7 @@ void makeSkim(Settings s, bool doCondor)
   float jteta[100];
   float weight = 1;
   int pHBHENoiseFilterResultProducer , pPAprimaryVertexFilter , pBeamScrapingFilter;
-  int pClusterCompatiblityFilter, pprimaryVertexFilter, phfCoincFilter3;
+  int pClusterCompaitiblityFilter, pprimaryVertexFilter, phfCoincFilter3;
 
   //Setup input trees  
   //track tree     
@@ -176,7 +176,7 @@ void makeSkim(Settings s, bool doCondor)
   }
   else if(s.nPb==2)
   {
-    evtCh->SetBranchAddress("pClusterCompatiblityFilter",&pClusterCompatiblityFilter);  
+    evtCh->SetBranchAddress("pClusterCompaitiblityFilter",&pClusterCompaitiblityFilter);  
     evtCh->SetBranchAddress("pprimaryVertexFilter",&pprimaryVertexFilter);  
     evtCh->SetBranchAddress("phfCoincFilter3",&phfCoincFilter3);  
   }
@@ -225,7 +225,7 @@ void makeSkim(Settings s, bool doCondor)
     }
     if(pthat>800) continue;
     //if(s.nPb==0 && (pPAprimaryVertexFilter==0 || pBeamScrapingFilter==0)) continue;
-    //if(s.nPb==2 && (pClusterCompatiblityFilter==0 || pprimaryVertexFilter==0 || phfCoincFilter3==0)) continue;
+    //if(s.nPb==2 && (pClusterCompaitiblityFilter==0 || pprimaryVertexFilter==0 || phfCoincFilter3==0)) continue;
     if(s.nPb==2 && (pprimaryVertexFilter==0 || phfCoincFilter3==0)) continue;
   
     //getting weight parameters
