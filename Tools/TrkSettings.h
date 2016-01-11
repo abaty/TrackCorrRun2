@@ -115,9 +115,9 @@ TrkSettings::TrkSettings(std::string inputFile)
     getline(f,Dump);   
     for(int i = 0; i<nPtBinCoarse; i++)
     { 
-      int temp;
-      f >> temp;
-      nCentPUBinCoarse.push_back(temp);
+      int tempint;
+      f >> tempint;
+      nCentPUBinCoarse.push_back(tempint);
       getline(f,Dump);  
       std::vector<double> tempVec; 
       for(int j = 0; j<nCentPUBinCoarse.at(i)+1; j++)
@@ -145,9 +145,9 @@ TrkSettings::TrkSettings(std::string inputFile)
     getline(f,Dump);
     for(int i = 0; i<nPtBinCoarse; i++)
     { 
-      int temp;
-      f >> temp;
-      multiRecoBins.push_back(temp);
+      int tempint;
+      f >> tempint;
+      multiRecoBins.push_back(tempint);
     } 
     getline(f,Dump);   
     getline(f,Dump);   
@@ -169,9 +169,9 @@ TrkSettings::TrkSettings(std::string inputFile)
     f >> nStep; getline(f,Dump); 
     for(int i=0; i<nStep; i++)
     {
-      int temp; 
-      f >> temp;
-      stepOrder.push_back(temp);
+      int tempint; 
+      f >> tempint;
+      stepOrder.push_back(tempint);
     }
     getline(f,Dump);
     f >> fullIterations; getline(f,Dump); 
