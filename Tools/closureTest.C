@@ -1,4 +1,4 @@
-#include "../src/Settings.h"
+#include "../src/TrkSettings.h"
 #include "../src/getWeights.C"
 #include "getTrkCorr.h"
 #include "TMath.h"
@@ -18,7 +18,7 @@
 //plot vs denisty by adding function to return local track density
 
 //settings for the histograms used
-TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
+TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
 {
   TH1D * hist;
   //set log spacing 
@@ -55,7 +55,7 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
   return hist;
 }
 
-TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
+TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
 {
   TH2D * hist;
   //if(s.ptMin>=10){s.etaBinFine = s.etaBinFine/2; s.phiBinFine = s.phiBinFine/2;}
@@ -70,19 +70,8 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
   return hist;
 }
 
-//calculates the area falling outside the acceptance (circle overlapping a rectagle)
-double getArea(double eta1, double R)
-{  
-  if(TMath::Abs(eta1)<(2.4-R)) return TMath::Pi()*R*R;
-  else
-  {
-    double theta = 2*TMath::ACos((2.4-TMath::Abs(eta1))/R);
-    double area = R*R*(TMath::Pi()-(theta-TMath::Sin(theta))/2.0);
-    return area;
-  }
-}
 
-void closureTest(Settings s)
+void closureTest(TrkSettings s)
 {
   TrkCorr* trkCorr = new TrkCorr();
 //Setup variables for skim
@@ -99,13 +88,14 @@ void closureTest(Settings s)
   float trkStatus[75000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
   bool highPurity[75000];
   float trkMVA[75000];
-  float pfHcal[100000];
-  float pfEcal[100000];
-  float trkDxy1[100000];
-  float trkDxyError1[100000];
-  float trkDz1[100000];
-  float trkDzError1[100000];
+  float pfHcal[75000];
+  float pfEcal[75000];
+  float trkDxy1[75000];
+  float trkDxyError1[75000];
+  float trkDz1[75000];
+  float trkDzError1[75000];
   int nVtx;
+  float zVtx[100];
 
   //gen parameters
   int nParticle;
@@ -123,9 +113,6 @@ void closureTest(Settings s)
   float mtrkPfHcal[100000];
   float mtrkPfEcal[100000];
   float pNRec[75000];
-
-  //other parameters
-  float density = 0;
   
   //event parameters
   int hiBin;
@@ -155,7 +142,6 @@ void closureTest(Settings s)
   trkCh->SetBranchAddress("trkDzError1",&trkDzError1);
   trkCh->SetBranchAddress("pfHcal",&pfHcal); 
   trkCh->SetBranchAddress("pfEcal",&pfEcal); 
-  if(s.doCentPU && s.nPb==0) trkCh->SetBranchAddress("nVtx",&nVtx);
   
   trkCh->SetBranchAddress("nParticle",&nParticle);
   trkCh->SetBranchAddress("pPt",&genPt);
@@ -171,14 +157,15 @@ void closureTest(Settings s)
   trkCh->SetBranchAddress("mtrkDz1",&mtrkDz1);
   trkCh->SetBranchAddress("mtrkDzError1",&mtrkDzError1);
   trkCh->SetBranchAddress("mtrkPfHcal",&mtrkPfHcal); 
-  trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal); 
+  trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal);
+  trkCh->SetBranchAddress("nVtx",&nVtx);
+  trkCh->SetBranchAddress("zVtx",&zVtz); 
   
   //centrality and vz
-  //centCh = new TChain("hiEvtAnalyzer/HiTree");
-  //for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
-  //centCh->SetBranchAddress("vz",&vz);
-  //if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
-  //trkCh->AddFriend(centCh);  
+  centCh = new TChain("hiEvtAnalyzer/HiTree");
+  for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
+  if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
+  trkCh->AddFriend(centCh);  
   
   //pthat and jets
   jet = new TChain(Form("%sJetAnalyzer/t",s.jetDefinition.c_str()));
@@ -263,15 +250,13 @@ void closureTest(Settings s)
       if(TMath::Abs(jteta[k])>2) continue;
       if(jtpt[k]>maxJetPt) maxJetPt=jtpt[k];
     }
-    //trkCorr update
-    trkCorr->UpdateEventInfo(trkPt,trkEta,trkPhi,nTrk);
     //track loop  
     for(int j = 0; j<nTrk; j++)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
-      if((trkMVA[j]<0.5 && trkMVA[j]!=-99) || trkNHit[j]<8 || trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) trkQual[j]=0;  
-      if((trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>15 && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>trkPfHcal[j]+trkPfEcal[j]) trkQual[j]=0; //Calo Matching 
+      if( trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) trkQual[j]=0;  
+      //if((trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>15 && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>trkPfHcal[j]+trkPfEcal[j]) trkQual[j]=0; //Calo Matching 
       //TODO: Calo matching here
       //other cut here as well maybe?
       //trkStauts cut here?
@@ -299,7 +284,7 @@ void closureTest(Settings s)
       //FakeNoCorr[6]->Fill(density,weight);
       FakeNoCorr2[7]->Fill(trkEta[j],trkPt[j],weight);   
 
-      float fake = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],2);
+      float fake = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin,rmin,2);
       FakeCorr[0]->Fill(trkPt[j],weight*fake);
       FakeCorr2[1]->Fill(trkEta[j],trkPhi[j],weight*fake);
       FakeCorr[2]->Fill(centPU,weight*fake);
@@ -309,7 +294,7 @@ void closureTest(Settings s)
       //FakeCorr[6]->Fill(density,weight*fake);
       FakeCorr2[7]->Fill(trkEta[j],trkPt[j],weight*fake);   
 
-      float correction = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j]);
+      float correction = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin,rmin);
       FinalCorr[0]->Fill(trkPt[j],weight*correction);
       FinalCorr2[1]->Fill(trkEta[j],trkPhi[j],weight*correction);
       FinalCorr[2]->Fill(centPU,weight*correction);
@@ -358,8 +343,8 @@ void closureTest(Settings s)
       genPre2[7]->Fill(genEta[j],genPt[j],weight);
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
-      if((mtrkMVA[j]<0.5 && mtrkMVA[j]!=-99) || mtrkNHit[j]<8 || mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
-      if((mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(pEta[j])>15 && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(pEta[j])>mtrkPfHcal[j]+mtrkPfEcal[j]) mtrkQual[j]=0; //Calo Matching 
+      if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
+      //if((mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(pEta[j])>15 && (mtrkPt[j]-2*mtrkPtError[j])*TMath::CosH(pEta[j])>mtrkPfHcal[j]+mtrkPfEcal[j]) mtrkQual[j]=0; //Calo Matching 
       if(mtrkQual[j]<1 || mtrkPt[j]<=0) continue;
       EffNoCorr[0]->Fill(genPt[j],weight);
       EffNoCorr2[1]->Fill(genEta[j],genPhi[j],weight);
@@ -370,7 +355,7 @@ void closureTest(Settings s)
       //EffNoCorr[6]->Fill(density,weight);
       EffNoCorr2[7]->Fill(genEta[j],genPt[j],weight);
 	  
-      float eff = trkCorr->getTrkCorr(genPt[j],genEta[j],genPhi[j],1);
+      float eff = trkCorr->getTrkCorr(genPt[j],genEta[j],genPhi[j],hiBin,rmin,1);
       EffCorr[0]->Fill(genPt[j],weight*eff);
       EffCorr2[1]->Fill(genEta[j],genPhi[j],weight*eff);
       EffCorr[2]->Fill(centPU,weight*eff);
@@ -392,7 +377,7 @@ void getClosure()
   TH1::SetDefaultSumw2();
   TH2::SetDefaultSumw2();
 
-  Settings s("trkCorrections/TrkCorrInputFile.txt");
+  TrkSettings s("trkCorrections/TrkCorrInputFile.txt");
   closureTest(s);
   return;
 }
