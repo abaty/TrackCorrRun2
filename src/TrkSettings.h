@@ -7,14 +7,14 @@
 #include <vector>
 #include <cstdlib>
 
-class Settings {
+class TrkSettings {
   public:
-  //Settings that will be set when a job number is specified
+  //TrkSettings that will be set when a job number is specified
    int job;
    int nSkip;
    double ptMin, ptMax, centPUMin, centPUMax;
 
-  //Settings that should be the same across all processes
+  //TrkSettings that should be the same across all processes
    std::string jobName;
    bool reuseSkim;
    bool checkClosure;
@@ -41,10 +41,10 @@ class Settings {
    
    std::string trackTreeName;
 
-   Settings(std::string);
+   TrkSettings(std::string);
 };
 
-Settings::Settings(std::string inputFile)
+TrkSettings::TrkSettings(std::string inputFile)
 {
   std::cout << "Getting settings from file: " << inputFile << std::endl;
   std::ifstream f;
@@ -178,10 +178,10 @@ Settings::Settings(std::string inputFile)
     f >> terminateStep; getline(f,Dump); 
     f >> jetDefinition;  
     f.close();
-    std::cout << "Settings Loaded" << std::endl;
+    std::cout << "TrkSettings Loaded" << std::endl;
 
     //test reading in the input File
-    std::cout << "Dumping Settings" << std::endl;
+    std::cout << "Dumping TrkSettings" << std::endl;
     std::cout << jobName << std::endl;
     std::cout << nPb << " " << doEff << " " << doFake << " " << doMult << " " << doSecondary << std::endl; 
     std::cout << vz_window << std::endl;

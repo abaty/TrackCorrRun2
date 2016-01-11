@@ -1,4 +1,4 @@
-#include "Settings.h"
+#include "TrkSettings.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TFile.h"
@@ -7,7 +7,7 @@
 #include <iostream>
 
 //settings for the histograms used
-TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
+TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
 {
   TH1D * hist;
   //set log spacing 
@@ -44,7 +44,7 @@ TH1D * makeTH1(Settings s, int stepType, const char * titlePrefix)
   return hist;
 }
 
-TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
+TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
 {
   TH2D * hist;
   if(s.ptMin>=10){s.etaBinFine = s.etaBinFine/2; s.phiBinFine = s.phiBinFine/2;}
@@ -61,7 +61,7 @@ TH2D * makeTH2(Settings s, int stepType, const char * titlePrefix)
 
 
 //iteration code
-void iterate(Settings s,int iter, int stepType, bool doCondor)
+void iterate(TrkSettings s,int iter, int stepType, bool doCondor)
 {
   float pt, eta, phi, weight, centPU, rmin, maxJetPt,trkStatus,pNRec,mpt,mtrkQual; 
   

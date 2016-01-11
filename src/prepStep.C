@@ -1,9 +1,9 @@
-#include "Settings.h"
+#include "TrkSettings.h"
 #include "getWeights.C"
 
 void prepStep()
 {
-  Settings s("TrkCorrInputFile.txt");
+  TrkSettings s("TrkCorrInputFile.txt");
   produceWeights(s);
 }
 

@@ -1,5 +1,5 @@
 #include "TH1D.h"
-#include "Settings.h"
+#include "TrkSettings.h"
 #include "iterate.C"
 #include "makeSkim.C"
 #include <vector>
@@ -12,7 +12,7 @@ void calcCorr(int job,bool doCondor = false)
 
   //***********************************************************************************************
   //pick up Global settings and then set local process settings
-  Settings s("TrkCorrInputFile.txt");
+  TrkSettings s("TrkCorrInputFile.txt");
   s.job = job;
 
   //figuring out which subset of data to skim based on the job number

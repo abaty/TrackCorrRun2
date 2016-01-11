@@ -2,7 +2,7 @@
 #define GETWEIGHTS
 
 #include <iostream>
-#include "Settings.h"
+#include "TrkSettings.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TAxis.h"
@@ -16,7 +16,7 @@ TH1D * PthatWeight;
 TH1D * VertexWeight;
 TH1D * CentPUWeight; 
 
-void produceWeights(Settings s)
+void produceWeights(TrkSettings s)
 {
   TH1::SetDefaultSumw2();
   std::cout << "Starting weight calculation" << std::endl;
@@ -275,7 +275,7 @@ void produceWeights(Settings s)
   delete c1;
 }
 
-double getWeight(Settings s, double pthat, double vz, double centPU)
+double getWeight(TrkSettings s, double pthat, double vz, double centPU)
 {
   if(!isWeightFileInitialized)
   {

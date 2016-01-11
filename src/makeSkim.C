@@ -1,4 +1,4 @@
-#include "Settings.h"
+#include "TrkSettings.h"
 #include "getWeights.C"
 #include "TMath.h"
 #include "TH2D.h"
@@ -23,7 +23,7 @@ double getArea(double eta1, double R)
   }
 }*/
 
-void makeSkim(Settings s, bool doCondor)
+void makeSkim(TrkSettings s, bool doCondor)
 {
   std::cout << "\nJob number: " << s.job << "\nCorresponds to the following parameters\nnSkip: " << s.nSkip
   << "\nptMin: " << s.ptMin << "\nptMax: " << s.ptMax << "\ncentMin: " << s.centPUMin << "\ncentMax " << s.centPUMax << std::endl;
