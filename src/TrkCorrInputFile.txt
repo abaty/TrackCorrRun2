@@ -40,15 +40,15 @@ root://eoscms.cern.ch///store/group/phys_heavyions/velicanu/forest/HIRun2015/HIM
 0.5 1 3 10 30 300           # Trk Pt Bin boundaries
 
 4                       # # of coarse Cent/PU Bins for the 1st coarse Trk Pt Bin
-0 10 20 50 100         # Cent/PU Bin Boundaries
+0 10 30 50 100         # Cent/PU Bin Boundaries
 4                       # # of coarse Cent/PU Bins for the 2nd coarse Trk Pt Bin
-0 10 20 50 100          # Cent/PU Bin Boundaries
+0 10 30 50 100          # Cent/PU Bin Boundaries
 4                       # # of coarse Cent/PU Bins for the 3rd coarse Trk Pt Bin
-0 10 20 50 100         # Cent/PU Bin Boundaries
+0 10 30 50 100         # Cent/PU Bin Boundaries
 4                       # # of coarse Cent/PU Bins for the 4th coarse Trk Pt Bin
-0 10 20 50 100         # Cent/PU Bin Boundaries
+0 10 30 50 100         # Cent/PU Bin Boundaries
 4                       # # of coarse Cent/PU Bins for the 5th coarse Trk Pt Bin
-0 10 20 50 100         # Cent/PU Bin Boundaries
+0 10 30 50 100         # Cent/PU Bin Boundaries
 
 1 1 1 1          #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
 1 1 1 1              #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
