@@ -16,7 +16,7 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
     const int ptBins = s.ptBinFine+1;
     double ptAxis[ptBins];
     for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
-    hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",ptBins,s.ptMin,s.ptMax);
+    hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",ptBins-1,ptAxis);
   }
 
   if(stepType ==2) 
@@ -47,7 +47,7 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
 TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
 {
   TH2D * hist;
-  if(s.ptMin>=10){s.etaBinFine = s.etaBinFine/2; s.phiBinFine = s.phiBinFine/2;}
+  if(s.ptMin>=10){s.etaBinFine = s.etaBinFine/2; s.phiBinFine = 1;}
   if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",s.etaBinFine,-2.4,2.4,s.phiBinFine,-TMath::Pi(),TMath::Pi());
   if(stepType ==7)
   {

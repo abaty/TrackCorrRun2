@@ -106,12 +106,12 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
   if(netFake<1) netFake = 1;
   if(netEff>1)  netEff = 1;
 
-//  std::cout << coarseBin << std::endl;
-//  std::cout << "pt: " << pt << " cent: " << cent << " eta: " << eta << " phi: " << phi   << std::endl;
-//  std::cout << "Efficiency: " << netEff << " (pt: " << eff[coarseBin][0]->GetBinContent(eff[coarseBin][0]->FindBin(pt)) << " cent: " <<  eff[coarseBin][1]->GetBinContent(eff[coarseBin][1]->FindBin(cent)) << " eta/phi: " << eff2[coarseBin][2]->GetBinContent(eff2[coarseBin][2]->GetXaxis()->FindBin(eta),eff2[coarseBin][2]->GetYaxis()->FindBin(phi)) << " rmin: " << eff[coarseBin][3]->GetBinContent(eff[coarseBin][3]->FindBin(rmin))<< std::endl;
- // std::cout << "Fake Rate: " << (1-1./netFake) << " (pt: " << 1-1./fake[coarseBin][0]->GetBinContent(fake[coarseBin][0]->FindBin(pt)) << " cent: " << 1-1./fake[coarseBin][1]->GetBinContent(fake[coarseBin][1]->FindBin(cent)) << " eta/phi: " << 1-1./fake2[coarseBin][2]->GetBinContent(fake2[coarseBin][2]->GetXaxis()->FindBin(eta),fake2[coarseBin][2]->GetYaxis()->FindBin(phi)) << fake[coarseBin][3]->GetBinContent(fake[coarseBin][3]->FindBin(rmin)) << std::endl;
-  //std::cout << "Secondary Rate: " <<  netSec << std::endl;
-  //std::cout << "Multiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
+  std::cout << coarseBin << std::endl;
+  std::cout << "pt: " << pt << " cent: " << cent << " eta: " << eta << " phi: " << phi   << std::endl;
+  std::cout << "Efficiency: " << netEff << " (pt: " << eff[coarseBin][0]->GetBinContent(eff[coarseBin][0]->FindBin(pt)) << " cent: " <<  eff[coarseBin][1]->GetBinContent(eff[coarseBin][1]->FindBin(cent)) << " eta/phi: " << eff2[coarseBin][2]->GetBinContent(eff2[coarseBin][2]->GetXaxis()->FindBin(eta),eff2[coarseBin][2]->GetYaxis()->FindBin(phi)) << " rmin: " << eff[coarseBin][3]->GetBinContent(eff[coarseBin][3]->FindBin(rmin))<< std::endl;
+   std::cout << "Fake Rate: " << (1-1./netFake) << " (pt: " << 1-1./fake[coarseBin][0]->GetBinContent(fake[coarseBin][0]->FindBin(pt)) << " cent: " << 1-1./fake[coarseBin][1]->GetBinContent(fake[coarseBin][1]->FindBin(cent)) << " eta/phi: " << 1-1./fake2[coarseBin][2]->GetBinContent(fake2[coarseBin][2]->GetXaxis()->FindBin(eta),fake2[coarseBin][2]->GetYaxis()->FindBin(phi)) << "rmin: " << fake[coarseBin][3]->GetBinContent(fake[coarseBin][3]->FindBin(rmin)) << std::endl;
+  std::cout << "Secondary Rate: " <<  netSec << std::endl;
+  std::cout << "Multiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
 
 
   if(1/netEff>1000) std::cout << "problem here!" << netEff <<  " " <<pt << " " << eta << " " << phi << " " << " " << coarseBin << std::endl;

@@ -83,6 +83,7 @@ void closureTest(TrkSettings s)
   //track
   int nTrk;
   float trkPt[75000];
+  float trkPtError[50000];
   float trkEta[75000];
   float trkPhi[75000];
   float trkStatus[75000]; //for trkStatus, -999 = fake, -99 = secondary, 1 & 2 are matched tracks
@@ -105,6 +106,7 @@ void closureTest(TrkSettings s)
   float genPhi[75000];
   //int   mtrkQual[75000];
   bool   mtrkQual[75000];//for 5.02 samples
+  float mtrkPtError[50000];
   float mtrkMVA[75000];
   float mtrkDxy1[100000];
   float mtrkDxyError1[100000];
@@ -127,10 +129,11 @@ void closureTest(TrkSettings s)
 
   //Setup input trees  
   //track tree     
-  trkCh = new TChain("ppTrack/trackTree");
+  trkCh = new TChain(Form("%s/trackTree",s.trackTreeName.c_str()));
   for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str()); 
   trkCh->SetBranchAddress("nTrk",&nTrk); 
   trkCh->SetBranchAddress("trkPt",&trkPt);
+  trkCh->SetBranchAddress("trkPtError",&trkPtError);
   trkCh->SetBranchAddress("trkEta",&trkEta);
   trkCh->SetBranchAddress("trkPhi",&trkPhi);
   trkCh->SetBranchAddress("highPurity",&highPurity);
@@ -149,6 +152,7 @@ void closureTest(TrkSettings s)
   trkCh->SetBranchAddress("pPhi",&genPhi);
   trkCh->SetBranchAddress("pNRec",&pNRec);
   trkCh->SetBranchAddress("mtrkPt",&mtrkPt);
+  trkCh->SetBranchAddress("mtrkPtError",&mtrkPtError);
   //trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
   trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
   trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
@@ -159,7 +163,7 @@ void closureTest(TrkSettings s)
   trkCh->SetBranchAddress("mtrkPfHcal",&mtrkPfHcal); 
   trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal);
   trkCh->SetBranchAddress("nVtx",&nVtx);
-  trkCh->SetBranchAddress("zVtx",&zVtz); 
+  trkCh->SetBranchAddress("zVtx",&zVtx); 
   
   //centrality and vz
   centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -218,8 +222,11 @@ void closureTest(TrkSettings s)
   }
 
   //event loop
-  std::cout << "starting event loop" << std::endl; 
-  for(int i = 0; i<trkCh->GetEntries(); i=i++)
+  std::cout << "starting event loop" << std::endl;
+  int numberOfEntries = 2000;
+  numberOfEntries = trkCh->GetEntries();
+ 
+  for(int i = 0; i<numberOfEntries; i++)
   {
 
     if(i%50000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
@@ -234,12 +241,12 @@ void closureTest(TrkSettings s)
     int centPU;
     if(s.nPb==2)
     {
-      weight = getWeight(s,pthat,vz,hiBin);    
+      weight = getWeight(s,pthat,zVtx[0],hiBin);    
       centPU = hiBin/2.0;
     }
     if(s.nPb==0) 
     {
-      weight = getWeight(s,pthat,vz,nVtx);
+      weight = getWeight(s,pthat,zVtx[0],nVtx);
       centPU = nVtx;
     }
 
@@ -255,7 +262,7 @@ void closureTest(TrkSettings s)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
-      if( trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) trkQual[j]=0;  
+      if( trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;  
       //if((trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>15 && (trkPt[j]-2*trkPtError[j])*TMath::CosH(trkEta[j])>trkPfHcal[j]+trkPfEcal[j]) trkQual[j]=0; //Calo Matching 
       //TODO: Calo matching here
       //other cut here as well maybe?
