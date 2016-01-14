@@ -220,6 +220,14 @@ void closureTest(TrkSettings s)
       FinalCorr2[i] = makeTH2(s,i,"finalCorr");
     }
   }
+ 
+  //booking applied corrections
+    const int ptBins_corr = 51;
+    double ptAxis_corr[ptBins_corr];
+    for(int x = 0; x<ptBins_corr;x++) ptAxis_corr[x] = TMath::Power(10,(x*(TMath::Log10(300)-TMath::Log10(0.5))/((float)(ptBins_corr-1))) + TMath::Log10(0.5));
+    TH2D * appliedCorrection = new TH2D("appliedCorrection",";p_{T};Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
+    TH2D * appliedEffCorrection = new TH2D("appliedEffCorrection",";p_{T};Eff Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
+    TH2D * appliedFakeCorrection = new TH2D("appliedFakeCorrection",";p_{T};Fake Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
 
   //event loop
   std::cout << "starting event loop" << std::endl;
@@ -257,12 +265,6 @@ void closureTest(TrkSettings s)
       if(TMath::Abs(jteta[k])>2) continue;
       if(jtpt[k]>maxJetPt) maxJetPt=jtpt[k];
     }
-    const int ptBins_corr = 51;
-    double ptAxis_corr[ptBins_corr];
-    for(int x = 0; x<ptBins_corr;x++) ptAxis_corr[x] = TMath::Power(10,(x*(TMath::Log10(300)-TMath::Log10(0.5))/((float)(ptBins_corr-1))) + TMath::Log10(0.5));
-    TH2D * appliedCorrection = new TH2D("appliedCorrection",";p_{T};Correction",ptBins_corr-1,ptAxis_corr,0,10,100);
-    TH2D * appliedEffCorrection = new TH2D("appliedEffCorrection",";p_{T};Eff Correction",ptBins_corr-1,ptAxis_corr,0,10,100);
-    TH2D * appliedFakeCorrection = new TH2D("appliedEffCorrection",";p_{T};Fake Correction",ptBins_corr-1,ptAxis_corr,0,10,100);
  
     //track loop 
     for(int j = 0; j<nTrk; j++)
