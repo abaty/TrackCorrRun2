@@ -91,6 +91,8 @@ void makeSkim(TrkSettings s, bool doCondor)
   float jtpt[100];
   float jtphi[100];
   float jteta[100];
+  float rawpt[100];
+  float chargedSum[100];
   float weight = 1;
   int pHBHENoiseFilterResultProducer , pPAprimaryVertexFilter , pBeamScrapingFilter;
   int pClusterCompaitiblityFilter, pprimaryVertexFilter, phfCoincFilter3;
@@ -165,6 +167,8 @@ void makeSkim(TrkSettings s, bool doCondor)
   jet->SetBranchAddress("jtpt",&jtpt);
   jet->SetBranchAddress("jteta",&jteta);
   jet->SetBranchAddress("jtphi",&jtphi);
+  jet->SetBranchAddress("rawpt",&rawpt);
+  jet->SetBranchAddress("chargedSum",&chargedSum);  
   trkCh->AddFriend(jet);
   
   evtCh = new TChain("skimanalysis/HltTree");
@@ -316,7 +320,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       for(int k = 0; k<nref; k++)
       {
         if(jtpt[k]<50) break;
-        if(TMath::Abs(jteta[k])>2) continue;
+        if(chargedSum[k]/rawpt[k]<0.01 || TMath::Abs(jteta[k])>2) continue;
         float R = TMath::Power(jteta[k]-trkEta[j],2) + TMath::Power(jtphi[k]-trkPhi[j],2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
@@ -346,7 +350,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       for(int k = 0; k<nref; k++)
       {
         if(jtpt[k]<50) break;
-        if(TMath::Abs(jteta[k])>2) continue;
+        if(chargedSum[k]/rawpt[k]<0.01 || TMath::Abs(jteta[k])>2) continue;
         float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(jtphi[k]-genPhi[j],2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
