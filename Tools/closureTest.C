@@ -13,10 +13,6 @@
 #include <vector>
 #include <iostream>
 
-//TODO: fix histogram sizes
-//divide out closure plots
-//plot vs denisty by adding function to return local track density
-
 //settings for the histograms used
 TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
 {
@@ -124,6 +120,8 @@ void closureTest(TrkSettings s)
   float jtpt[100];
   float jtphi[100];
   float jteta[100];
+  float rawpt[100];
+  float chargedSum[100];
   float weight = 1;
   int pcoll;
 
@@ -179,6 +177,8 @@ void closureTest(TrkSettings s)
   jet->SetBranchAddress("jtpt",&jtpt);
   jet->SetBranchAddress("jteta",&jteta);
   jet->SetBranchAddress("jtphi",&jtphi);
+  jet->SetBranchAddress("rawpt",&rawpt);
+  jet->SetBranchAddress("chargedSum",&chargedSum);  
   trkCh->AddFriend(jet);
   
   //evtCh = new TChain("skimanalysis/HltTree");
@@ -224,7 +224,7 @@ void closureTest(TrkSettings s)
   //event loop
   std::cout << "starting event loop" << std::endl;
   int numberOfEntries = 2000;
-  numberOfEntries = trkCh->GetEntries();
+//  numberOfEntries = trkCh->GetEntries();
  
   for(int i = 0; i<numberOfEntries; i++)
   {
@@ -257,7 +257,14 @@ void closureTest(TrkSettings s)
       if(TMath::Abs(jteta[k])>2) continue;
       if(jtpt[k]>maxJetPt) maxJetPt=jtpt[k];
     }
-    //track loop  
+    const int ptBins_corr = 51;
+    double ptAxis_corr[ptBins_corr];
+    for(int x = 0; x<ptBins_corr;x++) ptAxis_corr[x] = TMath::Power(10,(x*(TMath::Log10(300)-TMath::Log10(0.5))/((float)(ptBins_corr-1))) + TMath::Log10(0.5));
+    TH2D * appliedCorrection = new TH2D("appliedCorrection",";p_{T};Correction",ptBins_corr-1,ptAxis_corr,0,10,100);
+    TH2D * appliedEffCorrection = new TH2D("appliedEffCorrection",";p_{T};Eff Correction",ptBins_corr-1,ptAxis_corr,0,10,100);
+    TH2D * appliedFakeCorrection = new TH2D("appliedEffCorrection",";p_{T};Fake Correction",ptBins_corr-1,ptAxis_corr,0,10,100);
+ 
+    //track loop 
     for(int j = 0; j<nTrk; j++)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
@@ -274,7 +281,7 @@ void closureTest(TrkSettings s)
       for(int k = 0; k<nref; k++)
       {
         if(jtpt[k]<50) break;
-        if(TMath::Abs(jteta[k])>2) continue;
+        if(TMath::Abs(jteta[k])>2 || chargedSum[k]/rawpt[k]<0.01) continue;
         float R = TMath::Power(jteta[k]-trkEta[j],2) + TMath::Power(jtphi[k]-trkPhi[j],2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
@@ -292,6 +299,7 @@ void closureTest(TrkSettings s)
       FakeNoCorr2[7]->Fill(trkEta[j],trkPt[j],weight);   
 
       float fake = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin,rmin,2);
+      appliedFakeCorrection->Fill(fake,weight);
       FakeCorr[0]->Fill(trkPt[j],weight*fake);
       FakeCorr2[1]->Fill(trkEta[j],trkPhi[j],weight*fake);
       FakeCorr[2]->Fill(centPU,weight*fake);
@@ -302,6 +310,7 @@ void closureTest(TrkSettings s)
       FakeCorr2[7]->Fill(trkEta[j],trkPt[j],weight*fake);   
 
       float correction = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin,rmin);
+      appliedCorrection->Fill(correction,weight);
       FinalCorr[0]->Fill(trkPt[j],weight*correction);
       FinalCorr2[1]->Fill(trkEta[j],trkPhi[j],weight*correction);
       FinalCorr[2]->Fill(centPU,weight*correction);
@@ -333,7 +342,7 @@ void closureTest(TrkSettings s)
       for(int k = 0; k<nref; k++)
       {
         if(jtpt[k]<50) break;
-        if(TMath::Abs(jteta[k])>2) continue;
+        if(TMath::Abs(jteta[k])>2 || chargedSum[k]/rawpt[k]<0.01) continue;
         float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(jtphi[k]-genPhi[j],2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
@@ -363,6 +372,7 @@ void closureTest(TrkSettings s)
       EffNoCorr2[7]->Fill(genEta[j],genPt[j],weight);
 	  
       float eff = trkCorr->getTrkCorr(genPt[j],genEta[j],genPhi[j],hiBin,rmin,1);
+      appliedEffCorrection->Fill(eff,weight);
       EffCorr[0]->Fill(genPt[j],weight*eff);
       EffCorr2[1]->Fill(genEta[j],genPhi[j],weight*eff);
       EffCorr[2]->Fill(centPU,weight*eff);

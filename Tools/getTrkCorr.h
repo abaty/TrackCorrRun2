@@ -193,8 +193,8 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
   else if(correction==4) return 1/(1+netMult);
   else 
   {
-    if(s.nPb==0) return (1-netSec)/(netEff*netFake);
-    if(s.nPb==2) return 1.0/(netEff*netFake);
+    if(s->nPb==0) return (1-netSec)/(netEff*netFake);
+    if(s->nPb==2) return 1.0/(netEff*netFake);
   }
 //  else return 1.0/(netEff*netFake*(1+netMult)); */
 }
