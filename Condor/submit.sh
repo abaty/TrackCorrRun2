@@ -5,12 +5,12 @@ then
 fi
 
 now="Corrections_$(date +"%Y_%m_%d__%H_%M_%S")"
-njobs=5
+njobs=20
 
 mkdir $now
 cp ../TrkCorrInputFile.txt $now
 cp ../src/calcCorr.C $now
-cp ../src/Settings.h $now
+cp ../src/TrkSettings.h $now
 cp ../src/prepStep.C $now
 cp ../src/makeSkim.C $now
 cp ../src/getWeights.C $now
