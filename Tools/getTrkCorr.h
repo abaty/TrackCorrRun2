@@ -56,8 +56,7 @@ TrkCorr::TrkCorr(std::string inputDirectory)
     std::vector<TH2D*> tempTH2FakeVec;
     for(int j = 0; j<nSteps; j++)
     {
-      std::cout << j << std::endl;
-      if(s->stepOrder.at(j)!=1)
+      if(s->stepOrder.at(j)!=1 && s->stepOrder.at(j)!=7)
       {
 	tempTH1EffVec.push_back((TH1D*)f->Get(Form("finalEff_type%d",j)));
         tempTH1EffVec.back()->SetDirectory(0);
@@ -81,6 +80,7 @@ TrkCorr::TrkCorr(std::string inputDirectory)
     secondary.back()->SetDirectory(0);
     multiple.push_back((TH1D*)f->Get("MultipleRecoRate"));
     multiple.back()->SetDirectory(0);
+
 
     f->Close();
   }
@@ -143,8 +143,8 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
     }
     if(s->stepOrder.at(j)==4)
     {
-      netEff *= eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(cent));
-      netFake *= fake[coarseBin][th1indx]->GetBinContent(fake[coarseBin][th1indx]->FindBin(cent));
+      netEff *= eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(eta));
+      netFake *= fake[coarseBin][th1indx]->GetBinContent(fake[coarseBin][th1indx]->FindBin(eta));
     }
     if(s->stepOrder.at(j)==5)
     {
@@ -153,11 +153,11 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
     }
     if(s->stepOrder.at(j)==7)
     {
-      netEff *= eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(eta));
-      netFake *= fake[coarseBin][th1indx]->GetBinContent(fake[coarseBin][th1indx]->FindBin(eta));
+      netEff *= eff2[coarseBin][th2indx]->GetBinContent(eff2[coarseBin][th2indx]->GetXaxis()->FindBin(eta),eff2[coarseBin][th2indx]->GetYaxis()->FindBin(pt));
+      netFake *= fake2[coarseBin][th2indx]->GetBinContent(fake2[coarseBin][th2indx]->GetXaxis()->FindBin(eta),fake2[coarseBin][th2indx]->GetYaxis()->FindBin(pt));
     }
 
-    if(s->stepOrder.at(j)==1) th2indx++;
+    if(s->stepOrder.at(j)==1 || s->stepOrder.at(j)==7) th2indx++;
     else                      th1indx++;
   }
   netMult = multiple[coarseBin]->GetBinContent(multiple[coarseBin]->FindBin(pt));
