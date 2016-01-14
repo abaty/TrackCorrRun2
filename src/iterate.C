@@ -54,7 +54,7 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
     const int ptBins = s.ptBinFine+1;
     double ptAxis[ptBins];
     for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
-    hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",s.etaBinFine,-2.4,2.4,ptBins,s.ptMin,s.ptMax);
+    hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",s.etaBinFine,-2.4,2.4,ptBins-1,ptAxis);
   }
   return hist;
 }
