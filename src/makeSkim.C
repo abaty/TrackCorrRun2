@@ -300,7 +300,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     for(int j = 0; j<nTrk; j++)
     {
       if(TMath::Abs(trkEta[j])>2.4) continue;
-      if(trkPt[j]<=s.ptMin || trkPt[j]>s.ptMax) continue;
+      if(trkPt[j]<s.ptMin || trkPt[j]>=s.ptMax) continue;
       if(highPurity[j]!=1) continue;
       if(trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
       if(s.doTrackTriggerCuts && ((int)trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
@@ -331,7 +331,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     for(int j = 0; j<nParticle; j++)
     {
       if(TMath::Abs(genEta[j])>2.4) continue;
-      if(genPt[j]<s.ptMin || genPt[j]>s.ptMax) continue;
+      if(genPt[j]<s.ptMin || genPt[j]>=s.ptMax) continue;
 
       if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
       if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkAlgo[j]<4 || (int)mtrkAlgo[j]>8 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
