@@ -74,7 +74,7 @@ root://eoscms.cern.ch///store/group/phys_heavyions/velicanu/forest/HIRun2015/HIM
 #Advanced Settings
 #Algorithm properties
 1                # Number of steps
-1          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 7 = eta plus pt)
-0                # Full iterations to run before terminating
-1                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
+7          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 7 = eta plus pt)
+1                # Full iterations to run before terminating
+7                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
 akVs4Calo          # jet definition

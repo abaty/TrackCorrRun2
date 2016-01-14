@@ -44,6 +44,7 @@ TrkCorr::TrkCorr(std::string inputDirectory)
     nFiles += s->nCentPUBinCoarse[i];
   }
   nSteps = s->nStep;
+  std::cout << "Correction tables reading " << nFiles << " Files, with " << nSteps << " iterations per file." << std::endl;
 
   TFile * f;
   for(int i = 0; i<nFiles; i++)
@@ -55,6 +56,7 @@ TrkCorr::TrkCorr(std::string inputDirectory)
     std::vector<TH2D*> tempTH2FakeVec;
     for(int j = 0; j<nSteps; j++)
     {
+      std::cout << j << std::endl;
       if(s->stepOrder.at(j)!=1)
       {
 	tempTH1EffVec.push_back((TH1D*)f->Get(Form("finalEff_type%d",j)));
