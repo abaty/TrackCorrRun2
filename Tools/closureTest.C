@@ -232,11 +232,11 @@ void closureTest(TrkSettings s)
   //event loop
   std::cout << "starting event loop" << std::endl;
   int numberOfEntries = 2000;
-//  numberOfEntries = trkCh->GetEntries();
+  numberOfEntries = trkCh->GetEntries();
  
-  for(int i = 0; i<numberOfEntries; i++)
+  for(int i = 0; i<numberOfEntries-10; i=i+10)
   {
-
+   
     if(i%50000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     else trkCh->GetEntry(i);
@@ -301,7 +301,7 @@ void closureTest(TrkSettings s)
       FakeNoCorr2[7]->Fill(trkEta[j],trkPt[j],weight);   
 
       float fake = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin,rmin,2);
-      appliedFakeCorrection->Fill(fake,weight);
+      appliedFakeCorrection->Fill(trkPt[j],fake);
       FakeCorr[0]->Fill(trkPt[j],weight*fake);
       FakeCorr2[1]->Fill(trkEta[j],trkPhi[j],weight*fake);
       FakeCorr[2]->Fill(centPU,weight*fake);
@@ -312,7 +312,7 @@ void closureTest(TrkSettings s)
       FakeCorr2[7]->Fill(trkEta[j],trkPt[j],weight*fake);   
 
       float correction = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin,rmin);
-      appliedCorrection->Fill(correction,weight);
+      appliedCorrection->Fill(trkPt[j],correction);
       FinalCorr[0]->Fill(trkPt[j],weight*correction);
       FinalCorr2[1]->Fill(trkEta[j],trkPhi[j],weight*correction);
       FinalCorr[2]->Fill(centPU,weight*correction);
@@ -374,7 +374,7 @@ void closureTest(TrkSettings s)
       EffNoCorr2[7]->Fill(genEta[j],genPt[j],weight);
 	  
       float eff = trkCorr->getTrkCorr(genPt[j],genEta[j],genPhi[j],hiBin,rmin,1);
-      appliedEffCorrection->Fill(eff,weight);
+      appliedEffCorrection->Fill(genPt[j],eff);
       EffCorr[0]->Fill(genPt[j],weight*eff);
       EffCorr2[1]->Fill(genEta[j],genPhi[j],weight*eff);
       EffCorr[2]->Fill(centPU,weight*eff);
