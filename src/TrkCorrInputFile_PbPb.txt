@@ -13,17 +13,17 @@ PbPb_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 
 #MC and reweighting options
 11                   #Number of Input MC samples
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root   #List of MC samples
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet30_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet50_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet80_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet120_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet170_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet220_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet280_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet370_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet460_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
-/mnt/hadoop/cms/store/user/pawan/Pythia8_Dijet540_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_HiForest_PrivMC_TAGHiForestPbPbJECv9/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD15_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root   #List of MC samples
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD30_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD50_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD80_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD120_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD170_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD220_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD280_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD370_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD460_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
+/mnt/hadoop/cms/store/user/abaty/mergedForests/Pythia8_Dijet15_pp_TuneCUETP8M1_Hydjet_MinBias_5020GeV_FOREST_758_PrivMC/HiForest_PYTHIA_QCD540_TuneCUETP8M1_cfi_5020GeV_tag_PPForestJECv6_merged/0.root 
 
 
 
@@ -67,7 +67,7 @@ root://eoscms.cern.ch///store/group/phys_heavyions/velicanu/forest/HIRun2015/HIM
 
 #Track Quality Cuts
 1        #High Purity Definition (0 = none (bad), 1 = loose, 2 = tight) (To Be Done)
-0        #Do Calo Matching?
+1        #Do Calo Matching?
 0        #Do Extra Track Trigger Cuts?
 0        #Other Track Cuts?  (To Be Done)
 
