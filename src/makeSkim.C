@@ -211,7 +211,7 @@ void makeSkim(TrkSettings s, bool doCondor)
  
   int numberOfEntries = 0;
   if(doCondor) numberOfEntries = trkCh->GetEntries();
-  else         numberOfEntries = 5000; 
+  else         numberOfEntries = 10000; 
   for(int i = 0; i<numberOfEntries; i++)
   {
     if(i%2000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;

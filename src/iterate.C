@@ -61,7 +61,7 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
 
 
 //iteration code
-void iterate(TrkSettings s,int iter, int stepType, bool doCondor)
+void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testErrors = false)
 {
   float pt, eta, phi, weight, centPU, rmin, maxJetPt,trkStatus,pNRec,mpt,mtrkQual; 
   
@@ -239,15 +239,29 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor)
   }
 
   //setting up stuff for reading out of skim
+  TH1D * mrecoErr;
+  TH1D * mrecoW;
+  TH2D * mrecoErr2;
+  TH2D * mrecoW2;
   if(stepType == 0 || stepType==2 || stepType==3 || stepType==4 || stepType==5)
   {
     mrecoHist = makeTH1(s,stepType,Form("mreco_eff_step%d",iter));
     frecoHist = makeTH1(s,stepType,Form("reco_fake_step%d",iter));
+    if(testErrors)
+    {
+      mrecoErr = (TH1D*)mrecoHist->Clone("mrecoErr");
+      mrecoW = (TH1D*)mrecoHist->Clone("mrecoW");
+    }
   }
   if(stepType == 1 || stepType == 7)
   {
     mrecoHist2 = makeTH2(s,stepType,Form("mreco_eff_step%d",iter));
     frecoHist2 = makeTH2(s,stepType,Form("reco_fake_step%d",iter));
+    if(testErrors)
+    {
+      mrecoErr2 = (TH2D*)mrecoHist2->Clone("mrecoErr");
+      mrecoW2 = (TH2D*)mrecoHist2->Clone("mrecoW");
+    }
   }
 
   TFile * skim;
@@ -323,42 +337,85 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor)
   {
     //applying efficiencies from all previous steps
     float previousEffCorr = 1;
+    float previousEffCorrErr = 0;
     float previousFakeCorr = 1; 
     gen->GetEntry(i);
     if(mtrkQual<1||  mpt<=0) continue;
     if(iter!=0)
     {
-      for(int n = 0; n<iter; n++)
+      for(int n = 0; n<iter; n++)//calculating current efficiency correction
       {
         int type = s.stepOrder.at(n%s.nStep);
-        if(type==0) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(pt));
-        if(type==1) previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(phi));
-        if(type==2) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(centPU));
-        if(type==3) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(maxJetPt));
-        if(type==4) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(eta));
-        if(type==5) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(rmin));
+        if(type==0){
+          previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(pt));
+          if(testErrors) previousEffCorrErr += TMath::Power(previousEff[n]->GetBinError(previousEff[n]->FindBin(pt))/previousEff[n]->GetBinContent(previousEff[n]->FindBin(pt)),2);
+        }
+        if(type==1){
+          previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(phi));
+          if(testErrors) previousEffCorrErr += TMath::Power(previousEff2[n]->GetBinError(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(phi))/previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(phi)),2);
+        }
+        if(type==2){
+          previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(centPU));
+          if(testErrors) previousEffCorrErr += TMath::Power(previousEff[n]->GetBinError(previousEff[n]->FindBin(centPU))/previousEff[n]->GetBinContent(previousEff[n]->FindBin(centPU)),2); 
+        }
+        if(type==3){
+          previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(maxJetPt));
+          if(testErrors) previousEffCorrErr += TMath::Power(previousEff[n]->GetBinError(previousEff[n]->FindBin(maxJetPt))/previousEff[n]->GetBinContent(previousEff[n]->FindBin(maxJetPt)),2); 
+        }
+        if(type==4){
+          previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(eta));
+          if(testErrors) previousEffCorrErr += TMath::Power(previousEff[n]->GetBinError(previousEff[n]->FindBin(eta))/previousEff[n]->GetBinContent(previousEff[n]->FindBin(eta)),2);  
+        }
+        if(type==5){
+          previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(rmin));
+          if(testErrors) previousEffCorrErr += TMath::Power(previousEff[n]->GetBinError(previousEff[n]->FindBin(rmin))/previousEff[n]->GetBinContent(previousEff[n]->FindBin(rmin)),2);  
+        }
 //        if(type==6) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(density));
-        if(type==7) previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(pt));
-      } 
+        if(type==7){
+          previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(pt));
+          if(testErrors) previousEffCorrErr += TMath::Power(previousEff2[n]->GetBinError(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(pt))/previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(pt)),2);
+        }
+      }
+      if(testErrors) previousEffCorrErr = previousEffCorrErr/TMath::Power(previousEffCorr,2);
     }
     if(previousEffCorr==0) std::cout <<  "\nWarning!!! A correction is going to infinity.  This usually indicates an empty bin somewhere, try using a coarser binning or more events! \n" << std::endl; 
     //filling histograms
-    if(stepType==0) mrecoHist->Fill(pt,weight/previousEffCorr);
-    if(stepType==1) mrecoHist2->Fill(eta,phi,weight/previousEffCorr); 
-    if(stepType==2) mrecoHist->Fill(centPU,weight/previousEffCorr);
-    if(stepType==3) mrecoHist->Fill(maxJetPt,weight/previousEffCorr);
-    if(stepType==4) mrecoHist->Fill(eta,weight/previousEffCorr); 
-    if(stepType==5) mrecoHist->Fill(rmin,weight/previousEffCorr); 
-//    if(stepType==6) mrecoHist->Fill(density,weight/previousEffCorr);
-    if(stepType==7) mrecoHist2->Fill(eta,pt,weight/previousEffCorr);
+    float var1, var2;
+    if(stepType==0) var1 = pt;
+    if(stepType==1){var1 = eta; var2 = phi;}
+    if(stepType==2) var1 = centPU;
+    if(stepType==3) var1 = maxJetPt;
+    if(stepType==4) var1 = eta;
+    if(stepType==5) var1 = rmin;
+    if(stepType==7){var1 = eta; var2 = pt;}
+    if(stepType!=1 && stepType!=7){
+      mrecoHist->Fill(var1,weight/previousEffCorr);
+      if(testErrors){
+        mrecoErr->Fill(var1,weight*weight*previousEffCorrErr);
+        mrecoW->Fill(var1,weight);
+      }
+    }
+    else{
+      mrecoHist2->Fill(var1,var2,weight/previousEffCorr); 
+      if(testErrors){
+        mrecoErr2->Fill(var1,var2,weight*weight*previousEffCorrErr);
+        mrecoW2->Fill(var1,var2,weight);
+      }
+    }
   }
   skim->Close();
- 
+
   //saving reco and efficiencies/fake rates 
   std::cout << "Calculating updated Efficiency/Fake Rate and saving histograms" << std::endl;
   histFile->cd();    
   if(stepType==0 || stepType == 2 || stepType == 3 || stepType==4 || stepType==5)
   {
+    if(testErrors)
+    {
+      mrecoErr->Divide(mrecoW);
+      mrecoErr->Divide(mrecoW);
+      for(int i = 1 ; i<mrecoErr->GetSize()-1; i++) mrecoHist->SetBinError(i,TMath::Power(mrecoErr->GetBinContent(i),0.5));
+    }
     divHist = (TH1D*)mrecoHist->Clone(Form("eff_step%d",iter));
     divHist->Divide(genHist[stepType]);
     mrecoHist->Write();
@@ -371,6 +428,13 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor)
   }
   if(stepType==1 || stepType==7)
   {
+    if(testErrors)
+    {
+      mrecoErr2->Divide(mrecoW2);
+      mrecoErr2->Divide(mrecoW2);
+      for(int i = 1 ; i<mrecoErr2->GetNbinsX()+1; i++)
+        for(int j = 1; j<mrecoErr2->GetNbinsY()+1; j++) mrecoHist2->SetBinError(i,j,TMath::Power(mrecoErr2->GetBinContent(i,j),0.5));
+    }
     divHist2 = (TH2D*)mrecoHist2->Clone(Form("eff_step%d",iter));
     divHist2->Divide(genHist2[stepType]);
     mrecoHist2->Write();
