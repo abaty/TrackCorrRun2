@@ -33,16 +33,6 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
   const int rminBins = 16;
   double rminBinning[rminBins+1] = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.2,1.4,1.6,2,3,10};
   if(stepType ==5) hist = new TH1D(Form("%s_rmin",titlePrefix),";rmin;",rminBins,rminBinning);
-  /*if(stepType ==6)
-  {
-    const int densityBins = 10;
-    double R = 0.1;
-    double densityAxis[densityBins+1]={0};
-    densityAxis[0]=0; densityAxis[1]=1.0/(R*R*TMath::Pi()*2)-0.0001; densityAxis[densityBins]=100000;
-    for(int i=2;i<6;i++)  densityAxis[i]=(i-1)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
-    for(int i=6;i<densityBins;i++)  densityAxis[i]=(2*i-6)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
-    hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",densityBins,densityAxis);
-  }*/
   return hist;
 }
 
@@ -105,7 +95,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     gen->SetBranchAddress("genPt",&pt);
     gen->SetBranchAddress("genEta",&eta); 
     gen->SetBranchAddress("genPhi",&phi);
-    //gen->SetBranchAddress("genDensity",&density);
     gen->SetBranchAddress("weight",&weight);
     gen->SetBranchAddress("centPU",&centPU);
     gen->SetBranchAddress("rmin",&rmin);
@@ -121,7 +110,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
       genPre[3]->Fill(maxJetPt,weight);
       genPre[4]->Fill(eta,weight); 
       genPre[5]->Fill(rmin,weight);
-      //genPre[6]->Fill(density,weight);
       genPre2[7]->Fill(eta,pt,weight);
     }
 
@@ -131,7 +119,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);
     reco->SetBranchAddress("trkPhi",&phi);
-    //reco->SetBranchAddress("trkDensity",&density);
     reco->SetBranchAddress("weight",&weight);
     reco->SetBranchAddress("centPU",&centPU);
     reco->SetBranchAddress("rmin",&rmin);
@@ -147,7 +134,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
       mrecoPre[3]->Fill(maxJetPt,weight);
       mrecoPre[4]->Fill(eta,weight); 
       mrecoPre[5]->Fill(rmin,weight);
-      //mrecoPre[6]->Fill(density,weight);
       mrecoPre2[7]->Fill(eta,pt,weight);
     }
   
@@ -205,7 +191,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   genHist[3] = (TH1D*)histFile->Get("gen_maxJetPt");
   genHist[4] = (TH1D*)histFile->Get("gen_eta"); 
   genHist[5] = (TH1D*)histFile->Get("gen_rmin"); 
-  //genHist[6] = (TH1D*)histFile->Get("gen_density");
   genHist2[7] = (TH2D*)histFile->Get("gen_etaPt");
   std::cout << "Efficiency denominator histogram available now." << std::endl;
   recoHist[0] = (TH1D*)histFile->Get("mreco_pt");
@@ -214,7 +199,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   recoHist[3] = (TH1D*)histFile->Get("mreco_maxJetPt");
   recoHist[4] = (TH1D*)histFile->Get("mreco_eta"); 
   recoHist[5] = (TH1D*)histFile->Get("mreco_rmin");
-  //recoHist[6] = (TH1D*)histFile->Get("mreco_density");
   recoHist2[7] = (TH2D*)histFile->Get("mreco_etaPt");
   std::cout << "Fake denominator histogram available now." << std::endl;
 	   
@@ -277,7 +261,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   reco->SetBranchAddress("trkPt",&pt);
   reco->SetBranchAddress("trkEta",&eta);
   reco->SetBranchAddress("trkPhi",&phi);
-//  reco->SetBranchAddress("trkDensity",&density);
   reco->SetBranchAddress("weight",&weight);
   reco->SetBranchAddress("centPU",&centPU);
   reco->SetBranchAddress("rmin",&rmin);
@@ -304,7 +287,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
         if(type==3) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(maxJetPt));
         if(type==4) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(eta));
         if(type==5) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(rmin));
-//        if(type==6) previousFakeCorr *= previousFake[n]->GetBinContent(previousFake[n]->FindBin(density));
         if(type==7) previousFakeCorr *= previousFake2[n]->GetBinContent(previousFake2[n]->GetXaxis()->FindBin(eta),previousFake2[n]->GetYaxis()->FindBin(pt));
       } 
     }
@@ -316,7 +298,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     if(stepType==3) frecoHist->Fill(maxJetPt,weight/previousFakeCorr);
     if(stepType==4) frecoHist->Fill(eta,weight/previousFakeCorr); 
     if(stepType==5) frecoHist->Fill(rmin,weight/previousFakeCorr); 
-//    if(stepType==6) frecoHist->Fill(density,weight/previousFakeCorr);
     if(stepType==7) frecoHist2->Fill(eta,pt,weight/previousFakeCorr);
   }
   
@@ -325,7 +306,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   gen->SetBranchAddress("genPt",&pt);
   gen->SetBranchAddress("genEta",&eta); 
   gen->SetBranchAddress("genPhi",&phi);
-//  gen->SetBranchAddress("genDensity",&density);
   gen->SetBranchAddress("weight",&weight);
   gen->SetBranchAddress("centPU",&centPU);
   gen->SetBranchAddress("rmin",&rmin);
@@ -372,7 +352,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
           previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(rmin));
           if(testErrors) previousEffCorrErr += TMath::Power(previousEff[n]->GetBinError(previousEff[n]->FindBin(rmin))/previousEff[n]->GetBinContent(previousEff[n]->FindBin(rmin)),2);  
         }
-//        if(type==6) previousEffCorr *= previousEff[n]->GetBinContent(previousEff[n]->FindBin(density));
         if(type==7){
           previousEffCorr *= previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(pt));
           if(testErrors) previousEffCorrErr += TMath::Power(previousEff2[n]->GetBinError(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(pt))/previousEff2[n]->GetBinContent(previousEff2[n]->GetXaxis()->FindBin(eta),previousEff2[n]->GetYaxis()->FindBin(pt)),2);
@@ -537,7 +516,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);
     reco->SetBranchAddress("trkPhi",&phi);
-    //reco->SetBranchAddress("trkDensity",&density);
     reco->SetBranchAddress("weight",&weight);
     reco->SetBranchAddress("centPU",&centPU);
     reco->SetBranchAddress("rmin",&rmin);
@@ -559,7 +537,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
         if(type==3) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(maxJetPt));
         if(type==4) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(eta));
         if(type==5) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(rmin));
-      //  if(type==6) previousFakeCorr *= finalFake[n]->GetBinContent(finalFake[n]->FindBin(density));
         if(type==7) previousFakeCorr *= finalFake2[n]->GetBinContent(finalFake2[n]->GetXaxis()->FindBin(eta),finalFake2[n]->GetYaxis()->FindBin(pt));
       }
       if(previousFakeCorr<1) previousFakeCorr==1;
@@ -569,7 +546,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
       finalFakeClosure[3]->Fill(maxJetPt,weight/previousFakeCorr);
       finalFakeClosure[4]->Fill(eta,weight/previousFakeCorr); 
       finalFakeClosure[5]->Fill(rmin,weight/previousFakeCorr); 
-     // finalFakeClosure[6]->Fill(density,weight/previousFakeCorr);  
       finalFakeClosure2[7]->Fill(eta,pt,weight/previousFakeCorr);  
     }
   
@@ -577,7 +553,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     gen->SetBranchAddress("genPt",&pt);
     gen->SetBranchAddress("genEta",&eta); 
     gen->SetBranchAddress("genPhi",&phi);
-    //gen->SetBranchAddress("genDensity",&density);
     gen->SetBranchAddress("weight",&weight);
     gen->SetBranchAddress("centPU",&centPU);
     gen->SetBranchAddress("rmin",&rmin);
@@ -601,7 +576,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
         if(type==3) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(maxJetPt));
         if(type==4) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(eta));
         if(type==5) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(rmin));
-      //  if(type==6) previousEffCorr *= finalEff[n]->GetBinContent(finalEff[n]->FindBin(density));  
         if(type==7) previousEffCorr *= finalEff2[n]->GetBinContent(finalEff2[n]->GetXaxis()->FindBin(eta), finalEff2[n]->GetYaxis()->FindBin(pt));  
       }
       if(previousEffCorr>1) previousEffCorr==1;
@@ -611,7 +585,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
       finalEffClosure[3]->Fill(maxJetPt,weight/previousEffCorr);
       finalEffClosure[4]->Fill(eta,weight/previousEffCorr); 
       finalEffClosure[5]->Fill(rmin,weight/previousEffCorr); 
-      //finalEffClosure[6]->Fill(density,weight/previousEffCorr);
       finalEffClosure2[7]->Fill(eta,pt,weight/previousEffCorr);
     }
 

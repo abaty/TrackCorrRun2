@@ -10,19 +10,6 @@
 #include <vector>
 #include <iostream>
 
-//calculates the area falling outside the acceptance (circle overlapping a rectagle)
-/*
-double getArea(double eta1, double R)
-{  
-  if(TMath::Abs(eta1)<(2.4-R)) return TMath::Pi()*R*R;
-  else
-  {
-    double theta = 2*TMath::ACos((2.4-TMath::Abs(eta1))/R);
-    double area = R*R*(TMath::Pi()-(theta-TMath::Sin(theta))/2.0);
-    return area;
-  }
-}*/
-
 void makeSkim(TrkSettings s, bool doCondor)
 {
   std::cout << "\nJob number: " << s.job << "\nCorresponds to the following parameters\nnSkip: " << s.nSkip
@@ -202,12 +189,6 @@ void makeSkim(TrkSettings s, bool doCondor)
   std::cout << "starting skim loop" << std::endl;
   //Actual skimming
   int processed = 0;
-  //cone size for filling density map
-  /*float dMapR = 0.1;
-  int nEtaBin = 192;
-  int nPhiBin = 251;
-  //grid resolution is 0.025x0.02503 in eta x phi space
-  TH2D * densityMap = new TH2D("densityMap","densityMap:eta:phi",nEtaBin,-2.4,2.4,nPhiBin,-TMath::Pi(),TMath::Pi());*/
  
   int numberOfEntries = 0;
   if(doCondor) numberOfEntries = trkCh->GetEntries();
@@ -245,54 +226,6 @@ void makeSkim(TrkSettings s, bool doCondor)
       centPU = nVtx;
     }
 
-    /*
-    //Filling density histogram (using all (even fakes) tracks>3GeV)
-    for(int j = 0; j<nTrk; j++)
-    {
-      if(TMath::Abs(trkEta[j])>2.4 || trkPt[j]<=3) continue;
-      //loop over strip in phi (have to be careful about the -pi to pi wrap around...)
-      //for case where we don't have to worry about wrap around
-      if(TMath::Pi()-TMath::Abs(trkPhi[j])>dMapR)
-      {
-        for(int phi = densityMap->GetYaxis()->FindBin(trkPhi[j]-dMapR); phi<=densityMap->GetYaxis()->FindBin(trkPhi[j]+dMapR); phi++)
-        {
-          //loop over the eta bins needed
-          float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2),0.5);
-          for(int eta = densityMap->GetXaxis()->FindBin(trkEta[j]-dEtaMax); eta<=densityMap->GetXaxis()->FindBin(trkEta[j]+dEtaMax); eta++)
-          {
-            if(TMath::Power(trkEta[j]-densityMap->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) densityMap->SetBinContent(eta,phi,densityMap->GetBinContent(eta,phi)+1); 
-          }
-        }
-      }
-      else
-      //for case with -pi and pi wrap around 
-      {
-        for(int phi = 1; phi<=densityMap->GetYaxis()->FindBin(trkPhi[j]+dMapR-(trkPhi[j]>0?2*TMath::Pi():0)); phi++) 
-        { 
-          //loop over the eta bins needed
-          float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2),0.5);
-          for(int eta = densityMap->GetXaxis()->FindBin(trkEta[j]-dEtaMax); eta<=densityMap->GetXaxis()->FindBin(trkEta[j]+dEtaMax); eta++)
-          {
-            if(TMath::Power(trkEta[j]-densityMap->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) densityMap->SetBinContent(eta,phi,densityMap->GetBinContent(eta,phi)+1); 
-          }
-        }
-        for(int phi = densityMap->GetYaxis()->FindBin(trkPhi[j]-dMapR+(trkPhi[j]<0?2*TMath::Pi():0)); phi<=nPhiBin; phi++) 
-        { 
-          //loop over the eta bins needed
-          float dEtaMax = TMath::Power(dMapR*dMapR-TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2),0.5);
-          for(int eta = densityMap->GetXaxis()->FindBin(trkEta[j]-dEtaMax); eta<=densityMap->GetXaxis()->FindBin(trkEta[j]+dEtaMax); eta++)
-          {
-            if(TMath::Power(trkEta[j]-densityMap->GetXaxis()->GetBinCenter(eta),2)+TMath::Power(TMath::ACos(TMath::Cos(trkPhi[j]-densityMap->GetYaxis()->GetBinCenter(phi))),2)<dMapR*dMapR ) densityMap->SetBinContent(eta,phi,densityMap->GetBinContent(eta,phi)+1); 
-          }
-        }
-      }   
-    }//end density map fill
-    
-    TCanvas * c1 = new TCanvas("c1","c1",800,800);
-    densityMap->Draw("colz");
-    c1->SaveAs("Density_check.png");
-    delete c1;*/
-      
     float maxJetPt = -999;
     for(int k = 0; k<nref; k++)
     {
@@ -325,7 +258,6 @@ void makeSkim(TrkSettings s, bool doCondor)
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
-      //localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(trkEta[j]),densityMap->GetYaxis()->FindBin(trkPhi[j]))/getArea(trkEta[j],dMapR);
       
       float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j]};
       reco->Fill(trkEntry);
@@ -355,14 +287,11 @@ void makeSkim(TrkSettings s, bool doCondor)
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
-      //localTrackDensity = (float)densityMap->GetBinContent(densityMap->GetXaxis()->FindBin(genEta[j]),densityMap->GetYaxis()->FindBin(genPhi[j]))/getArea(genEta[j],dMapR);
       float genEntry[] = {genPt[j],genEta[j],genPhi[j],weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j]};
       gen->Fill(genEntry); 
     }
-  //densityMap->Reset();
   processed++;
   }
-  //delete densityMap;
 
   std::cout << "Writing skim..." << std::endl;
   skimOut->Write();
