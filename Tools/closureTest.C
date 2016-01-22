@@ -28,8 +28,8 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
 
   if(stepType ==2) 
   {
-    if(s.nPb==2)  hist = new TH1D(Form("%s_centPU",titlePrefix),";hiBin;",s.centPUBinFine,0,200); 
-    if(s.nPb==0)  hist = new TH1D(Form("%s_centPU",titlePrefix),";nVtx;",s.centPUBinFine,0,200); 
+    if(s.nPb==2)  hist = new TH1D(Form("%s_centPU",titlePrefix),";hiBin;",20,0,100); 
+    if(s.nPb==0)  hist = new TH1D(Form("%s_centPU",titlePrefix),";nVtx;",20,0,100); 
   }
   
   if(stepType ==3) hist = new TH1D(Form("%s_maxJetPt",titlePrefix),";jtpt;",30,0,300); 
