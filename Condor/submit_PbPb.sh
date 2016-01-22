@@ -31,7 +31,7 @@ cat run.condor | sed "s@blacklist_here@$blacklist@g" > $now/run.condor
 cat $now/TrkCorrInputFile.txt | sed "s@SEDTARGETDATE@$(date +"%Y_%m_%d__%H_%M_%S")@g" > $now/TrkCorrInputFile.txt
 cat $now/run.condor | sed "s@SEDTARGETDATE@$(date +"%Y_%m_%d__%H_%M_%S")@g" > $now/run.condor
 
-cat $now/run.condor | sed "s@log_flag@$now@g" | sed "s@dir_flag@$PWD/$now@g" | sed "s@user_flag@$USER@g" |  sed "s@arglist@@g" | sed "s@njobs@$njobs@g" > $now/run.condor
+cat $now/run.condor | sed "s@log_flag@$now@g" | sed "s@dir_flag@$PWD/$now@g" | sed "s@user_flag@$USER@g" |  sed "s@arglist@@g" | sed "s@njobs@$njobs@g" | sed "s@SPECIES@"PbPb"@g"> $now/run.condor
 sleep 1
 cd $now
 g++ prepStep.C $(root-config --cflags --libs) -Wall -O2 -o "prepStep.exe"
