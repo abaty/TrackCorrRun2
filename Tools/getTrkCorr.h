@@ -13,9 +13,7 @@
 
 class TrkCorr{
   public:
-    //void UpdateEventInfo(float *pt, float *eta, float *phi, int nTrk);
     double getTrkCorr(float pt, float eta, float phi, float hiBin, float rmin=99, float jtpt=0, int correction=0);
-    double get5CubeAvg(float pt, float eta, float phi, float hiBin, float rmin, float jtpt, int correction);
     TrkCorr(std::string inputDirectory = "trkCorrections/");
     ~TrkCorr();    
 
@@ -201,20 +199,6 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
   //return -1 (if there is a problem and the code gets to here)
   return -1;
 //  else return 1.0/(netEff*netFake*(1+netMult)); */
-}
-
-double TrkCorr::get5CubeAvg(float pt, float eta, float phi, float hiBin, float rmin, float jtpt, int correction)
-{
-  float average = 0;
-  for(int i = -1; i<2; i=i+2){
-  for(int j = -1; j<2; j=j+2){
-  for(int k = -1; k<2; k=k+2){
-  for(int l = -1; l<2; l=l+2){
-  for(int m = -1; m<2; m=m+2){
-    average += getTrkCorr(pt+i*2,eta+j*0.3,phi+k*0.3,hiBin+l*3,rmin+m*0.1,0,0)/32.0;
-  }}}}}
-  std::cout <<  getTrkCorr(pt,eta,phi,hiBin,rmin,0,0) << std::endl;
-  return average;
 }
 
 TrkCorr::~TrkCorr()
