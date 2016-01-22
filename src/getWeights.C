@@ -81,7 +81,7 @@ void produceWeights(TrkSettings s)
       dVz->SetDirectory(0);
       dVz->Scale(1.0/(double)dVz->GetEntries());
       dVz->Draw();
-      c1->SaveAs("../../evalPlots/dataVz.png");
+      c1->SaveAs("dataVz.png");
     }
     if(s.doCentPU && s.nPb==2)
     {
@@ -90,7 +90,7 @@ void produceWeights(TrkSettings s)
       dCentPU->SetDirectory(0);
       dCentPU->Scale(1.0/(double)dCentPU->GetEntries());
       dCentPU->Draw();
-      c1->SaveAs("../../evalPlots/dataCentPU.png");
+      c1->SaveAs("dataCentPU.png");
     }
     else if(s.doCentPU && s.nPb==0)
     {
@@ -99,7 +99,7 @@ void produceWeights(TrkSettings s)
       dCentPU->SetDirectory(0);
       dCentPU->Scale(1.0/(double)dCentPU->GetEntries());
       dCentPU->Draw();
-      c1->SaveAs("../../evalPlots/dataCentPU.png");
+      c1->SaveAs("dataCentPU.png");
     }
     f->Close();
   }
@@ -170,7 +170,7 @@ void produceWeights(TrkSettings s)
       jet->Draw("pthat>>MCPthat", Form("TMath::Abs(zVtx)<%d && %s",s.vz_window,eventSelectionString_MC.c_str()));
       MCPthat->SetDirectory(0);
       MCPthat->Draw();
-      c1->SaveAs("../../evalPlots/MCPthat.png");
+      c1->SaveAs("MCPthat.png");
     }
     if(s.doVtx)
     {
@@ -179,7 +179,7 @@ void produceWeights(TrkSettings s)
       MCVz->SetDirectory(0);
       MCVz->Scale(1.0/(double)MCVz->GetEntries());
       MCVz->Draw();
-      c1->SaveAs("../../evalPlots/MCVz.png");
+      c1->SaveAs("MCVz.png");
     }
     if(s.doCentPU && s.nPb==2)
     {
@@ -188,7 +188,7 @@ void produceWeights(TrkSettings s)
       MCCentPU->SetDirectory(0);
       MCCentPU->Scale(1.0/(double)MCCentPU->GetEntries());
       MCCentPU->Draw();
-      c1->SaveAs("../../evalPlots/MCCentPU.png");
+      c1->SaveAs("MCCentPU.png");
     }
     else if(s.doCentPU && s.nPb==0)
     {
@@ -197,7 +197,7 @@ void produceWeights(TrkSettings s)
       MCCentPU->SetDirectory(0);
       MCCentPU->Scale(1.0/(double)MCCentPU->GetEntries());
       MCCentPU->Draw();
-      c1->SaveAs("../../evalPlots/MCCentPU.png");
+      c1->SaveAs("MCCentPU.png");
     } 
   }
   
@@ -230,7 +230,7 @@ void produceWeights(TrkSettings s)
       }
     }
     pthatWeight->Draw();
-    c1->SaveAs("../../evalPlots/pthatWeights.png");
+    c1->SaveAs("pthatWeights.png");
     pthatWeight->Write();
 
     //outputting new distribution
@@ -249,7 +249,7 @@ void produceWeights(TrkSettings s)
     MCPthat->Draw();
     MCPthat->GetXaxis()->SetRangeUser(30,800);
     MCPthat->Draw();
-    c1->SaveAs("../../evalPlots/PthatDist.png");
+    c1->SaveAs("PthatDist.png");
     c1->SetLogy(0);
   }
 
@@ -257,7 +257,7 @@ void produceWeights(TrkSettings s)
   {
     dVz->Divide(MCVz);
     dVz->Draw();
-    c1->SaveAs("../../evalPlots/VzWeight.png");
+    c1->SaveAs("VzWeight.png");
     dVz->SetName("VertexWeight");
     dVz->Write();
   }
@@ -265,7 +265,7 @@ void produceWeights(TrkSettings s)
   {
     dCentPU->Divide(MCCentPU);
     dCentPU->Draw();
-    c1->SaveAs("../../evalPlots/CentPUWeight.png");
+    c1->SaveAs("CentPUWeight.png");
     dCentPU->SetName("CentPUWeight");
     dCentPU->Write();
   }
