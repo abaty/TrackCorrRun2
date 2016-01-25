@@ -33,7 +33,7 @@ class TrkSettings {
    std::vector<std::vector<double> > centPUBinCoarse, eventSkip;
 
    int highPurityDef;
-   bool doCaloMatch, doTrackTriggerCuts, doOtherCut;
+   bool doCaloMatch, doTrackTriggerCuts, doOtherCut, doSplit;
 
    int nStep, fullIterations, terminateStep;
    std::vector<int> stepOrder;
@@ -176,7 +176,8 @@ TrkSettings::TrkSettings(std::string inputFile)
     getline(f,Dump);
     f >> fullIterations; getline(f,Dump); 
     f >> terminateStep; getline(f,Dump); 
-    f >> jetDefinition;  
+    f >> jetDefinition;getline(f,Dump);
+    f >> doSplit;   
     f.close();
     std::cout << "TrkSettings Loaded" << std::endl;
 

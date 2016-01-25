@@ -78,3 +78,4 @@ root://eoscms.cern.ch///store/group/phys_heavyions/velicanu/forest/HIRun2015/HIM
 1                # Full iterations to run before terminating
 7                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
 akVs4Calo          # jet definition
+0                #Only use even numbered events? (For testing on half of the sample)

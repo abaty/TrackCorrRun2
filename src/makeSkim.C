@@ -43,6 +43,7 @@ void makeSkim(TrkSettings s, bool doCondor)
   unsigned char trkNlayer[60000];
   unsigned char trkAlgo[60000];
   unsigned char trkNdof[60000];
+  int nEv;
   int nVtx;
 
   //gen parameters
@@ -89,6 +90,7 @@ void makeSkim(TrkSettings s, bool doCondor)
   trkCh = new TChain(Form("%s/trackTree",s.trackTreeName.c_str()));
   for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str()); 
   trkCh->SetBranchAddress("nTrk",&nTrk); 
+  trkCh->SetBranchAddress("nEv",&nEv); 
   trkCh->SetBranchAddress("trkPt",&trkPt);
   trkCh->SetBranchAddress("trkEta",&trkEta);
   trkCh->SetBranchAddress("trkPhi",&trkPhi);
@@ -200,6 +202,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     if(i%2000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     trkCh->GetEntry(i);
+    if(s.doSplit && nEv%2==1) continue;
    
     //some event selections on centrality, vz, or just throwing away some events because stats not needed 
     if((s.nPb==2) && ((hiBin/2 < s.centPUMin) || (hiBin/2 >= s.centPUMax))) continue;

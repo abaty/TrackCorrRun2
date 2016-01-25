@@ -33,7 +33,7 @@ class TrkSettings {
    std::vector<std::vector<double> > centPUBinCoarse, eventSkip;
 
    int highPurityDef;
-   bool doCaloMatch, doTrackTriggerCuts, doOtherCut;
+   bool doCaloMatch, doTrackTriggerCuts, doOtherCut, doSplit;
 
    int nStep, fullIterations, terminateStep;
    std::vector<int> stepOrder;
@@ -115,9 +115,9 @@ TrkSettings::TrkSettings(std::string inputFile)
     getline(f,Dump);   
     for(int i = 0; i<nPtBinCoarse; i++)
     { 
-      int tempint;
-      f >> tempint;
-      nCentPUBinCoarse.push_back(tempint);
+      int temp;
+      f >> temp;
+      nCentPUBinCoarse.push_back(temp);
       getline(f,Dump);  
       std::vector<double> tempVec; 
       for(int j = 0; j<nCentPUBinCoarse.at(i)+1; j++)
@@ -145,9 +145,9 @@ TrkSettings::TrkSettings(std::string inputFile)
     getline(f,Dump);
     for(int i = 0; i<nPtBinCoarse; i++)
     { 
-      int tempint;
-      f >> tempint;
-      multiRecoBins.push_back(tempint);
+      int temp;
+      f >> temp;
+      multiRecoBins.push_back(temp);
     } 
     getline(f,Dump);   
     getline(f,Dump);   
@@ -169,14 +169,15 @@ TrkSettings::TrkSettings(std::string inputFile)
     f >> nStep; getline(f,Dump); 
     for(int i=0; i<nStep; i++)
     {
-      int tempint; 
-      f >> tempint;
-      stepOrder.push_back(tempint);
+      int temp; 
+      f >> temp;
+      stepOrder.push_back(temp);
     }
     getline(f,Dump);
     f >> fullIterations; getline(f,Dump); 
     f >> terminateStep; getline(f,Dump); 
-    f >> jetDefinition;  
+    f >> jetDefinition;getline(f,Dump);
+    f >> doSplit;   
     f.close();
     std::cout << "TrkSettings Loaded" << std::endl;
 
