@@ -77,7 +77,7 @@ void produceWeights(TrkSettings s)
     if(s.doVtx)
     {
       dVz = new TH1D("dVz",";vz;Events",30,-15,15);
-      evtSel->Draw("zVtx>>dVz",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window));
+      evtSel->Draw("zVtx>>dVz",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window),"",100000);
       dVz->SetDirectory(0);
       dVz->Scale(1.0/(double)dVz->GetEntries());
       dVz->Draw();
@@ -86,7 +86,7 @@ void produceWeights(TrkSettings s)
     if(s.doCentPU && s.nPb==2)
     {
       dCentPU = new TH1D("dCentPU",";hiBin;Events",100,0,200);
-      evtSel->Draw("hiBin>>dCentPU",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window));
+      evtSel->Draw("hiBin>>dCentPU",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window),"",100000);
       dCentPU->SetDirectory(0);
       dCentPU->Scale(1.0/(double)dCentPU->GetEntries());
       dCentPU->Draw();
@@ -95,7 +95,7 @@ void produceWeights(TrkSettings s)
     else if(s.doCentPU && s.nPb==0)
     {
       dCentPU = new TH1D("dCentPU",";nVtx;Events",30,0,30);
-      evtSel->Draw("nVtx>>dCentPU",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window));
+      evtSel->Draw("nVtx>>dCentPU",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window),"",100000);
       dCentPU->SetDirectory(0);
       dCentPU->Scale(1.0/(double)dCentPU->GetEntries());
       dCentPU->Draw();
