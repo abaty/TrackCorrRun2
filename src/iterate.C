@@ -59,8 +59,10 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   float pt, eta, phi, weight, centPU, rmin, maxJetPt,trkStatus,pNRec,mpt,mtrkQual; 
   
   TFile * histFile;
-  if(iter==0) histFile = TFile::Open(Form("corrHists_job%d.root",s.job),"recreate");
-  else        histFile = TFile::Open(Form("corrHists_job%d.root",s.job),"update");
+  std::string ifPP = "";
+  if(s.nPb==0) ifPP = "pp_";
+  if(iter==0) histFile = TFile::Open(Form("%scorrHists_job%d.root",ifPP.c_str(),s.job),"recreate");
+  else        histFile = TFile::Open(Form("%scorrHists_job%d.root",ifPP.c_str(),s.job),"update");
 
   //make needed gen skim if it hasn't been done yet
   if(iter==0)
@@ -86,8 +88,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     TFile * skim;
     if(doCondor)
     {
-      std::string ifPP = "";
-      if(s.nPb==0) ifPP = "pp_";
       if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
       else skim = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     }
@@ -256,8 +256,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   TFile * skim;
   if(doCondor)
   {
-    std::string ifPP = "";
-    if(s.nPb==0) ifPP = "pp_";
     if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     else skim = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
   }
@@ -513,8 +511,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
    
     if(doCondor)
     { 
-      std::string ifPP = "";
-      if(s.nPb==0) ifPP = "pp_";
       if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
       else skim = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     }
