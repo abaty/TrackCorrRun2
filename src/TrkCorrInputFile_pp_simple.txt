@@ -67,7 +67,7 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 
 #Track Quality Cuts
 1        #High Purity Definition (0 = none (bad), 1 = loose, 2 = tight) (To Be Done)
-0        #Do Calo Matching?  (To Be Done)
+1        #Do Calo Matching?  (To Be Done)
 0        #Do Extra Track Trigger Cuts?
 0        #Other Track Cuts?  (To Be Done)
 
