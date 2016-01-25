@@ -56,7 +56,7 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
 //iteration code
 void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testErrors = false)
 {
-  float pt, eta, phi, weight, centPU, rmin, maxJetPt,trkStatus,pNRec,mpt,mtrkQual; 
+  float pt, eta, phi, weight, centPU, rmin, maxJetPt,trkStatus,pNRec,mpt,mtrkQual,nEv; 
   
   TFile * histFile;
   std::string ifPP = "";
@@ -103,10 +103,12 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     gen->SetBranchAddress("rmin",&rmin);
     gen->SetBranchAddress("jtpt",&maxJetPt);
     gen->SetBranchAddress("pNRec",&pNRec); 
+    gen->SetBranchAddress("nEv",&nEv); 
 	   
     for(int i = 0; i<gen->GetEntries(); i++)
     {
       gen->GetEntry(i);
+      if(s.doSplit && nEv==1) continue;
       genPre[0]->Fill(pt,weight);
       genPre2[1]->Fill(eta,phi,weight); 
       genPre[2]->Fill(centPU,weight);
@@ -127,9 +129,11 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     reco->SetBranchAddress("rmin",&rmin);
     reco->SetBranchAddress("jtpt",&maxJetPt);
     reco->SetBranchAddress("trkStatus",&trkStatus);
+    reco->SetBranchAddress("nEv",&nEv); 
     for(int i = 0; i<reco->GetEntries(); i++)
     {
       reco->GetEntry(i);
+      if(s.doSplit && nEv==1) continue;
       if(trkStatus<-100) continue;
       mrecoPre[0]->Fill(pt,weight);
       mrecoPre2[1]->Fill(eta,phi,weight); 
@@ -147,6 +151,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     for(int i = 0; i<reco->GetEntries(); i++)
     {
       reco->GetEntry(i);
+      if(s.doSplit && nEv==1) continue;
       if(trkStatus>-100)
       {
         Secondary_Matched->Fill(pt,eta,weight);
@@ -167,6 +172,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     for(int i = 0; i<gen->GetEntries(); i++)
     {
       gen->GetEntry(i);
+      if(s.doSplit && nEv==1) continue;
       if(pNRec>-1)
       {
         MultiGen->Fill(pt,weight);
@@ -269,6 +275,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   reco->SetBranchAddress("rmin",&rmin);
   reco->SetBranchAddress("jtpt",&maxJetPt);
   reco->SetBranchAddress("trkStatus",&trkStatus);
+  reco->SetBranchAddress("nEv",&nEv); 
 
   //reading out of skim 
   for(int i = 0; i<reco->GetEntries(); i++)
@@ -277,6 +284,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     float previousEffCorr = 1;
     float previousFakeCorr = 1; 
     reco->GetEntry(i);
+    if(s.doSplit && nEv==1) continue;
     
     //fake part
     if(iter!=0)
@@ -316,6 +324,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   gen->SetBranchAddress("pNRec",&pNRec); 
   gen->SetBranchAddress("mtrkPt",&mpt);
   gen->SetBranchAddress("mtrkQual",&mtrkQual); 
+  gen->SetBranchAddress("nEv",&nEv); 
 
   //reading out of skim 
   for(int i = 0; i<gen->GetEntries(); i++)
@@ -325,6 +334,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     float previousEffCorrErr = 0;
     float previousFakeCorr = 1; 
     gen->GetEntry(i);
+    if(s.doSplit && nEv==1) continue;
     if(mtrkQual<1||  mpt<=0) continue;
     if(iter!=0)
     {
@@ -524,6 +534,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     reco->SetBranchAddress("rmin",&rmin);
     reco->SetBranchAddress("jtpt",&maxJetPt);
     reco->SetBranchAddress("trkStatus",&trkStatus);
+    reco->SetBranchAddress("nEv",&nEv); 
 
     //reading out of skim 
     for(int i = 0; i<reco->GetEntries(); i++)
@@ -531,6 +542,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
       //applying efficiencies from all previous steps
       float previousFakeCorr = 1; 
       reco->GetEntry(i);
+      if(s.doSplit && nEv==1) continue;
       for(int n=0; n<s.nStep; n++)//getting correction
       {
         int type = s.stepOrder.at(n%s.nStep);
@@ -563,12 +575,14 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     gen->SetBranchAddress("pNRec",&pNRec); 
     gen->SetBranchAddress("mtrkPt",&mpt);
     gen->SetBranchAddress("mtrkQual",&mtrkQual); 
+    gen->SetBranchAddress("nEv",&nEv); 
     //reading out of skim 
     for(int i = 0; i<gen->GetEntries(); i++)
     {
       //applying efficiencies from all previous steps
       float previousEffCorr = 1;
       gen->GetEntry(i);
+      if(s.doSplit && nEv==1) continue;
       if(mtrkQual<1 || mpt<=0) continue;
       for(int n=0; n<s.nStep; n++)//getting correction
       {

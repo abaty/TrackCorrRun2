@@ -178,8 +178,8 @@ void makeSkim(TrkSettings s, bool doCondor)
   //Setup output Ntuples
   std::string trackVars;
   std::string particleVars;
-  particleVars="genPt:genEta:genPhi:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual";
-  trackVars=   "trkPt:trkEta:trkPhi:weight:centPU:rmin:jtpt:trkStatus";
+  particleVars="genPt:genEta:genPhi:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual:nEv";
+  trackVars=   "trkPt:trkEta:trkPhi:weight:centPU:rmin:jtpt:trkStatus:nEv";
 
 
   TFile * skimOut;
@@ -202,7 +202,6 @@ void makeSkim(TrkSettings s, bool doCondor)
     if(i%2000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     trkCh->GetEntry(i);
-    if(s.doSplit && nEv%2==1) continue;
    
     //some event selections on centrality, vz, or just throwing away some events because stats not needed 
     if((s.nPb==2) && ((hiBin/2 < s.centPUMin) || (hiBin/2 >= s.centPUMax))) continue;
@@ -264,7 +263,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       }
 
       
-      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j]};
+      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j],(float)nEv%2};
       reco->Fill(trkEntry);
     }
  
@@ -292,7 +291,7 @@ void makeSkim(TrkSettings s, bool doCondor)
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
-      float genEntry[] = {genPt[j],genEta[j],genPhi[j],weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j]};
+      float genEntry[] = {genPt[j],genEta[j],genPhi[j],weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j],(float)nEv%2};
       gen->Fill(genEntry); 
     }
   processed++;
