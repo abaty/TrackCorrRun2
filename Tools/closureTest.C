@@ -35,7 +35,7 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
     for(int i = 0; i<5; i++){
       s.ptMin = s.ptBinCoarse.at(i);
       s.ptMax = s.ptBinCoarse.at(i+1);
-      for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.PtMin))/((float)(10))) + TMath::Log10(s.PtMin));
+      for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
     }
     ptAxis[50]=s.ptMax;
     hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",ptBins-1,ptAxis);
@@ -68,7 +68,7 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
     for(int i = 0; i<5; i++){
       s.ptMin = s.ptBinCoarse.at(i);
       s.ptMax = s.ptBinCoarse.at(i+1);
-      for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.PtMin))/((float)(10))) + TMath::Log10(s.PtMin));
+      for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
     }
     ptAxis[50]=s.ptMax;
     if(stepType==8){
@@ -216,6 +216,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   
   for(int i = 0; i<9; i++)
   {
+    if(i==6) continue;
     if(i != 1 && i!=7 && i!=8)
     {
       genPre[i] = makeTH1(s,i,"gen");
@@ -239,14 +240,14 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   }
  
   //booking applied corrections
-    const int ptBins = 51;
-    double ptAxis[ptBins];
+    const int ptBins_corr = 51;
+    double ptAxis_corr[ptBins_corr];
     for(int i = 0; i<5; i++){
       s.ptMin = s.ptBinCoarse.at(i);
       s.ptMax = s.ptBinCoarse.at(i+1);
-      for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.PtMin))/((float)(10))) + TMath::Log10(s.PtMin));
+      for(int x = 0; x<10;x++) ptAxis_corr[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
     }
-    ptAxis[50]=s.ptMax;
+    ptAxis_corr[50]=s.ptMax;
     TH2D * appliedCorrection = new TH2D("appliedCorrection",";p_{T};Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
     TH2D * appliedEffCorrection = new TH2D("appliedEffCorrection",";p_{T};Eff Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
     TH2D * appliedFakeCorrection = new TH2D("appliedFakeCorrection",";p_{T};Fake Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
@@ -255,7 +256,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   //event loop
   std::cout << "starting event loop" << std::endl;
   int numberOfEntries = 2000;
-  numberOfEntries = trkCh->GetEntries();
+  //numberOfEntries = trkCh->GetEntries();
  
   for(int i = 0; i<numberOfEntries; i++)
   { 
