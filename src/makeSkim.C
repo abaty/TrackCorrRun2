@@ -263,7 +263,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       }
 
       
-      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j],(float)nEv%2};
+      float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j],(float)(nEv%2)};
       reco->Fill(trkEntry);
     }
  
@@ -291,7 +291,7 @@ void makeSkim(TrkSettings s, bool doCondor)
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
-      float genEntry[] = {genPt[j],genEta[j],genPhi[j],weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j],(float)nEv%2};
+      float genEntry[] = {genPt[j],genEta[j],genPhi[j],weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j],(float)(nEv%2)};
       gen->Fill(genEntry); 
     }
   processed++;
