@@ -84,7 +84,7 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
 
 void closureTest(const char * in, const char * out,TrkSettings s)
 {
-  TrkCorr* trkCorr = new TrkCorr(Form("%s/",in));
+  TrkCorr* trkCorr = new TrkCorr(Form("%s",in));
 //Setup variables for skim
   TChain * trkCh;
   TChain * centCh;
@@ -271,12 +271,12 @@ void closureTest(const char * in, const char * out,TrkSettings s)
     int centPU;
     if(s.nPb==2)
     {
-      weight = getWeight(s,pthat,zVtx[0],hiBin);    
+      weight = getWeight(s,pthat,zVtx[0],hiBin,in);    
       centPU = hiBin/2.0;
     }
     if(s.nPb==0) 
     {
-      weight = getWeight(s,pthat,zVtx[0],nVtx);
+      weight = getWeight(s,pthat,zVtx[0],nVtx,in);
       centPU = nVtx;
     }
 
@@ -420,7 +420,7 @@ void getClosure(const char * inputDirectory, const char * outputFile)
   TH1::SetDefaultSumw2();
   TH2::SetDefaultSumw2();
 
-  TrkSettings s(Form("%s/TrkCorrInputFile.txt",inputDirectory));
+  TrkSettings s(Form("%sTrkCorrInputFile.txt",inputDirectory));
   closureTest(inputDirectory,outputFile,s);
   return;
 }
