@@ -72,11 +72,11 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
     }
     ptAxis[50]=s.ptMax;
     if(stepType==8){
-      const int centralityBins = 7;
-      double centralityEdges[centralityBins+1] = {0,5,10,20,30,50,70,90};
+      const int centralityBins = 10;
+      double centralityEdges[centralityBins+1] = {0,5,10,20,30,40,50,60,70,80,90};
       hist = new TH2D(Form("%s_centPt",titlePrefix),";Centrality;#pt;",centralityBins,centralityEdges,ptBins-1,ptAxis);
     }
-    hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",s.etaBinFine,-2.4,2.4,ptBins-1,ptAxis);
+    else hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",s.etaBinFine,-2.4,2.4,ptBins-1,ptAxis);
   }
   return hist;
 }
@@ -204,7 +204,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   //trkCh->AddFriend(evtCh);
 
   //Histograms to hold stuff...
-  TFile * outF = TFile::Open(out,"recreate");
+  TFile * outF = TFile::Open(Form("%s%s",in,out),"recreate");
   TH1D *genPre[20], *mrecoPre[20];
   TH2D *genPre2[20], *mrecoPre2[20];
   TH1D * EffNoCorr[10], *FakeNoCorr[10];
@@ -213,6 +213,8 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   TH2D * EffCorr2[10], *FakeCorr2[10];
   TH1D * FinalCorr[10];
   TH2D * FinalCorr2[10];
+  TH1D * Eff[10], *Fake[10], *EffClosure[10], *FakeClosure[10], *Closure[10];
+  TH2D * Eff2[10], *Fake2[10], *EffClosure2[10], *FakeClosure2[10], *Closure2[10];
   
   for(int i = 0; i<9; i++)
   {
@@ -410,13 +412,56 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       EffCorr2[8]->Fill(centPU,genPt[j],weight*eff);
     }
   }
+  //do divisions
+  for(int i = 0; i<9; i++)
+  {
+    if(i==6) continue;
+    if(i != 1 && i!=7 && i!=8)
+    {
+      Eff[i] = (TH1D*)EffNoCorr[i]->Clone(Form("Efficiency_%d",i));
+      Eff[i]->Divide(genPre[i]);
+      Eff[i]->SetDirectory(outF);
+      Fake[i] = (TH1D*)FakeNoCorr[i]->Clone(Form("Fake_%d",i));
+      Fake[i]->Divide(mrecoPre[i]);
+      Fake[i]->SetDirectory(outF);
+      EffClosure[i] = (TH1D*)EffCorr[i]->Clone(Form("EfficiencyClosure_%d",i));
+      EffClosure[i]->Divide(genPre[i]);
+      EffClosure[i]->SetDirectory(outF);
+      FakeClosure[i] = (TH1D*)FakeCorr[i]->Clone(Form("FakeClosure_%d",i));
+      FakeClosure[i]->Divide(mrecoPre[i]);
+      FakeClosure[i]->SetDirectory(outF);
+      Closure[i] =(TH1D*)FinalCorr[i]->Clone(Form("netClosure_%d",i));
+      Closure[i]->Divide(genPre[i]);
+      Closure[i]->SetDirectory(outF);
+    }
+    else
+    {
+      Eff2[i] = (TH2D*)EffNoCorr2[i]->Clone(Form("Efficiency_%d",i));
+      Eff2[i]->Divide(genPre2[i]);
+      Eff2[i]->SetDirectory(outF);
+      Fake2[i] = (TH2D*)FakeNoCorr2[i]->Clone(Form("Fake_%d",i));
+      Fake2[i]->Divide(mrecoPre2[i]);
+      Fake2[i]->SetDirectory(outF);
+      EffClosure2[i] = (TH2D*)EffCorr2[i]->Clone(Form("EfficiencyClosure_%d",i));
+      EffClosure2[i]->Divide(genPre2[i]);
+      EffClosure2[i]->SetDirectory(outF);
+      FakeClosure2[i] = (TH2D*)FakeCorr2[i]->Clone(Form("FakeClosure_%d",i));
+      FakeClosure2[i]->Divide(mrecoPre2[i]);
+      FakeClosure2[i]->SetDirectory(outF);
+      Closure2[i] =(TH2D*)FinalCorr2[i]->Clone(Form("netClosure_%d",i));
+      Closure2[i]->Divide(genPre2[i]);
+      Closure2[i]->SetDirectory(outF);
+    }
+  }
+
+
   std::cout << "About to write" << std::endl;
   outF->Write();
   std::cout << "written" << std::endl;
   outF->Close();
 }
 
-void getClosure(const char * inputDirectory, const char * outputFile)
+void getClosure(const char * inputDirectory, const char * outputFile = "Closure.root")
 {
   TH1::SetDefaultSumw2();
   TH2::SetDefaultSumw2();
