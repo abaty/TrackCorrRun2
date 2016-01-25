@@ -5,6 +5,7 @@
 #include "TNtuple.h"
 #include "TMath.h"
 #include <iostream>
+#include <cstring>
 
 //settings for the histograms used
 TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
@@ -85,8 +86,10 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     TFile * skim;
     if(doCondor)
     {
-      if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-      else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+      std::string ifPP = "";
+      if(s.nPb==0) ifPP = "pp_";
+      if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
+      else skim = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     }
     else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
     //for efficiency
@@ -253,8 +256,10 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   TFile * skim;
   if(doCondor)
   {
-    if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-    else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+    std::string ifPP = "";
+    if(s.nPb==0) ifPP = "pp_";
+    if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
+    else skim = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
   }
   else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
   TNtuple * reco = (TNtuple*)  skim->Get("Reco"); 
@@ -508,8 +513,10 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
    
     if(doCondor)
     { 
-      if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/trackSkim_job%d.root",s.job),"read");
-      else skim = TFile::Open(Form("trackSkim_job%d.root",s.job),"read");
+      std::string ifPP = "";
+      if(s.nPb==0) ifPP = "pp_";
+      if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
+      else skim = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     }
     else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
     reco = (TNtuple*)  skim->Get("Reco"); 

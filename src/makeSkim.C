@@ -181,8 +181,10 @@ void makeSkim(TrkSettings s, bool doCondor)
 
 
   TFile * skimOut;
-  if(doCondor) skimOut = TFile::Open(Form("trackSkim_job%d.root",s.job),"recreate");
-  else         skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"recreate");
+  std::string ifPP = "";
+  if(s.nPb==0) ifPP = "pp_";
+  if(doCondor) skimOut = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"recreate");
+  else         skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"recreate");
   TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
   TNtuple * reco = new TNtuple("Reco","",trackVars.data());
 
