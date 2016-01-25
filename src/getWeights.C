@@ -275,11 +275,11 @@ void produceWeights(TrkSettings s)
   delete c1;
 }
 
-double getWeight(TrkSettings s, double pthat, double vz, double centPU)
+double getWeight(TrkSettings s, double pthat, double vz, double centPU, const char * weightDir = "")
 {
   if(!isWeightFileInitialized)
   {
-    TFile *  weightFile = TFile::Open(Form("%s_Weights.root",s.jobName.c_str()),"read");
+    TFile *  weightFile = TFile::Open(Form("%s%s_Weights.root",weightDir,s.jobName.c_str()),"read");
     if(s.doPthat)
     {
       PthatWeight = (TH1D*)weightFile->Get("pthatWeight");

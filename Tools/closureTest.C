@@ -1,6 +1,6 @@
 #include "../src/TrkSettings.h"
 #include "../src/getWeights.C"
-#include "getTrkCorr.h"
+#include "../src/getTrkCorr.h"
 #include "TMath.h"
 #include "TH1D.h"
 #include "TAxis.h"
@@ -13,6 +13,16 @@
 #include <vector>
 #include <iostream>
 
+/*step type key
+ * 0 - pt
+ * 1 - acceptance
+ * 2 - hibin or pu
+ * 3 - jt pt
+ * 4 - eta
+ * 5 - rmin
+ * 7 - pt+eta
+ * 8 - pt+cent*/
+
 //settings for the histograms used
 TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
 {
@@ -20,9 +30,14 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
   //set log spacing 
   if(stepType ==0)
   {
-    const int ptBins = 31;
+    const int ptBins = 51;
     double ptAxis[ptBins];
-    for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(300)-TMath::Log10(0.5))/((float)(ptBins-1))) + TMath::Log10(0.5));
+    for(int i = 0; i<5; i++){
+      s.ptMin = s.ptBinCoarse.at(i);
+      s.ptMax = s.ptBinCoarse.at(i+1);
+      for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.PtMin))/((float)(10))) + TMath::Log10(s.PtMin));
+    }
+    ptAxis[50]=s.ptMax;
     hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",ptBins-1,ptAxis);
   }
 
@@ -38,16 +53,6 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
   const int rminBins = 16;
   double rminBinning[rminBins+1] = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.2,1.4,1.6,2,3,10};
   if(stepType ==5) hist = new TH1D(Form("%s_rmin",titlePrefix),";rmin;",rminBins,rminBinning);
-  if(stepType ==6)
-  {
-    const int densityBins = 10;
-    double R = 0.1;
-    double densityAxis[densityBins+1]={0};
-    densityAxis[0]=0; densityAxis[1]=1.0/(R*R*TMath::Pi()*2)-0.0001; densityAxis[densityBins]=100000;
-    for(int i=2;i<6;i++)  densityAxis[i]=(i-1)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
-    for(int i=6;i<densityBins;i++)  densityAxis[i]=(2*i-6)/(R*R*TMath::Pi())+1.0/(R*R*TMath::Pi()*2)-0.0001;
-    hist = new TH1D(Form("%s_density",titlePrefix),";trkDensity;",densityBins,densityAxis);
-  }
   return hist;
 }
 
@@ -56,20 +61,30 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
   TH2D * hist;
   //if(s.ptMin>=10){s.etaBinFine = s.etaBinFine/2; s.phiBinFine = s.phiBinFine/2;}
   if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",s.etaBinFine,-2.4,2.4,s.phiBinFine,-TMath::Pi(),TMath::Pi());
-  if(stepType ==7)
+  if(stepType ==7 || stepType==8)
   {
-    const int ptBins = 31;
+    const int ptBins = 51;
     double ptAxis[ptBins];
-    for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(300)-TMath::Log10(0.5))/((float)(ptBins-1))) + TMath::Log10(0.5));
+    for(int i = 0; i<5; i++){
+      s.ptMin = s.ptBinCoarse.at(i);
+      s.ptMax = s.ptBinCoarse.at(i+1);
+      for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.PtMin))/((float)(10))) + TMath::Log10(s.PtMin));
+    }
+    ptAxis[50]=s.ptMax;
+    if(stepType==8){
+      const int centralityBins = 7;
+      double centralityEdges[centralityBins+1] = {0,5,10,20,30,50,70,90};
+      hist = new TH2D(Form("%s_centPt",titlePrefix),";Centrality;#pt;",centralityBins,centralityEdges,ptBins-1,ptAxis);
+    }
     hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",s.etaBinFine,-2.4,2.4,ptBins-1,ptAxis);
   }
   return hist;
 }
 
 
-void closureTest(TrkSettings s)
+void closureTest(const char * in, const char * out,TrkSettings s)
 {
-  TrkCorr* trkCorr = new TrkCorr("Jan18_PbPb_Iterative_CrosscheckDifferentOrder/");
+  TrkCorr* trkCorr = new TrkCorr(Form("%s/",in));
 //Setup variables for skim
   TChain * trkCh;
   TChain * centCh;
@@ -78,6 +93,7 @@ void closureTest(TrkSettings s)
 
   //track
   int nTrk;
+  int nEv;
   float trkPt[75000];
   float trkPtError[50000];
   float trkEta[75000];
@@ -130,6 +146,7 @@ void closureTest(TrkSettings s)
   trkCh = new TChain(Form("%s/trackTree",s.trackTreeName.c_str()));
   for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str()); 
   trkCh->SetBranchAddress("nTrk",&nTrk); 
+  trkCh->SetBranchAddress("nEv",&nEv); 
   trkCh->SetBranchAddress("trkPt",&trkPt);
   trkCh->SetBranchAddress("trkPtError",&trkPtError);
   trkCh->SetBranchAddress("trkEta",&trkEta);
@@ -187,7 +204,7 @@ void closureTest(TrkSettings s)
   //trkCh->AddFriend(evtCh);
 
   //Histograms to hold stuff...
-  TFile * outF = TFile::Open("outputClosures_jan18_differentOrder.root","recreate");
+  TFile * outF = TFile::Open(out,"recreate");
   TH1D *genPre[20], *mrecoPre[20];
   TH2D *genPre2[20], *mrecoPre2[20];
   TH1D * EffNoCorr[10], *FakeNoCorr[10];
@@ -197,9 +214,9 @@ void closureTest(TrkSettings s)
   TH1D * FinalCorr[10];
   TH2D * FinalCorr2[10];
   
-  for(int i = 0; i<8; i++)
+  for(int i = 0; i<9; i++)
   {
-    if(i != 1 && i!=7)
+    if(i != 1 && i!=7 && i!=8)
     {
       genPre[i] = makeTH1(s,i,"gen");
       mrecoPre[i] = makeTH1(s,i,"mreco");
@@ -222,13 +239,19 @@ void closureTest(TrkSettings s)
   }
  
   //booking applied corrections
-    const int ptBins_corr = 31;
-    double ptAxis_corr[ptBins_corr];
-    for(int x = 0; x<ptBins_corr;x++) ptAxis_corr[x] = TMath::Power(10,(x*(TMath::Log10(300)-TMath::Log10(0.5))/((float)(ptBins_corr-1))) + TMath::Log10(0.5));
+    const int ptBins = 51;
+    double ptAxis[ptBins];
+    for(int i = 0; i<5; i++){
+      s.ptMin = s.ptBinCoarse.at(i);
+      s.ptMax = s.ptBinCoarse.at(i+1);
+      for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.PtMin))/((float)(10))) + TMath::Log10(s.PtMin));
+    }
+    ptAxis[50]=s.ptMax;
     TH2D * appliedCorrection = new TH2D("appliedCorrection",";p_{T};Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
     TH2D * appliedEffCorrection = new TH2D("appliedEffCorrection",";p_{T};Eff Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
     TH2D * appliedFakeCorrection = new TH2D("appliedFakeCorrection",";p_{T};Fake Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
 
+  //**************************************************************************************************************************************************************
   //event loop
   std::cout << "starting event loop" << std::endl;
   int numberOfEntries = 2000;
@@ -238,10 +261,10 @@ void closureTest(TrkSettings s)
   { 
     if(i%50000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
-    else trkCh->GetEntry(i);
-   
-    //if(TMath::Abs(vz)>s.vz_window) continue;
-    if(s.nPb==2) trkCh->GetEntry(i);
+    trkCh->GetEntry(i);
+    if(s.doSplit && nEv%2==0) continue; 
+    if(TMath::Abs(zVtx[0])>s.vz_window) continue;
+    
     if(pthat>800) continue;
   
     //getting weight parameters
@@ -273,7 +296,7 @@ void closureTest(TrkSettings s)
       if( trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;  
         
       float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
-      if(!(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching 
+      if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching 
       
       if(trkPt[j]<0.5 || trkPt[j]>=300) continue;
 
@@ -296,8 +319,8 @@ void closureTest(TrkSettings s)
       FakeNoCorr[3]->Fill(maxJetPt,weight);
       FakeNoCorr[4]->Fill(trkEta[j],weight);
       FakeNoCorr[5]->Fill(rmin,weight);
-      //FakeNoCorr[6]->Fill(density,weight);
       FakeNoCorr2[7]->Fill(trkEta[j],trkPt[j],weight);   
+      FakeNoCorr2[8]->Fill(centPU,trkPt[j],weight);   
 
       float fake = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin,rmin,0,2);
       appliedFakeCorrection->Fill(trkPt[j],fake);
@@ -307,8 +330,8 @@ void closureTest(TrkSettings s)
       FakeCorr[3]->Fill(maxJetPt,weight*fake);
       FakeCorr[4]->Fill(trkEta[j],weight*fake);
       FakeCorr[5]->Fill(rmin,weight*fake);
-      //FakeCorr[6]->Fill(density,weight*fake);
       FakeCorr2[7]->Fill(trkEta[j],trkPt[j],weight*fake);   
+      FakeCorr2[8]->Fill(centPU,trkPt[j],weight*fake);   
 
       float correction = trkCorr->getTrkCorr(trkPt[j],trkEta[j],trkPhi[j],hiBin,rmin,0);
       appliedCorrection->Fill(trkPt[j],correction);
@@ -318,8 +341,8 @@ void closureTest(TrkSettings s)
       FinalCorr[3]->Fill(maxJetPt,weight*correction);
       FinalCorr[4]->Fill(trkEta[j],weight*correction);
       FinalCorr[5]->Fill(rmin,weight*correction);
-      //FinalCorr[6]->Fill(density,weight*correction);
       FinalCorr2[7]->Fill(trkEta[j],trkPt[j],weight*correction);      
+      FinalCorr2[8]->Fill(centPU,trkPt[j],weight*correction);      
  
       if(trkStatus[j]<-100) continue;
       mrecoPre[0]->Fill(trkPt[j],weight);
@@ -328,8 +351,8 @@ void closureTest(TrkSettings s)
       mrecoPre[3]->Fill(maxJetPt,weight);
       mrecoPre[4]->Fill(trkEta[j],weight); 
       mrecoPre[5]->Fill(rmin,weight);
-      //mrecoPre[6]->Fill(density,weight);
       mrecoPre2[7]->Fill(trkEta[j],trkPt[j],weight);
+      mrecoPre2[8]->Fill(centPU,trkPt[j],weight);
     }
  
     //gen 
@@ -356,13 +379,13 @@ void closureTest(TrkSettings s)
       genPre[3]->Fill(maxJetPt,weight);
       genPre[4]->Fill(genEta[j],weight);
       genPre[5]->Fill(rmin,weight);
-      //genPre[6]->Fill(density,weight);
       genPre2[7]->Fill(genEta[j],genPt[j],weight);
+      genPre2[8]->Fill(centPU,genPt[j],weight);
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
       if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
       float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
-      if(!(mtrkPt[j]<20 || (Et>0.2*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
+      if(s.doCaloMatch && !(mtrkPt[j]<20 || (Et>0.2*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
       
       if(mtrkQual[j]<1 || mtrkPt[j]<=0) continue;
       EffNoCorr[0]->Fill(genPt[j],weight);
@@ -371,8 +394,8 @@ void closureTest(TrkSettings s)
       EffNoCorr[3]->Fill(maxJetPt,weight);
       EffNoCorr[4]->Fill(genEta[j],weight);
       EffNoCorr[5]->Fill(rmin,weight);
-      //EffNoCorr[6]->Fill(density,weight);
       EffNoCorr2[7]->Fill(genEta[j],genPt[j],weight);
+      EffNoCorr2[8]->Fill(centPU,genPt[j],weight);
 	  
       float eff = trkCorr->getTrkCorr(genPt[j],genEta[j],genPhi[j],hiBin,rmin,0,1);
       appliedEffCorrection->Fill(genPt[j],eff);
@@ -382,8 +405,8 @@ void closureTest(TrkSettings s)
       EffCorr[3]->Fill(maxJetPt,weight*eff);
       EffCorr[4]->Fill(genEta[j],weight*eff);
       EffCorr[5]->Fill(rmin,weight*eff);
-      //EffCorr[6]->Fill(density,weight*eff);
       EffCorr2[7]->Fill(genEta[j],genPt[j],weight*eff);
+      EffCorr2[8]->Fill(centPU,genPt[j],weight*eff);
     }
   }
   std::cout << "About to write" << std::endl;
@@ -392,12 +415,12 @@ void closureTest(TrkSettings s)
   outF->Close();
 }
 
-void getClosure()
+void getClosure(const char * inputDirectory, const char * outputFile)
 {
   TH1::SetDefaultSumw2();
   TH2::SetDefaultSumw2();
 
-  TrkSettings s("Jan18_PbPb_iterative/TrkCorrInputFile.txt");
-  closureTest(s);
+  TrkSettings s(Form("%s/TrkCorrInputFile.txt",inputDirectory));
+  closureTest(inputDirectory,outputFile,s);
   return;
 }
