@@ -258,8 +258,8 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   //event loop
   std::cout << "starting event loop" << std::endl;
   int numberOfEntries = 2000;
-  //numberOfEntries = trkCh->GetEntries();
- 
+  numberOfEntries = trkCh->GetEntries();
+
   for(int i = 0; i<numberOfEntries; i++)
   { 
     if(i%50000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;

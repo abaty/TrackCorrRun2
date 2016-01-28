@@ -25,7 +25,7 @@ class TrkCorr{
     std::vector<std::vector<TH1D*> > fake;
     std::vector<std::vector<TH2D*> > eff2;
     std::vector<std::vector<TH2D*> > fake2;
-    std::vector<TH1D*> secondary;
+    std::vector<TH2D*> secondary;
     std::vector<TH1D*> multiple;
 
     TrkSettings * s;
@@ -48,7 +48,9 @@ TrkCorr::TrkCorr(std::string inputDirectory)
   TFile * f;
   for(int i = 0; i<nFiles; i++)
   {
-    f = TFile::Open(Form("%scorrHists_job%d.root",inputDirectory.c_str(),i),"read");
+    std::string isPP = "";
+    if(s->nPb==0) isPP = "pp_";
+    f = TFile::Open(Form("%s%scorrHists_job%d.root",inputDirectory.c_str(),isPP.c_str(),i),"read");
     std::vector<TH1D*> tempTH1EffVec;
     std::vector<TH2D*> tempTH2EffVec;
     std::vector<TH1D*> tempTH1FakeVec;
@@ -75,7 +77,7 @@ TrkCorr::TrkCorr(std::string inputDirectory)
     eff2.push_back(tempTH2EffVec);
     fake2.push_back(tempTH2FakeVec);
 
-    secondary.push_back((TH1D*)f->Get("SecondaryRate"));
+    secondary.push_back((TH2D*)f->Get("SecondaryRate"));
     secondary.back()->SetDirectory(0);
     multiple.push_back((TH1D*)f->Get("MultipleRecoRate"));
     multiple.back()->SetDirectory(0);
@@ -160,7 +162,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
     else                      th1indx++;
   }
   netMult = multiple[coarseBin]->GetBinContent(multiple[coarseBin]->FindBin(pt));
-  netSec  = secondary[coarseBin]->GetBinContent(secondary[coarseBin]->FindBin(pt));
+  netSec  = secondary[coarseBin]->GetBinContent(secondary[coarseBin]->GetXaxis()->FindBin(pt),secondary[coarseBin]->GetYaxis()->FindBin(eta));
 
 /*
   netEff *= eff[coarseBin][0]->GetBinContent(eff[coarseBin][0]->FindBin(pt));
