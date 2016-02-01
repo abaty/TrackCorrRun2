@@ -36,8 +36,8 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 /mnt/hadoop/cms/store/user/dgulhan/MinimumBias1/HiForest_MinimumBias1_Run2015E_PromptReco_pp_5020GeV/151201_113508/0000/HiForest_880.root                  # Data file to reweight the vertex to
 
 #Coarse Binning Options
-5                       # # of course Trk Pt Bins
-0.5 1 3 10 30 300           # Trk Pt Bin boundaries
+6                       # # of course Trk Pt Bins
+0.5 0.75 1 3 10 30 300           # Trk Pt Bin boundaries
 
 1                       # # of coarse Cent/PU Bins for the 1st coarse Trk Pt Bin
 0 10          # Cent/PU Bin Boundaries
@@ -49,14 +49,17 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 0 10          # Cent/PU Bin Boundaries
 1                       # # of coarse Cent/PU Bins for the 5th coarse Trk Pt Bin
 0 10          # Cent/PU Bin Boundaries
+1                       # # of coarse Cent/PU Bins for the 5th coarse Trk Pt Bin
+0 10          # Cent/PU Bin Boundaries
 
 1           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
 1               #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
 1                   #Event skip rates for 3rd pt bin and each Cent/PU Bin (speeds up computation)
 1                       #Event skip rates for 4th pt bin and each Cent/PU Bin (speeds up computation)
 1                       #Event skip rates for 5th pt bin and each Cent/PU Bin (speeds up computation)
+1                       #Event skip rates for 5th pt bin and each Cent/PU Bin (speeds up computation)
 
-4 4 4 4 4                      # Multiple Reco and 2ndary pt fine binning
+4 4 4 4 4 4                      # Multiple Reco and 2ndary pt fine binning
 
 #Fine Binning Options
 10         #Pt Fine Binning
