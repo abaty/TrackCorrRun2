@@ -91,7 +91,7 @@ TrkCorr::TrkCorr(std::string inputDirectory)
 //correction=0 is total, 1 is eff, 2 is fake, 3 is second, 4 is mult
 double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rmin, float jtpt, int correction)
 {
-  if(pt<0.5 || pt>=300){  std::cout << "\nPt of " << pt << " less than 500 MeV or > 300 GeV, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1;}
+  if(pt<0.5 || pt>=400){  std::cout << "\nPt of " << pt << " less than 500 MeV or > 300 GeV, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1;}
   if(eta<-2.4 || eta>2.4){  std::cout << "\nEta outside of |2.4|, please place a cut to prevent this. Returning a correction of 1" << std::endl; return 1;}
   if(hiBin<0 || hiBin>199){  std::cout << "\nhiBin not within 0 to 200, please place a cut to prevent this.  Returning a correction of 1" << std::endl; return 1;}
   

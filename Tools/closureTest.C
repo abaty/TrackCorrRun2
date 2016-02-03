@@ -30,14 +30,14 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
   //set log spacing 
   if(stepType ==0)
   {
-    const int ptBins = 51;
+    const int ptBins = 61;
     double ptAxis[ptBins];
-    for(int i = 0; i<5; i++){
+    for(int i = 0; i<6; i++){
       s.ptMin = s.ptBinCoarse.at(i);
       s.ptMax = s.ptBinCoarse.at(i+1);
       for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
     }
-    ptAxis[50]=s.ptMax;
+    ptAxis[60]=s.ptMax;
     hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",ptBins-1,ptAxis);
   }
 
@@ -63,14 +63,14 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
   if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",s.etaBinFine,-2.4,2.4,s.phiBinFine,-TMath::Pi(),TMath::Pi());
   if(stepType ==7 || stepType==8)
   {
-    const int ptBins = 51;
+    const int ptBins = 61;
     double ptAxis[ptBins];
-    for(int i = 0; i<5; i++){
+    for(int i = 0; i<6; i++){
       s.ptMin = s.ptBinCoarse.at(i);
       s.ptMax = s.ptBinCoarse.at(i+1);
       for(int x = 0; x<10;x++) ptAxis[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
     }
-    ptAxis[50]=s.ptMax;
+    ptAxis[60]=s.ptMax;
     if(stepType==8){
       const int centralityBins = 10;
       double centralityEdges[centralityBins+1] = {0,5,10,20,30,40,50,60,70,80,90};
@@ -133,11 +133,13 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   float vz;
   float pthat;
   int nref;
+  int ngen;
   float jtpt[100];
   float jtphi[100];
   float jteta[100];
   float rawpt[100];
   float chargedSum[100];
+  float genpt[100];
   float weight = 1;
   int pcoll;
 
@@ -191,10 +193,12 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   for(int i = 0; i<s.nMC; i++)  jet->Add(s.MCFiles.at(i).c_str());  
   jet->SetBranchAddress("pthat", &pthat);
   jet->SetBranchAddress("nref",&nref);
+  jet->SetBranchAddress("ngen",&ngen);
   jet->SetBranchAddress("jtpt",&jtpt);
   jet->SetBranchAddress("jteta",&jteta);
   jet->SetBranchAddress("jtphi",&jtphi);
   jet->SetBranchAddress("rawpt",&rawpt);
+  jet->SetBranchAddress("genpt",&genpt);
   jet->SetBranchAddress("chargedSum",&chargedSum);  
   trkCh->AddFriend(jet);
   
@@ -242,14 +246,14 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   }
  
   //booking applied corrections
-    const int ptBins_corr = 51;
+    const int ptBins_corr = 61;
     double ptAxis_corr[ptBins_corr];
-    for(int i = 0; i<5; i++){
+    for(int i = 0; i<6; i++){
       s.ptMin = s.ptBinCoarse.at(i);
       s.ptMax = s.ptBinCoarse.at(i+1);
       for(int x = 0; x<10;x++) ptAxis_corr[x+10*i] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
     }
-    ptAxis_corr[50]=s.ptMax;
+    ptAxis_corr[60]=s.ptMax;
     TH2D * appliedCorrection = new TH2D("appliedCorrection",";p_{T};Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
     TH2D * appliedEffCorrection = new TH2D("appliedEffCorrection",";p_{T};Eff Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
     TH2D * appliedFakeCorrection = new TH2D("appliedFakeCorrection",";p_{T};Fake Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
@@ -290,6 +294,11 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       if(TMath::Abs(jteta[k])>2) continue;
       if(jtpt[k]>maxJetPt) maxJetPt=jtpt[k];
     }
+    float maxGenJetPt = -999;
+    for(int k = 0; k<ngen; k++)
+    {
+      if(genpt[k]>maxGenJetPt) maxGenJetPt = genpt[k];
+    }
  
     //track loop 
     for(int j = 0; j<nTrk; j++)
@@ -299,9 +308,9 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       if( trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;  
         
       float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
-      if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching 
-      
-      if(trkPt[j]<0.5 || trkPt[j]>=300) continue;
+      if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
+      if(trkPt[j]<0.5 || trkPt[j]>=400) continue;
+      if(trkPt[j]>maxGenJetPt) continue;
 
       //find rmin parameters for the track
       float rmin = 999;
@@ -362,7 +371,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
     for(int j = 0; j<nParticle; j++)
     {
       if(TMath::Abs(genEta[j])>2.4) continue;
-      if(genPt[j]<0.5 || genPt[j]>300) continue;
+      if(genPt[j]<0.5 || genPt[j]>400) continue;
     
       //find rmin parameters for the track
       float rmin = 999;

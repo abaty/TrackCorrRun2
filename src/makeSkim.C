@@ -68,18 +68,18 @@ void makeSkim(TrkSettings s, bool doCondor)
   int   mtrkNdof[60000];
   float pNRec[60000];
 
-  //other parameters
-  //float localTrackDensity = 0;
   
   //event parameters
   int hiBin;
   float zVtx[100];
   float pthat;
   int nref;
+  int ngen;
   float jtpt[100];
   float jtphi[100];
   float jteta[100];
   float rawpt[100];
+  float genpt[100];
   float chargedSum[100];
   float weight = 1;
   int pHBHENoiseFilterResultProducer , pPAprimaryVertexFilter , pBeamScrapingFilter;
@@ -153,10 +153,12 @@ void makeSkim(TrkSettings s, bool doCondor)
   for(int i = 0; i<s.nMC; i++)  jet->Add(s.MCFiles.at(i).c_str());  
   jet->SetBranchAddress("pthat", &pthat);
   jet->SetBranchAddress("nref",&nref);
+  jet->SetBranchAddress("ngen",&ngen);
   jet->SetBranchAddress("jtpt",&jtpt);
   jet->SetBranchAddress("jteta",&jteta);
   jet->SetBranchAddress("jtphi",&jtphi);
   jet->SetBranchAddress("rawpt",&rawpt);
+  jet->SetBranchAddress("genpt",&genpt);
   jet->SetBranchAddress("chargedSum",&chargedSum);  
   trkCh->AddFriend(jet);
   
@@ -236,6 +238,11 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(TMath::Abs(jteta[k])>2) continue;
       if(jtpt[k]>maxJetPt) maxJetPt=jtpt[k];
     }
+    float maxGenJetPt = -999;
+    for(int k = 0; k<ngen; k++)
+    {
+      if(genpt[k]>maxGenJetPt) maxGenJetPt = genpt[k];
+    }
 
     //track loop  
     for(int j = 0; j<nTrk; j++)
@@ -250,6 +257,10 @@ void makeSkim(TrkSettings s, bool doCondor)
         float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
         if(!(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching 
       }
+
+      //test
+      if(trkPt[j]>maxGenJetPt) continue;
+      //endtest
 
       //find rmin parameters for the track
       float rmin = 999;
