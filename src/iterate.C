@@ -24,7 +24,7 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
   if(stepType ==2) 
   {
     int tempFineBin = s.centPUBinFine;
-    if(s.centPUMin==0) tempFineBin=s.centPUBinFine/2;
+    if(s.centPUMin==0) tempFineBin=4;
     if(s.nPb==2)  hist = new TH1D(Form("%s_centPU",titlePrefix),";hiBin;",tempFineBin,s.centPUMin,s.centPUMax); 
     if(s.nPb==0)  hist = new TH1D(Form("%s_centPU",titlePrefix),";nVtx;",tempFineBin,s.centPUMin,s.centPUMax); 
   }
