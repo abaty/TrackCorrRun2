@@ -206,7 +206,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     trkCh->GetEntry(i);
    
     //some event selections on centrality, vz, or just throwing away some events because stats not needed 
-    if((s.nPb==2) && ((hiBin/2 < s.centPUMin) || (hiBin/2 >= s.centPUMax))) continue;
+    if((s.nPb==2) && ((hiBin/2.0 < s.centPUMin) || (hiBin/2.0 >= s.centPUMax))) continue;
     if((s.nPb==0) && ((nVtx < s.centPUMin) || (nVtx >= s.centPUMax))) continue;
     if(TMath::Abs(zVtx[0])>s.vz_window) continue;
     if(processed%(s.nSkip) !=0)
@@ -220,7 +220,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     if(s.nPb==2 && (pprimaryVertexFilter==0 || phfCoincFilter3==0)) continue;
   
     //getting weight parameters
-    int centPU;
+    float centPU;
     if(s.nPb==2)
     {
       weight = getWeight(s,pthat,zVtx[0],hiBin);    
@@ -259,7 +259,8 @@ void makeSkim(TrkSettings s, bool doCondor)
       }
 
       //test
-      if(trkPt[j]>maxGenJetPt) continue;
+      //if(trkPt[j]>maxGenJetPt) continue;
+      //if(trkPt[j]>pthat) continue;
       //endtest
 
       //find rmin parameters for the track

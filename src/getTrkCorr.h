@@ -98,7 +98,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
   //calculating what file to take corrections out of 
   int coarseBin = 0;
   float cent = hiBin;
-  if(s->nPb==2) cent = cent/2;
+  if(s->nPb==2) cent = cent/2.0;
   for(int i = 0; i<s->nPtBinCoarse; i++)
   {
     if(pt >= s->ptBinCoarse[i+1]) coarseBin+=s->nCentPUBinCoarse[i];
