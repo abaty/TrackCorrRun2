@@ -247,6 +247,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     //track loop  
     for(int j = 0; j<nTrk; j++)
     {
+      if(trkPt[j]<0.02*pthat || trkPt[j]>pthat/2.0) continue;
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(trkPt[j]<s.ptMin || trkPt[j]>=s.ptMax) continue;
       if(highPurity[j]!=1) continue;
@@ -255,13 +256,9 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(s.doCaloMatch)
       {
         float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
-        if(!(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching 
+        if(!(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
       }
 
-      //test
-      //if(trkPt[j]>maxGenJetPt) continue;
-      //if(trkPt[j]>pthat) continue;
-      //endtest
 
       //find rmin parameters for the track
       float rmin = 999;
@@ -281,6 +278,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     //gen 
     for(int j = 0; j<nParticle; j++)
     {
+      if(genPt[j]<0.02*pthat || genPt[j]>pthat/2.0) continue;
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<s.ptMin || genPt[j]>=s.ptMax) continue;
 

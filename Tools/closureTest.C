@@ -265,7 +265,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   //event loop
   std::cout << "starting event loop" << std::endl;
   int numberOfEntries = 350000;
-  //numberOfEntries = trkCh->GetEntries();
+  numberOfEntries = trkCh->GetEntries();
 
   for(int i = 0; i<numberOfEntries; i++)
   { 
@@ -306,6 +306,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
     //track loop 
     for(int j = 0; j<nTrk; j++)
     {
+      if(trkPt[j]>pthat/2.0) continue;
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
       if( trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;  
@@ -374,6 +375,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
     //gen 
     for(int j = 0; j<nParticle; j++)
     {
+      if(genPt[j]>pthat/2.0) continue;
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<0.5 || genPt[j]>400) continue;
     
