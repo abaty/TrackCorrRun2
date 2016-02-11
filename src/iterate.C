@@ -35,8 +35,8 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
   {
     if(s.ptMin>=10){
       const int nEtaBinFine = 9;
-      float EtaBin[10] = {-2.4,-1.6,-1,-0.6,-0.2,0.2,0.6,1,1.6,2.4};
-      hist = new TH1D(Form("%s_eta",titlePrefix),";eta;",nEtaBinFine,Etabin);
+      double EtaBin[10] = {-2.4,-1.6,-1,-0.6,-0.2,0.2,0.6,1,1.6,2.4};
+      hist = new TH1D(Form("%s_eta",titlePrefix),";eta;",nEtaBinFine,EtaBin);
     }else{
       hist = new TH1D(Form("%s_eta",titlePrefix),";eta;",s.etaBinFine,-2.4,2.4);
     }
@@ -60,7 +60,7 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
   for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
   if(s.ptMin>=10){
     const int nEtaBinFine = 9;
-    float EtaBin[10] = {-2.4,-1.6,-1,-0.6,-0.2,0.2,0.6,1,1.6,2.4};
+    double EtaBin[10] = {-2.4,-1.6,-1,-0.6,-0.2,0.2,0.6,1,1.6,2.4};
     s.phiBinFine = 1;
     if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",nEtaBinFine,EtaBin,s.phiBinFine,-TMath::Pi(),TMath::Pi());
     if(stepType ==7)  hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",nEtaBinFine,EtaBin,ptBins-1,ptAxis);

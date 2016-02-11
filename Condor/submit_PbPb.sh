@@ -5,7 +5,7 @@ then
 fi
 
 now="Corrections_$(date +"%Y_%m_%d__%H_%M_%S")"
-njobs=40
+njobs=50
 
 mkdir $now
 cp ../TrkCorrInputFile.txt $now
