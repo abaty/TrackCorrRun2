@@ -31,7 +31,16 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
   }
   
   if(stepType ==3) hist = new TH1D(Form("%s_maxJetPt",titlePrefix),";jtpt;",30,0,300); 
-  if(stepType ==4) hist = new TH1D(Form("%s_eta",titlePrefix),";eta;",s.etaBinFine,-2.4,2.4);
+  if(stepType ==4) 
+  {
+    if(s.ptMin>=10){
+      const int nEtaBinFine = 9;
+      float EtaBin[10] = {-2.4,-1.6,-1,-0.6,-0.2,0.2,0.6,1,1.6,2.4};
+      hist = new TH1D(Form("%s_eta",titlePrefix),";eta;",nEtaBinFine,Etabin);
+    }else{
+      hist = new TH1D(Form("%s_eta",titlePrefix),";eta;",s.etaBinFine,-2.4,2.4);
+    }
+  }
 
   const int rminBins = 16;
   double rminBinning[rminBins+1] = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.2,1.4,1.6,2,3,10};
@@ -45,14 +54,19 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
   if(s.ptMin<1) s.ptBinFine = 1;
   else if(s.ptMin<2) s.ptBinFine=6;
   else if(s.ptMin<3) s.ptBinFine=4;
-  if(s.ptMin>=10){s.etaBinFine = s.etaBinFine/2; s.phiBinFine = 1;}
-  if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",s.etaBinFine,-2.4,2.4,s.phiBinFine,-TMath::Pi(),TMath::Pi());
-  if(stepType ==7)
-  {
-    const int ptBins = s.ptBinFine+1;
-    double ptAxis[ptBins];
-    for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
-    hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",s.etaBinFine,-2.4,2.4,ptBins-1,ptAxis);
+
+  const int ptBins = s.ptBinFine+1;
+  double ptAxis[ptBins];
+  for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
+  if(s.ptMin>=10){
+    const int nEtaBinFine = 9;
+    float EtaBin[10] = {-2.4,-1.6,-1,-0.6,-0.2,0.2,0.6,1,1.6,2.4};
+    s.phiBinFine = 1;
+    if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",nEtaBinFine,EtaBin,s.phiBinFine,-TMath::Pi(),TMath::Pi());
+    if(stepType ==7)  hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",nEtaBinFine,EtaBin,ptBins-1,ptAxis);
+  }else{
+    if(stepType ==1)  hist = new TH2D(Form("%s_accept",titlePrefix),";#eta;#phi;",s.etaBinFine,-2.4,2.4,s.phiBinFine,-TMath::Pi(),TMath::Pi());
+    if(stepType ==7)  hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",s.etaBinFine,-2.4,2.4,ptBins-1,ptAxis);
   }
   return hist;
 }
