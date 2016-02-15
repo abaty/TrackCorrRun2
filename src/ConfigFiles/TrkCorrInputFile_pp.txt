@@ -88,8 +88,8 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 
 #Advanced Settings
 #Algorithm properties
-4                # Number of steps
-0 2 1 5          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 7 = eta plus pt)
+3                # Number of steps
+0 1 5          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 7 = eta plus pt)
 3                # Full iterations to run before terminating
 0                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
 ak4Calo          # jet definition
