@@ -33,10 +33,12 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
     const int ptBins = 46;
     double ptAxis[ptBins];
     ptAxis[0]=0.5;ptAxis[1]=0.6;ptAxis[2]=0.7;ptAxis[3]=0.8;ptAxis[4]=0.9;
-    for(int i = 5; i<9; i++){
+    for(int i = 5; i<10; i++){
       s.ptMin = s.ptBinCoarse.at(i);
       s.ptMax = s.ptBinCoarse.at(i+1);
-      for(int x = 0; x<10;x++) ptAxis[5+x+10*(i-5)] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
+      if(s.ptMin<2) for(int x = 0; x<6;x++) ptAxis[5+x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(6))) + TMath::Log10(s.ptMin));
+      else if(s.ptMin<3) for(int x = 0; x<4;x++) ptAxis[11+x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(4))) + TMath::Log10(s.ptMin));
+      else for(int x = 0; x<10;x++) ptAxis[15+x+10*(i-7)] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
     }
     ptAxis[45]=s.ptMax;
     hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",ptBins-1,ptAxis);
@@ -67,10 +69,12 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
     const int ptBins = 46;
     double ptAxis[ptBins];
     ptAxis[0]=0.5;ptAxis[1]=0.6;ptAxis[2]=0.7;ptAxis[3]=0.8;ptAxis[4]=0.9;
-    for(int i = 5; i<9; i++){
+    for(int i = 5; i<10; i++){
       s.ptMin = s.ptBinCoarse.at(i);
       s.ptMax = s.ptBinCoarse.at(i+1);
-      for(int x = 0; x<10;x++) ptAxis[5+x+10*(i-5)] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
+      if(s.ptMin<2) for(int x = 0; x<6;x++) ptAxis[5+x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(6))) + TMath::Log10(s.ptMin));
+      else if(s.ptMin<3) for(int x = 0; x<4;x++) ptAxis[11+x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(4))) + TMath::Log10(s.ptMin));
+      else for(int x = 0; x<10;x++) ptAxis[15+x+10*(i-7)] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
     }
     ptAxis[45]=s.ptMax;
     if(stepType==8){
@@ -251,10 +255,12 @@ void closureTest(const char * in, const char * out,TrkSettings s)
     const int ptBins_corr = 46;
     double ptAxis_corr[ptBins_corr];
     ptAxis_corr[0]=0.5;ptAxis_corr[1]=0.6;ptAxis_corr[2]=0.7;ptAxis_corr[3]=0.8;ptAxis_corr[4]=0.9;
-    for(int i = 5; i<9; i++){
+    for(int i = 5; i<10; i++){
       s.ptMin = s.ptBinCoarse.at(i);
       s.ptMax = s.ptBinCoarse.at(i+1);
-      for(int x = 0; x<10;x++) ptAxis_corr[5+x+10*(i-5)] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
+      if(s.ptMin<2) for(int x = 0; x<6;x++) ptAxis_corr[5+x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(6))) + TMath::Log10(s.ptMin));
+      else if(s.ptMin<3) for(int x = 0; x<4;x++) ptAxis_corr[11+x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(4))) + TMath::Log10(s.ptMin));
+      else for(int x = 0; x<10;x++) ptAxis_corr[15+x+10*(i-7)] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(10))) + TMath::Log10(s.ptMin));
     }
     ptAxis_corr[45]=s.ptMax;
     TH2D * appliedCorrection = new TH2D("appliedCorrection",";p_{T};Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
@@ -264,7 +270,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   //**************************************************************************************************************************************************************
   //event loop
   std::cout << "starting event loop" << std::endl;
-  int numberOfEntries = 350000;
+  int numberOfEntries = 50000;
   numberOfEntries = trkCh->GetEntries();
 
   for(int i = 0; i<numberOfEntries; i++)
@@ -314,8 +320,6 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
       if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
       if(trkPt[j]<0.5 || trkPt[j]>=400) continue;
-      //if(trkPt[j]>maxGenJetPt) continue;
-      //if(trkPt[j]>pthat) continue;
 
       //find rmin parameters for the track
       float rmin = 999;
@@ -429,24 +433,35 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   }
 
   //rebin high pt eta regions to reflect table bins
-  for(int i = 1; i<genPre2[7]->GetXaxis()->GetNbins()+1;i=i+2){
+  const int finalEtaBins = 9;
+  int etaBinsToMerge[finalEtaBins] = {4,3,2,2,2,2,2,3,4};
+  int Lbin = 1;
+  for(int i = 0; i<finalEtaBins;i++){
     for(int j = 1; j<genPre2[7]->GetYaxis()->GetNbins()+1;j++){
       if(genPre2[7]->GetYaxis()->GetBinLowEdge(j)<10) continue;
-      genPre2[7]->SetBinContent(i,j,genPre2[7]->GetBinContent(i,j)+genPre2[7]->GetBinContent(i+1,j));
-      genPre2[7]->SetBinContent(i+1,j,genPre2[7]->GetBinContent(i,j));
-      EffNoCorr2[7]->SetBinContent(i,j,EffNoCorr2[7]->GetBinContent(i,j)+EffNoCorr2[7]->GetBinContent(i+1,j));
-      EffNoCorr2[7]->SetBinContent(i+1,j,EffNoCorr2[7]->GetBinContent(i,j));
-      EffCorr2[7]->SetBinContent(i,j,EffCorr2[7]->GetBinContent(i,j)+EffCorr2[7]->GetBinContent(i+1,j));
-      EffCorr2[7]->SetBinContent(i+1,j,EffCorr2[7]->GetBinContent(i,j));
-      mrecoPre2[7]->SetBinContent(i,j,mrecoPre2[7]->GetBinContent(i,j)+mrecoPre2[7]->GetBinContent(i+1,j));
-      mrecoPre2[7]->SetBinContent(i+1,j,mrecoPre2[7]->GetBinContent(i,j));
-      FakeCorr2[7]->SetBinContent(i,j,FakeCorr2[7]->GetBinContent(i,j)+FakeCorr2[7]->GetBinContent(i+1,j));
-      FakeCorr2[7]->SetBinContent(i+1,j,FakeCorr2[7]->GetBinContent(i,j));
-      FakeNoCorr2[7]->SetBinContent(i,j,FakeNoCorr2[7]->GetBinContent(i,j)+FakeNoCorr2[7]->GetBinContent(i+1,j));
-      FakeNoCorr2[7]->SetBinContent(i+1,j,FakeNoCorr2[7]->GetBinContent(i,j));
-      FinalCorr2[7]->SetBinContent(i,j,FinalCorr2[7]->GetBinContent(i,j)+FinalCorr2[7]->GetBinContent(i+1,j));
-      FinalCorr2[7]->SetBinContent(i+1,j,FinalCorr2[7]->GetBinContent(i,j));
+      float sum = 0;
+      for(int s = 0; s<etaBinsToMerge[i]; s++) sum += genPre2[7]->GetBinContent(Lbin+s,j);
+      for(int s = 0; s<etaBinsToMerge[i]; s++) genPre2[7]->SetBinContent(Lbin+s,j,sum);
+      sum = 0;
+      for(int s = 0; s<etaBinsToMerge[i]; s++) sum += EffNoCorr2[7]->GetBinContent(Lbin+s,j);
+      for(int s = 0; s<etaBinsToMerge[i]; s++) EffNoCorr2[7]->SetBinContent(Lbin+s,j,sum);
+      sum = 0;
+      for(int s = 0; s<etaBinsToMerge[i]; s++) sum += EffCorr2[7]->GetBinContent(Lbin+s,j);
+      for(int s = 0; s<etaBinsToMerge[i]; s++) EffCorr2[7]->SetBinContent(Lbin+s,j,sum);
+      sum = 0;
+      for(int s = 0; s<etaBinsToMerge[i]; s++) sum += mrecoPre2[7]->GetBinContent(Lbin+s,j);
+      for(int s = 0; s<etaBinsToMerge[i]; s++) mrecoPre2[7]->SetBinContent(Lbin+s,j,sum);
+      sum = 0;
+      for(int s = 0; s<etaBinsToMerge[i]; s++) sum += FakeCorr2[7]->GetBinContent(Lbin+s,j);
+      for(int s = 0; s<etaBinsToMerge[i]; s++) FakeCorr2[7]->SetBinContent(Lbin+s,j,sum);
+      sum = 0;
+      for(int s = 0; s<etaBinsToMerge[i]; s++) sum += FakeNoCorr2[7]->GetBinContent(Lbin+s,j);
+      for(int s = 0; s<etaBinsToMerge[i]; s++) FakeNoCorr2[7]->SetBinContent(Lbin+s,j,sum);
+      sum = 0;
+      for(int s = 0; s<etaBinsToMerge[i]; s++) sum += FinalCorr2[7]->GetBinContent(Lbin+s,j);
+      for(int s = 0; s<etaBinsToMerge[i]; s++) FinalCorr2[7]->SetBinContent(Lbin+s,j,sum);
     }
+    Lbin += etaBinsToMerge[i];
   } 
 
   //do divisions

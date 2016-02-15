@@ -186,7 +186,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
 //  std::cout << "Multiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
 
 
-  //if(1/netEff>10000) std::cout << "problem here!" << netEff <<  " " <<pt << " " << eta << " " << phi << " " << " " << coarseBin << std::endl;
+  if(1/netEff>100000) std::cout << "problem here!" << netEff <<  " " <<pt << " " << eta << " " << phi << " " << " " << coarseBin << std::endl;
 
   if(correction==1) return 1/(netEff);
   else if(correction==2) return 1/(netFake);

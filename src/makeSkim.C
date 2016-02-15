@@ -247,7 +247,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     //track loop  
     for(int j = 0; j<nTrk; j++)
     {
-      if(trkPt[j]<0.02*pthat || trkPt[j]>pthat/2.0) continue;
+      if(trkPt[j]>pthat/2.0) continue;
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(trkPt[j]<s.ptMin || trkPt[j]>=s.ptMax) continue;
       if(highPurity[j]!=1) continue;
@@ -278,7 +278,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     //gen 
     for(int j = 0; j<nParticle; j++)
     {
-      if(genPt[j]<0.02*pthat || genPt[j]>pthat/2.0) continue;
+      if(genPt[j]>pthat/2.0) continue;
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<s.ptMin || genPt[j]>=s.ptMax) continue;
 
