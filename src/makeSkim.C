@@ -266,7 +266,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       {
         if(jtpt[k]<50) break;
         if(chargedSum[k]/rawpt[k]<0.01 || TMath::Abs(jteta[k])>2) continue;
-        float R = TMath::Power(jteta[k]-trkEta[j],2) + TMath::Power(jtphi[k]-trkPhi[j],2);
+        float R = TMath::Power(jteta[k]-trkEta[j],2) + TMath::Power(TMath::ACos(TMath::Cos(jtphi[k]-trkPhi[j])),2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
@@ -296,7 +296,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       {
         if(jtpt[k]<50) break;
         if(chargedSum[k]/rawpt[k]<0.01 || TMath::Abs(jteta[k])>2) continue;
-        float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(jtphi[k]-genPhi[j],2);
+        float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(TMath::ACos(TMath::Cos(jtphi[k]-genPhi[j])),2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
