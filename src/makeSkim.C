@@ -5,6 +5,7 @@
 #include "TNtuple.h"
 #include "TAxis.h"
 #include "TFile.h"
+#include "TTree.h"
 #include "TChain.h"
 #include <cstring>
 #include <vector>
@@ -18,10 +19,10 @@ void makeSkim(TrkSettings s, bool doCondor)
   std::cout << "\nCreating initial skim of important information" << std::endl;
 
 //Setup variables for skim
-  TChain * trkCh;
-  TChain * centCh;
-  TChain * evtCh;
-  TChain * jet;
+  TTree * trkCh;
+  TTree * centCh;
+  TTree * evtCh;
+  TTree * jet;
 
   //track
   int nTrk;
@@ -88,9 +89,25 @@ void makeSkim(TrkSettings s, bool doCondor)
   int pClusterCompaitiblityFilter, pprimaryVertexFilter, phfCoincFilter3;
 
   //Setup input trees  
-  //track tree     
-  trkCh = new TChain(Form("%s/trackTree",s.trackTreeName.c_str()));
-  for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str()); 
+  //track tree    
+  TFile * inputFile;
+  TFile * skimOut;
+  //Setup output Ntuples
+  std::string trackVars;
+  std::string particleVars;
+  particleVars="genPt:genEta:genPhi:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual:nEv";
+  trackVars=   "trkPt:trkEta:trkPhi:weight:centPU:rmin:jtpt:trkStatus:nEv";
+  std::string ifPP = "";
+  if(s.nPb==0) ifPP = "pp_";
+  if(doCondor) skimOut = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"recreate");
+  else         skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"recreate");
+  TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
+  TNtuple * reco = new TNtuple("Reco","",trackVars.data());
+
+  std::cout << "starting skim loop" << std::endl;
+  for(int nFile = 0; nFile<s.nMC; nFile++){ 
+  inputFile = TFile::Open(s.MCFiles.at(nFile).c_str(),"read");
+  trkCh = (TTree*)inputFile->Get(Form("%s/trackTree",s.trackTreeName.c_str()));
   trkCh->SetBranchAddress("nTrk",&nTrk); 
   trkCh->SetBranchAddress("nEv",&nEv); 
   trkCh->SetBranchAddress("trkPt",&trkPt);
@@ -146,15 +163,13 @@ void makeSkim(TrkSettings s, bool doCondor)
   //centrality
   if(s.doCentPU && s.nPb==2)
   {
-    centCh = new TChain("hiEvtAnalyzer/HiTree");
-    for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
+    centCh = (TTree*)inputFile->Get("hiEvtAnalyzer/HiTree");
     centCh->SetBranchAddress("hiBin",&hiBin);
     trkCh->AddFriend(centCh);  
   }
   
   //pthat and jets
-  jet = new TChain(Form("%sJetAnalyzer/t",s.jetDefinition.c_str()));
-  for(int i = 0; i<s.nMC; i++)  jet->Add(s.MCFiles.at(i).c_str());  
+  jet = (TTree*)inputFile->Get(Form("%sJetAnalyzer/t",s.jetDefinition.c_str()));
   jet->SetBranchAddress("pthat", &pthat);
   jet->SetBranchAddress("nref",&nref);
   jet->SetBranchAddress("ngen",&ngen);
@@ -166,8 +181,7 @@ void makeSkim(TrkSettings s, bool doCondor)
   jet->SetBranchAddress("chargedSum",&chargedSum);  
   trkCh->AddFriend(jet);
   
-  evtCh = new TChain("skimanalysis/HltTree");
-  for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
+  evtCh = (TTree*)inputFile->Get("skimanalysis/HltTree");
   if(s.nPb==0)
   {
     evtCh->SetBranchAddress("pPAprimaryVertexFilter",&pPAprimaryVertexFilter);
@@ -181,31 +195,16 @@ void makeSkim(TrkSettings s, bool doCondor)
   }
   trkCh->AddFriend(evtCh);
 
-  //Setup output Ntuples
-  std::string trackVars;
-  std::string particleVars;
-  particleVars="genPt:genEta:genPhi:weight:centPU:rmin:jtpt:pNRec:mtrkPt:mtrkQual:nEv";
-  trackVars=   "trkPt:trkEta:trkPhi:weight:centPU:rmin:jtpt:trkStatus:nEv";
 
-
-  TFile * skimOut;
-  std::string ifPP = "";
-  if(s.nPb==0) ifPP = "pp_";
-  if(doCondor) skimOut = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"recreate");
-  else         skimOut = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"recreate");
-  TNtuple * gen  = new TNtuple("Gen","",particleVars.data()); 
-  TNtuple * reco = new TNtuple("Reco","",trackVars.data());
-
-  std::cout << "starting skim loop" << std::endl;
   //Actual skimming
   int processed = 0;
  
   int numberOfEntries = 0;
   if(doCondor) numberOfEntries = trkCh->GetEntries();
-  else         numberOfEntries = 10000; 
+  else         numberOfEntries = 1000; 
   for(int i = 0; i<numberOfEntries; i++)
   {
-    if(i%2000==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
+    if(i%500==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     trkCh->GetEntry(i);
    
@@ -309,6 +308,8 @@ void makeSkim(TrkSettings s, bool doCondor)
     }
   processed++;
   }
+  inputFile->Close(); 
+  }//end file loop
 
   std::cout << "Writing skim..." << std::endl;
   skimOut->Write();

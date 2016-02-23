@@ -300,7 +300,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
   for(int i = 0; i<reco->GetEntries(); i++)
   {
     //applying efficiencies from all previous steps
-    float previousEffCorr = 1;
     float previousFakeCorr = 1; 
     reco->GetEntry(i);
     if(s.doSplit && nEv==1) continue;
@@ -351,7 +350,6 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     //applying efficiencies from all previous steps
     float previousEffCorr = 1;
     float previousEffCorrErr = 0;
-    float previousFakeCorr = 1; 
     gen->GetEntry(i);
     if(s.doSplit && nEv==1) continue;
     if(mtrkQual<1||  mpt<=0) continue;
