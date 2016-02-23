@@ -3,7 +3,7 @@ then
   echo "Usage: ./run.sh <condor_iteration>"
   exit 1
 fi
-
+echo $HOSTNAME
 sleep $1
 
 echo | awk -v i=$1 '{print "./calcCorr.exe "i" "0}' 
