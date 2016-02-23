@@ -113,6 +113,12 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   float trkDxyError1[75000];
   float trkDz1[75000];
   float trkDzError1[75000];
+  float trkChi2[60000];
+  unsigned char trkNHit[60000];
+  unsigned char trkNlayer[60000];
+  unsigned char trkAlgo[60000];
+  unsigned char trkOriginalAlgo[60000];
+  unsigned char trkNdof[60000];
   int nVtx;
   float zVtx[100];
 
@@ -132,6 +138,12 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   float mtrkDzError1[100000];
   float mtrkPfHcal[100000];
   float mtrkPfEcal[100000];
+  int   mtrkNHit[60000];
+  int   mtrkAlgo[60000];
+  int   mtrkOriginalAlgo[60000];
+  int   mtrkNlayer[60000];
+  float mtrkChi2[60000];
+  int   mtrkNdof[60000];
   float pNRec[75000];
   
   //event parameters
@@ -187,6 +199,21 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal);
   trkCh->SetBranchAddress("nVtx",&nVtx);
   trkCh->SetBranchAddress("zVtx",&zVtx); 
+  if(s.doTrackTriggerCuts)
+  {
+    trkCh->SetBranchAddress("trkNHit",&trkNHit);
+    trkCh->SetBranchAddress("trkChi2",&trkChi2); 
+    trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
+    trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
+    trkCh->SetBranchAddress("trkOriginalAlgo",&trkOriginalAlgo); 
+    trkCh->SetBranchAddress("trkNdof",&trkNdof); 
+    trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
+    trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
+    trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
+    trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
+    trkCh->SetBranchAddress("mtrkOriginalAlgo",&mtrkOriginalAlgo); 
+    trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof);
+  } 
   
   //centrality and vz
   centCh = new TChain("hiEvtAnalyzer/HiTree");
@@ -316,6 +343,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
       if( trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;  
+      if(s.doTrackTriggerCuts && (trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkOriginalAlgo[j]==11 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
         
       float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
       if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
@@ -327,7 +355,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       {
         if(jtpt[k]<50) break;
         if(TMath::Abs(jteta[k])>2 || chargedSum[k]/rawpt[k]<0.01) continue;
-        float R = TMath::Power(jteta[k]-trkEta[j],2) + TMath::Power(jtphi[k]-trkPhi[j],2);
+        float R = TMath::Power(jteta[k]-trkEta[j],2) + TMath::Power(TMath::ACos(TMath::Cos(jtphi[k]-trkPhi[j])),2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
 
@@ -389,7 +417,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       {
         if(jtpt[k]<50) break;
         if(TMath::Abs(jteta[k])>2 || chargedSum[k]/rawpt[k]<0.01) continue;
-        float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(jtphi[k]-genPhi[j],2);
+        float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(TMath::ACos(TMath::Cos(jtphi[k]-genPhi[j])),2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
        
@@ -406,6 +434,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
       if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
+      if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkAlgo[j]<4 || (int)mtrkAlgo[j]>8 || mtrkOriginalAlgo[j]==11 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
       float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
       if(s.doCaloMatch && !(mtrkPt[j]<20 || (Et>0.2*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
       

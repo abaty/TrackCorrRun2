@@ -42,6 +42,7 @@ void makeSkim(TrkSettings s, bool doCondor)
   float trkChi2[60000];
   unsigned char trkNlayer[60000];
   unsigned char trkAlgo[60000];
+  unsigned char trkOriginalAlgo[60000];
   unsigned char trkNdof[60000];
   int nEv;
   int nVtx;
@@ -63,6 +64,7 @@ void makeSkim(TrkSettings s, bool doCondor)
   float mtrkPfHcal[60000];
   float mtrkPfEcal[60000];
   int   mtrkAlgo[60000];
+  int   mtrkOriginalAlgo[60000];
   int   mtrkNlayer[60000];
   float mtrkChi2[60000];
   int   mtrkNdof[60000];
@@ -124,11 +126,13 @@ void makeSkim(TrkSettings s, bool doCondor)
     trkCh->SetBranchAddress("trkChi2",&trkChi2); 
     trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
     trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
+    trkCh->SetBranchAddress("trkOriginalAlgo",&trkOriginalAlgo); 
     trkCh->SetBranchAddress("trkNdof",&trkNdof); 
     trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
     trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
     trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
     trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
+    trkCh->SetBranchAddress("mtrkOriginalAlgo",&mtrkOriginalAlgo); 
     trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof);
   } 
   if(s.doCaloMatch)
@@ -252,7 +256,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(trkPt[j]<s.ptMin || trkPt[j]>=s.ptMax) continue;
       if(highPurity[j]!=1) continue;
       if(trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
-      if(s.doTrackTriggerCuts && ((int)trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
+      if(s.doTrackTriggerCuts && (trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkOriginalAlgo[j]==11 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
       if(s.doCaloMatch)
       {
         float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
@@ -283,7 +287,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(genPt[j]<s.ptMin || genPt[j]>=s.ptMax) continue;
 
       if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
-      if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkAlgo[j]<4 || (int)mtrkAlgo[j]>8 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
+      if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkAlgo[j]<4 || (int)mtrkAlgo[j]>8 || mtrkOriginalAlgo[j]==11 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
       if(s.doCaloMatch)
       {
         float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
