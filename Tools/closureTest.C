@@ -9,6 +9,7 @@
 #include "TAxis.h"
 #include "TFile.h"
 #include "TChain.h"
+#include "TTree.h"
 #include <cstring>
 #include <vector>
 #include <iostream>
@@ -92,10 +93,11 @@ void closureTest(const char * in, const char * out,TrkSettings s)
 {
   TrkCorr* trkCorr = new TrkCorr(Form("%s",in));
 //Setup variables for skim
-  TChain * trkCh;
-  TChain * centCh;
-  TChain * evtCh;
-  TChain * jet;
+  TFile * inputFile;
+  TTree * trkCh;
+  TTree * centCh;
+  TTree * evtCh;
+  TTree * jet;
 
   //track
   int nTrk;
@@ -160,86 +162,6 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   float genpt[100];
   float weight = 1;
   int pcoll;
-
-  //Setup input trees  
-  //track tree     
-  trkCh = new TChain(Form("%s/trackTree",s.trackTreeName.c_str()));
-  for(int i = 0; i<s.nMC; i++)  trkCh->Add(s.MCFiles.at(i).c_str()); 
-  trkCh->SetBranchAddress("nTrk",&nTrk); 
-  trkCh->SetBranchAddress("nEv",&nEv); 
-  trkCh->SetBranchAddress("trkPt",&trkPt);
-  trkCh->SetBranchAddress("trkPtError",&trkPtError);
-  trkCh->SetBranchAddress("trkEta",&trkEta);
-  trkCh->SetBranchAddress("trkPhi",&trkPhi);
-  trkCh->SetBranchAddress("highPurity",&highPurity);
-  trkCh->SetBranchAddress("trkMVA",&trkMVA);
-  trkCh->SetBranchAddress("trkStatus",&trkStatus);
-  trkCh->SetBranchAddress("trkDxy1",&trkDxy1);
-  trkCh->SetBranchAddress("trkDxyError1",&trkDxyError1);
-  trkCh->SetBranchAddress("trkDz1",&trkDz1);
-  trkCh->SetBranchAddress("trkDzError1",&trkDzError1);
-  trkCh->SetBranchAddress("pfHcal",&pfHcal); 
-  trkCh->SetBranchAddress("pfEcal",&pfEcal); 
-  
-  trkCh->SetBranchAddress("nParticle",&nParticle);
-  trkCh->SetBranchAddress("pPt",&genPt);
-  trkCh->SetBranchAddress("pEta",&genEta);
-  trkCh->SetBranchAddress("pPhi",&genPhi);
-  trkCh->SetBranchAddress("pNRec",&pNRec);
-  trkCh->SetBranchAddress("mtrkPt",&mtrkPt);
-  trkCh->SetBranchAddress("mtrkPtError",&mtrkPtError);
-  //trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
-  trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
-  trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
-  trkCh->SetBranchAddress("mtrkDxy1",&mtrkDxy1);
-  trkCh->SetBranchAddress("mtrkDxyError1",&mtrkDxyError1);
-  trkCh->SetBranchAddress("mtrkDz1",&mtrkDz1);
-  trkCh->SetBranchAddress("mtrkDzError1",&mtrkDzError1);
-  trkCh->SetBranchAddress("mtrkPfHcal",&mtrkPfHcal); 
-  trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal);
-  trkCh->SetBranchAddress("nVtx",&nVtx);
-  trkCh->SetBranchAddress("zVtx",&zVtx); 
-  if(s.doTrackTriggerCuts)
-  {
-    trkCh->SetBranchAddress("trkNHit",&trkNHit);
-    trkCh->SetBranchAddress("trkChi2",&trkChi2); 
-    trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
-    trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
-    trkCh->SetBranchAddress("trkOriginalAlgo",&trkOriginalAlgo); 
-    trkCh->SetBranchAddress("trkNdof",&trkNdof); 
-    trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
-    trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
-    trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
-    trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
-    trkCh->SetBranchAddress("mtrkOriginalAlgo",&mtrkOriginalAlgo); 
-    trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof);
-  } 
-  
-  //centrality and vz
-  centCh = new TChain("hiEvtAnalyzer/HiTree");
-  for(int i = 0; i<s.nMC; i++)  centCh->Add(s.MCFiles.at(i).c_str());  
-  if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
-  trkCh->AddFriend(centCh);  
-  
-  //pthat and jets
-  jet = new TChain(Form("%sJetAnalyzer/t",s.jetDefinition.c_str()));
-  for(int i = 0; i<s.nMC; i++)  jet->Add(s.MCFiles.at(i).c_str());  
-  jet->SetBranchAddress("pthat", &pthat);
-  jet->SetBranchAddress("nref",&nref);
-  jet->SetBranchAddress("ngen",&ngen);
-  jet->SetBranchAddress("jtpt",&jtpt);
-  jet->SetBranchAddress("jteta",&jteta);
-  jet->SetBranchAddress("jtphi",&jtphi);
-  jet->SetBranchAddress("rawpt",&rawpt);
-  jet->SetBranchAddress("genpt",&genpt);
-  jet->SetBranchAddress("chargedSum",&chargedSum);  
-  trkCh->AddFriend(jet);
-  
-  //evtCh = new TChain("skimanalysis/HltTree");
-  //for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
-  //evtCh->SetBranchAddress("pcollisionEventSelection",&pcoll);
-  //trkCh->AddFriend(evtCh);
-
   //Histograms to hold stuff...
   TFile * outF = TFile::Open(Form("%s%s",in,out),"recreate");
   TH1D *genPre[20], *mrecoPre[20];
@@ -294,10 +216,89 @@ void closureTest(const char * in, const char * out,TrkSettings s)
     TH2D * appliedEffCorrection = new TH2D("appliedEffCorrection",";p_{T};Eff Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
     TH2D * appliedFakeCorrection = new TH2D("appliedFakeCorrection",";p_{T};Fake Correction",ptBins_corr-1,ptAxis_corr,100,0,10);
 
+  //Setup input trees  
+  //track tree
+  for(int nFiles = 0; nFiles<s.nMC; nFiles++){
+  inputFile = TFile::Open(s.MCFiles.at(nFiles).c_str(),"read");
+  trkCh = (TTree*) inputFile->Get(Form("%s/trackTree",s.trackTreeName.c_str()));
+  trkCh->SetBranchAddress("nTrk",&nTrk); 
+  trkCh->SetBranchAddress("nEv",&nEv); 
+  trkCh->SetBranchAddress("trkPt",&trkPt);
+  trkCh->SetBranchAddress("trkPtError",&trkPtError);
+  trkCh->SetBranchAddress("trkEta",&trkEta);
+  trkCh->SetBranchAddress("trkPhi",&trkPhi);
+  trkCh->SetBranchAddress("highPurity",&highPurity);
+  trkCh->SetBranchAddress("trkMVA",&trkMVA);
+  trkCh->SetBranchAddress("trkStatus",&trkStatus);
+  trkCh->SetBranchAddress("trkDxy1",&trkDxy1);
+  trkCh->SetBranchAddress("trkDxyError1",&trkDxyError1);
+  trkCh->SetBranchAddress("trkDz1",&trkDz1);
+  trkCh->SetBranchAddress("trkDzError1",&trkDzError1);
+  trkCh->SetBranchAddress("pfHcal",&pfHcal); 
+  trkCh->SetBranchAddress("pfEcal",&pfEcal); 
+  
+  trkCh->SetBranchAddress("nParticle",&nParticle);
+  trkCh->SetBranchAddress("pPt",&genPt);
+  trkCh->SetBranchAddress("pEta",&genEta);
+  trkCh->SetBranchAddress("pPhi",&genPhi);
+  trkCh->SetBranchAddress("pNRec",&pNRec);
+  trkCh->SetBranchAddress("mtrkPt",&mtrkPt);
+  trkCh->SetBranchAddress("mtrkPtError",&mtrkPtError);
+  //trkCh->SetBranchAddress("mtrkQual",&mtrkQual); //for 2.76 samples
+  trkCh->SetBranchAddress("mhighPurity",&mtrkQual);  //for 5.02 samples
+  trkCh->SetBranchAddress("mtrkMVA",&mtrkMVA);  //for 5.02 samples
+  trkCh->SetBranchAddress("mtrkDxy1",&mtrkDxy1);
+  trkCh->SetBranchAddress("mtrkDxyError1",&mtrkDxyError1);
+  trkCh->SetBranchAddress("mtrkDz1",&mtrkDz1);
+  trkCh->SetBranchAddress("mtrkDzError1",&mtrkDzError1);
+  trkCh->SetBranchAddress("mtrkPfHcal",&mtrkPfHcal); 
+  trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal);
+  trkCh->SetBranchAddress("nVtx",&nVtx);
+  trkCh->SetBranchAddress("zVtx",&zVtx); 
+  if(s.doTrackTriggerCuts)
+  {
+    trkCh->SetBranchAddress("trkNHit",&trkNHit);
+    trkCh->SetBranchAddress("trkChi2",&trkChi2); 
+    trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
+    trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
+    trkCh->SetBranchAddress("trkOriginalAlgo",&trkOriginalAlgo); 
+    trkCh->SetBranchAddress("trkNdof",&trkNdof); 
+    trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
+    trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
+    trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
+    trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
+    trkCh->SetBranchAddress("mtrkOriginalAlgo",&mtrkOriginalAlgo); 
+    trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof);
+  } 
+  
+  //centrality and vz
+  centCh = (TTree*) inputFile->Get("hiEvtAnalyzer/HiTree");
+  if(s.doCentPU && s.nPb==2) centCh->SetBranchAddress("hiBin",&hiBin);
+  trkCh->AddFriend(centCh);  
+  
+  //pthat and jets
+  jet = (TTree*) inputFile->Get(Form("%sJetAnalyzer/t",s.jetDefinition.c_str()));
+  jet->SetBranchAddress("pthat", &pthat);
+  jet->SetBranchAddress("nref",&nref);
+  jet->SetBranchAddress("ngen",&ngen);
+  jet->SetBranchAddress("jtpt",&jtpt);
+  jet->SetBranchAddress("jteta",&jteta);
+  jet->SetBranchAddress("jtphi",&jtphi);
+  jet->SetBranchAddress("rawpt",&rawpt);
+  jet->SetBranchAddress("genpt",&genpt);
+  jet->SetBranchAddress("chargedSum",&chargedSum);  
+  trkCh->AddFriend(jet);
+  
+  //evtCh = new TChain("skimanalysis/HltTree");
+  //for(int i = 0; i<s.nMC; i++)  evtCh->Add(s.MCFiles.at(i).c_str());
+  //evtCh->SetBranchAddress("pcollisionEventSelection",&pcoll);
+  //trkCh->AddFriend(evtCh);
+
+
   //**************************************************************************************************************************************************************
   //event loop
   std::cout << "starting event loop" << std::endl;
-  int numberOfEntries = 50000;
+  int numberOfEntries = 1000;
   numberOfEntries = trkCh->GetEntries();
 
   for(int i = 0; i<numberOfEntries; i++)
@@ -343,7 +344,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
       if( trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;  
-      if(s.doTrackTriggerCuts && (trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkAlgo[j]<4 || (int)trkAlgo[j]>8 || trkOriginalAlgo[j]==11 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
+      if(s.doTrackTriggerCuts && (trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkOriginalAlgo[j]<4 || (int)trkOriginalAlgo[j]>7 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
         
       float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
       if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
@@ -434,7 +435,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
       if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
-      if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkAlgo[j]<4 || (int)mtrkAlgo[j]>8 || mtrkOriginalAlgo[j]==11 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
+      if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkOriginalAlgo[j]<4 || (int)mtrkOriginalAlgo[j]>7 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
       float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
       if(s.doCaloMatch && !(mtrkPt[j]<20 || (Et>0.2*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
       
@@ -459,6 +460,8 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       EffCorr2[7]->Fill(genEta[j],genPt[j],weight*eff);
       EffCorr2[8]->Fill(centPU,genPt[j],weight*eff);
     }
+  }
+  inputFile->Close();
   }
 
   //rebin high pt eta regions to reflect table bins
