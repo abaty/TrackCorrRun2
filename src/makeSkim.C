@@ -259,7 +259,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(s.doCaloMatch)
       {
         float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
-        if(!(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
+        if(!(trkPt[j]<20 || (Et>0.4*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
       }
 
 
@@ -290,7 +290,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(s.doCaloMatch)
       {
         float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
-        if(!(mtrkPt[j]<20 || (Et>0.2*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
+        if(!(mtrkPt[j]<20 || (Et>0.4*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
       }
 
       //find rmin parameters for the track

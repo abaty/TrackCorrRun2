@@ -347,7 +347,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       if(s.doTrackTriggerCuts && (trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkOriginalAlgo[j]<4 || (int)trkOriginalAlgo[j]>7 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
         
       float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
-      if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.2*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
+      if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.4*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
       if(trkPt[j]<0.5 || trkPt[j]>=400) continue;
 
       //find rmin parameters for the track
@@ -437,7 +437,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
       if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkOriginalAlgo[j]<4 || (int)mtrkOriginalAlgo[j]>7 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
       float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
-      if(s.doCaloMatch && !(mtrkPt[j]<20 || (Et>0.2*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
+      if(s.doCaloMatch && !(mtrkPt[j]<20 || (Et>0.4*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
       
       if(mtrkQual[j]<1 || mtrkPt[j]<=0) continue;
       EffNoCorr[0]->Fill(genPt[j],weight);
