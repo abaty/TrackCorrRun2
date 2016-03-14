@@ -140,15 +140,15 @@ void makeSkim(TrkSettings s, bool doCondor)
   trkCh->SetBranchAddress("trkChi2",&trkChi2); 
   trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
   trkCh->SetBranchAddress("trkNdof",&trkNdof); 
-  trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
   trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
   trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof);
+  trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
+  trkCh->SetBranchAddress("trkNHit",&trkNHit);
+  trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
   if(s.doTrackTriggerCuts)
   {
     trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
     trkCh->SetBranchAddress("trkOriginalAlgo",&trkOriginalAlgo); 
-    trkCh->SetBranchAddress("trkNHit",&trkNHit);
-    trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
     trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
     trkCh->SetBranchAddress("mtrkOriginalAlgo",&mtrkOriginalAlgo); 
   } 
@@ -254,15 +254,17 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(trkPt[j]<s.ptMin || trkPt[j]>=s.ptMax) continue;
       if(highPurity[j]!=1) continue;
-      if(trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
+      if(trkPtError[j]/trkPt[j]>0.1 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
       if(trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15) continue;
-      if(trkPt[j]>maxJetPt) continue;
-      if(s.doTrackTriggerCuts && (trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkOriginalAlgo[j]<4 || (int)trkOriginalAlgo[j]>7 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
+      if(trkNHit[j]<11 && trkPt[j]>0.7) continue;
+      if((maxJetPt>50 && trkPt[j]>maxJetPt) || (maxJetPt<50 && trkPt[j]>50)) continue;
       if(s.doCaloMatch)
       {
         float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
-        if(!(trkPt[j]<20 || (Et>0.5*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
+        if(!(trkPt[j]<20 || (Et>0.5*trkPt[j]))) continue; //Calo Matching       
       }
+      
+      if(s.doTrackTriggerCuts && ((int)trkOriginalAlgo[j]<4 || (int)trkOriginalAlgo[j]>7)) continue; //track trigger cuts
 
 
       //find rmin parameters for the track
@@ -287,15 +289,16 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(TMath::Abs(genEta[j])>2.4) continue;
       if(genPt[j]<s.ptMin || genPt[j]>=s.ptMax) continue;
 
-      if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
+      if(mtrkPtError[j]/mtrkPt[j]>0.1 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
       if(mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15) mtrkQual[j]=0;
-      if(mtrkPt[j]>maxJetPt) mtrkQual[j]=0;
-      if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkOriginalAlgo[j]<4 || (int)mtrkOriginalAlgo[j]>7 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
+      if(mtrkNHit[j]<11 && mtrkPt[j]>0.7) mtrkQual[j]=0;
+      if((maxJetPt>50 && mtrkPt[j]>maxJetPt) || (maxJetPt<50 && mtrkPt[j]>50)) mtrkQual[j]=0;
       if(s.doCaloMatch)
       {
         float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
-        if(!(mtrkPt[j]<20 || (Et>0.5*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
+        if(!(mtrkPt[j]<20 || (Et>0.5*mtrkPt[j]))) mtrkQual[j]=0; //Calo Matching 
       }
+      if(s.doTrackTriggerCuts && ((int)mtrkOriginalAlgo[j]<4 || (int)mtrkOriginalAlgo[j]>7)) mtrkQual[j]=0;   //track trigger cuts
 
       //find rmin parameters for the track
       float rmin = 999;
