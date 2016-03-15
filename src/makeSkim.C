@@ -257,7 +257,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(trkPtError[j]/trkPt[j]>0.1 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
       if(trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15) continue;
       if(trkNHit[j]<11 && trkPt[j]>0.7) continue;
-      if((maxJetPt>50 && trkPt[j]>maxJetPt) || (maxJetPt<50 && trkPt[j]>50)) continue;
+      if((maxJetPt>50 && trkPt[j]>maxJetPt) || (maxJetPt<=50 && trkPt[j]>50)) continue;
       if(s.doCaloMatch)
       {
         float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
@@ -292,7 +292,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(mtrkPtError[j]/mtrkPt[j]>0.1 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
       if(mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15) mtrkQual[j]=0;
       if(mtrkNHit[j]<11 && mtrkPt[j]>0.7) mtrkQual[j]=0;
-      if((maxJetPt>50 && mtrkPt[j]>maxJetPt) || (maxJetPt<50 && mtrkPt[j]>50)) mtrkQual[j]=0;
+      if((maxJetPt>50 && mtrkPt[j]>maxJetPt) || (maxJetPt<=50 && mtrkPt[j]>50)) mtrkQual[j]=0;
       if(s.doCaloMatch)
       {
         float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);

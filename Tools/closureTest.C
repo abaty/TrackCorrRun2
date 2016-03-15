@@ -299,7 +299,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   //event loop
   std::cout << "starting event loop" << std::endl;
   int numberOfEntries = 1000;
-  numberOfEntries = trkCh->GetEntries();
+//  numberOfEntries = trkCh->GetEntries();
 
   for(int i = 0; i<numberOfEntries; i++)
   { 
@@ -343,11 +343,14 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       if(trkPt[j]>pthat/2.0) continue;
       if(TMath::Abs(trkEta[j])>2.4) continue;
       if(highPurity[j]!=1) continue;
-      if( trkPtError[j]/trkPt[j]>0.3 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;  
-      if(s.doTrackTriggerCuts && (trkNHit[j]<11 || trkPtError[j]/trkPt[j]>0.1 || (int)trkOriginalAlgo[j]<4 || (int)trkOriginalAlgo[j]>7 || trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15)) continue; //track trigger cuts
+      if( trkPtError[j]/trkPt[j]>0.1 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue; 
+      if(trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15) continue; 
+      if(trkNHit[j]<11 && trkPt[j]>0.7) continue;
+      if((maxJetPt>50 && trkPt[j]>maxJetPt) || (maxJetPt<50 && trkPt[j]>50)) continue;
+      if(s.doTrackTriggerCuts && (trkNHit[j]<11 || (int)trkOriginalAlgo[j]<4 || (int)trkOriginalAlgo[j]>7)) continue; //track trigger cuts
         
       float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
-      if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.4*trkPt[j] && Et>trkPt[j]-80))) continue; //Calo Matching       
+      if(s.doCaloMatch && !(trkPt[j]<20 || (Et>0.5*trkPt[j]))) continue; //Calo Matching       
       if(trkPt[j]<0.5 || trkPt[j]>=400) continue;
 
       //find rmin parameters for the track
@@ -434,10 +437,13 @@ void closureTest(const char * in, const char * out,TrkSettings s)
       genPre2[8]->Fill(centPU,genPt[j],weight);
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
-      if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
-      if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || mtrkPtError[j]/mtrkPt[j]>0.1 || (int)mtrkOriginalAlgo[j]<4 || (int)mtrkOriginalAlgo[j]>7 || mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15)) mtrkQual[j]=0;   //track trigger cuts
+      if(mtrkPtError[j]/mtrkPt[j]>0.1 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
+      if(mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15) continue; 
+      if(mtrkNHit[j]<11 && mtrkPt[j]>0.7) continue;
+      if((maxJetPt>50 && mtrkPt[j]>maxJetPt) || (maxJetPt<=50 && mtrkPt[j]>50)) continue;
+      if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || (int)mtrkOriginalAlgo[j]<4 || (int)mtrkOriginalAlgo[j]>7)) mtrkQual[j]=0;   //track trigger cuts
       float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
-      if(s.doCaloMatch && !(mtrkPt[j]<20 || (Et>0.4*mtrkPt[j] && Et>mtrkPt[j]-80))) mtrkQual[j]=0; //Calo Matching 
+      if(s.doCaloMatch && !(mtrkPt[j]<20 || (Et>0.5*mtrkPt[j]))) mtrkQual[j]=0; //Calo Matching 
       
       if(mtrkQual[j]<1 || mtrkPt[j]<=0) continue;
       EffNoCorr[0]->Fill(genPt[j],weight);
