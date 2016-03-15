@@ -298,7 +298,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   //**************************************************************************************************************************************************************
   //event loop
   std::cout << "starting event loop" << std::endl;
-  int numberOfEntries = 1000;
+  int numberOfEntries = 10000;
 //  numberOfEntries = trkCh->GetEntries();
 
   for(int i = 0; i<numberOfEntries; i++)
@@ -438,9 +438,9 @@ void closureTest(const char * in, const char * out,TrkSettings s)
 	  
       //numerator for efficiency (number of gen tracks matched to highPurity track)
       if(mtrkPtError[j]/mtrkPt[j]>0.1 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
-      if(mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15) continue; 
-      if(mtrkNHit[j]<11 && mtrkPt[j]>0.7) continue;
-      if((maxJetPt>50 && mtrkPt[j]>maxJetPt) || (maxJetPt<=50 && mtrkPt[j]>50)) continue;
+      if(mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15) mtrkQual[j]=0; 
+      if(mtrkNHit[j]<11 && mtrkPt[j]>0.7) mtrkQual[j]=0;
+      if((maxJetPt>50 && mtrkPt[j]>maxJetPt) || (maxJetPt<=50 && mtrkPt[j]>50)) mtrkQual[j]=0;
       if(s.doTrackTriggerCuts && (mtrkNHit[j]<11 || (int)mtrkOriginalAlgo[j]<4 || (int)mtrkOriginalAlgo[j]>7)) mtrkQual[j]=0;   //track trigger cuts
       float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
       if(s.doCaloMatch && !(mtrkPt[j]<20 || (Et>0.5*mtrkPt[j]))) mtrkQual[j]=0; //Calo Matching 
