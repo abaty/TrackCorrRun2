@@ -255,21 +255,18 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   trkCh->SetBranchAddress("mtrkPfEcal",&mtrkPfEcal);
   trkCh->SetBranchAddress("nVtx",&nVtx);
   trkCh->SetBranchAddress("zVtx",&zVtx); 
-  if(s.doTrackTriggerCuts)
-  {
-    trkCh->SetBranchAddress("trkNHit",&trkNHit);
-    trkCh->SetBranchAddress("trkChi2",&trkChi2); 
-    trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
-    trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
-    trkCh->SetBranchAddress("trkOriginalAlgo",&trkOriginalAlgo); 
-    trkCh->SetBranchAddress("trkNdof",&trkNdof); 
-    trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
-    trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
-    trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
-    trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
-    trkCh->SetBranchAddress("mtrkOriginalAlgo",&mtrkOriginalAlgo); 
-    trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof);
-  } 
+  trkCh->SetBranchAddress("trkNHit",&trkNHit);
+  trkCh->SetBranchAddress("trkChi2",&trkChi2); 
+  trkCh->SetBranchAddress("trkNlayer",&trkNlayer); 
+  trkCh->SetBranchAddress("trkAlgo",&trkAlgo); 
+  trkCh->SetBranchAddress("trkOriginalAlgo",&trkOriginalAlgo); 
+  trkCh->SetBranchAddress("trkNdof",&trkNdof); 
+  trkCh->SetBranchAddress("mtrkNHit",&mtrkNHit); 
+  trkCh->SetBranchAddress("mtrkChi2",&mtrkChi2); 
+  trkCh->SetBranchAddress("mtrkNlayer",&mtrkNlayer); 
+  trkCh->SetBranchAddress("mtrkAlgo",&mtrkAlgo); 
+  trkCh->SetBranchAddress("mtrkOriginalAlgo",&mtrkOriginalAlgo); 
+  trkCh->SetBranchAddress("mtrkNdof",&mtrkNdof);
   
   //centrality and vz
   centCh = (TTree*) inputFile->Get("hiEvtAnalyzer/HiTree");
@@ -298,8 +295,8 @@ void closureTest(const char * in, const char * out,TrkSettings s)
   //**************************************************************************************************************************************************************
   //event loop
   std::cout << "starting event loop" << std::endl;
-  int numberOfEntries = 10000;
-//  numberOfEntries = trkCh->GetEntries();
+  int numberOfEntries = 1000;
+  numberOfEntries = trkCh->GetEntries();
 
   for(int i = 0; i<numberOfEntries; i++)
   { 
