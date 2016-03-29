@@ -79,8 +79,8 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
     }
     ptAxis[45]=s.ptMax;
     if(stepType==8){
-      const int centralityBins = 10;
-      double centralityEdges[centralityBins+1] = {0,5,10,20,30,40,50,60,70,80,90};
+      const int centralityBins = 6;
+      double centralityEdges[centralityBins+1] = {0,5,10,30,50,70,90};
       hist = new TH2D(Form("%s_centPt",titlePrefix),";Centrality;#pt;",centralityBins,centralityEdges,ptBins-1,ptAxis);
     }
     else hist = new TH2D(Form("%s_etaPt",titlePrefix),";#eta;#pt;",s.etaBinFine,-2.4,2.4,ptBins-1,ptAxis);
@@ -91,6 +91,8 @@ TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
 
 void closureTest(const char * in, const char * out,TrkSettings s)
 {
+  double trackEtaCut = 1;
+  
   TrkCorr* trkCorr = new TrkCorr(Form("%s",in));
 //Setup variables for skim
   TFile * inputFile;
@@ -338,7 +340,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
     for(int j = 0; j<nTrk; j++)
     {
       if(trkPt[j]>pthat/2.0) continue;
-      if(TMath::Abs(trkEta[j])>2.4) continue;
+      if(TMath::Abs(trkEta[j])>trackEtaCut) continue;
       if(highPurity[j]!=1) continue;
       if( trkPtError[j]/trkPt[j]>0.1 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 ||TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue; 
       if(trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15) continue; 
@@ -409,7 +411,7 @@ void closureTest(const char * in, const char * out,TrkSettings s)
     for(int j = 0; j<nParticle; j++)
     {
       if(genPt[j]>pthat/2.0) continue;
-      if(TMath::Abs(genEta[j])>2.4) continue;
+      if(TMath::Abs(genEta[j])>trackEtaCut) continue;
       if(genPt[j]<0.5 || genPt[j]>400) continue;
     
       //find rmin parameters for the track
