@@ -7,12 +7,14 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
+#include "chi2Reweighting/Chi2Corrector_PbPb.C"
 #include <cstring>
 #include <vector>
 #include <iostream>
 
 void makeSkim(TrkSettings s, bool doCondor)
 {
+  Chi2Corrector_PbPb * chi2corr = new Chi2Corrector_PbPb();
   std::cout << "\nJob number: " << s.job << "\nCorresponds to the following parameters\nnSkip: " << s.nSkip
   << "\nptMin: " << s.ptMin << "\nptMax: " << s.ptMax << "\ncentMin: " << s.centPUMin << "\ncentMax " << s.centPUMax << std::endl;
 
@@ -201,9 +203,10 @@ void makeSkim(TrkSettings s, bool doCondor)
  
   int numberOfEntries = 0;
   if(doCondor) numberOfEntries = trkCh->GetEntries();
-  else         numberOfEntries = 1000; 
+  else         numberOfEntries = trkCh->GetEntries()/8; 
   for(int i = 0; i<numberOfEntries; i++)
   {
+  //  if(i%100!=0) continue;
     if(i%500==0) std::cout << i<<"/"<<trkCh->GetEntries()<<std::endl;
     if(s.nPb==2)  centCh->GetEntry(i);
     trkCh->GetEntry(i);
@@ -250,18 +253,22 @@ void makeSkim(TrkSettings s, bool doCondor)
     //track loop  
     for(int j = 0; j<nTrk; j++)
     {
-      if(trkPt[j]>pthat/2.0) continue;
-      if(TMath::Abs(trkEta[j])>1) continue;
+      if(trkPt[j]>pthat/1.5) continue;
+      if(TMath::Abs(trkEta[j])>1.03) continue;
       if(trkPt[j]<s.ptMin || trkPt[j]>=s.ptMax) continue;
       if(highPurity[j]!=1) continue;
-      if(trkPtError[j]/trkPt[j]>0.1 || TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
-      if(trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>0.15) continue;
-      if(trkNHit[j]<11 && trkPt[j]>0.7) continue;
-      if((maxJetPt>50 && trkPt[j]>maxJetPt) || (maxJetPt<=50 && trkPt[j]>50)) continue;
+      if(TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
+      if(trkPtError[j]/trkPt[j]>0.1) continue;
+      if(s.nPb==2 || s.doTrackTriggerCuts){
+        if(trkPtError[j]/trkPt[j]>0.1) continue;
+        if(trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>((s.nPb==2)?(1.0/chi2corr->getChi2Scale(hiBin,trkPt[j])):1)*0.15) continue;
+        if(trkNHit[j]<11 && trkPt[j]>0.7) continue;
+      }
+      //if((maxJetPt>50 && trkPt[j]>maxJetPt) || (maxJetPt<=50 && trkPt[j]>50)) continue;
       if(s.doCaloMatch)
       {
         float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
-        if(!(trkPt[j]<20 || (Et>0.5*trkPt[j]))) continue; //Calo Matching       
+      //  if(!(trkPt[j]<20 || (Et>0.5*trkPt[j]))) continue; //Calo Matching       
       }
       
       if(s.doTrackTriggerCuts && ((int)trkOriginalAlgo[j]<4 || (int)trkOriginalAlgo[j]>7)) continue; //track trigger cuts
@@ -285,18 +292,21 @@ void makeSkim(TrkSettings s, bool doCondor)
     //gen 
     for(int j = 0; j<nParticle; j++)
     {
-      if(genPt[j]>pthat/2.0) continue;
-      if(TMath::Abs(genEta[j])>1) continue;
+      if(genPt[j]>pthat/1.5) continue;
+      if(TMath::Abs(genEta[j])>1.03) continue;
       if(genPt[j]<s.ptMin || genPt[j]>=s.ptMax) continue;
-
       if(mtrkPtError[j]/mtrkPt[j]>0.1 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
-      if(mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>0.15) mtrkQual[j]=0;
-      if(mtrkNHit[j]<11 && mtrkPt[j]>0.7) mtrkQual[j]=0;
-      if((maxJetPt>50 && mtrkPt[j]>maxJetPt) || (maxJetPt<=50 && mtrkPt[j]>50)) mtrkQual[j]=0;
+
+      if(s.nPb==2 || s.doTrackTriggerCuts){
+        if(mtrkPtError[j]/mtrkPt[j]>0.1) mtrkQual[j]=0;  
+        if(mtrkChi2[j]/(float)mtrkNdof[j]/(float)mtrkNlayer[j]>((s.nPb==2)?(1.0/chi2corr->getChi2Scale(hiBin,mtrkPt[j])):1)*0.15) mtrkQual[j]=0;
+        if(mtrkNHit[j]<11 && mtrkPt[j]>0.7) mtrkQual[j]=0;
+      }
+      //if((maxJetPt>50 && mtrkPt[j]>maxJetPt) || (maxJetPt<=50 && mtrkPt[j]>50)) mtrkQual[j]=0;
       if(s.doCaloMatch)
       {
         float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
-        if(!(mtrkPt[j]<20 || (Et>0.5*mtrkPt[j]))) mtrkQual[j]=0; //Calo Matching 
+        //if(!(mtrkPt[j]<20 || (Et>0.5*mtrkPt[j]))) mtrkQual[j]=0; //Calo Matching 
       }
       if(s.doTrackTriggerCuts && ((int)mtrkOriginalAlgo[j]<4 || (int)mtrkOriginalAlgo[j]>7)) mtrkQual[j]=0;   //track trigger cuts
 

@@ -124,7 +124,27 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
   {
     if(s->stepOrder.at(j)==0)
     {
-      netEff *= eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt));
+      float ptEff = eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt));
+
+      //customization for RAA efficiency which smooths some flucutations (shoudl replcae with fits in pt eventually)
+      if(s->nPb==2){
+        int bin = eff[coarseBin][th1indx]->FindBin(pt);
+        if(pt>=10 && pt<30 && cent>=5 && cent<10){
+          if(bin==3 || bin==6 || bin == 9) ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)+1)/2.0;
+          if(bin==4 || bin==7 || bin == 10)ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)-1)/2.0;
+        }else if(pt>=10 && pt<30 && cent>=0 && cent<5){
+          if(bin==6) ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)+1)/2.0;
+          if(bin==7)ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)-1)/2.0; 
+        }else if(pt>=10 && pt<30 && cent>=10 && cent<30){
+          if(bin==1 || bin==4 || bin==6 || bin == 9) ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)+1)/2.0;
+          if(bin==2 || bin==5 || bin==7 || bin==10 )ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)-1)/2.0;
+        }else if(pt>=30 && cent>=0 && cent<5){
+          if(bin==7) ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)+1)/2.0;
+          if(bin==8)ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)-1)/2.0;
+        }
+      }
+      //end customization
+      netEff *= ptEff;
       netFake *= fake[coarseBin][th1indx]->GetBinContent(fake[coarseBin][th1indx]->FindBin(pt));
     }
     if(s->stepOrder.at(j)==1)
@@ -186,7 +206,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
 //  std::cout << "Multiple Reco Rate: " << netMult << "\nTotal Correction: " << (1.0-netSec)/(netEff*netFake*(1+netMult)) << std::endl;
 
 
-  if(1/netEff>100000) std::cout << "problem here!" << netEff <<  " " <<pt << " " << eta << " " << phi << " " << " " << coarseBin << std::endl;
+  if((1/netEff>25 && pt>=0.7 && pt<5) || (pt>=5 && 1/netEff>10) || (1/netEff>2000 && pt<0.7)){ std::cout << "problem here!" << netEff <<  " " <<pt << " " << eta << " " << phi << " " << " " << coarseBin << std::endl;  return 1;}
 
   if(correction==1) return 1/(netEff);
   else if(correction==2) return 1/(netFake);

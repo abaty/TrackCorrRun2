@@ -16,7 +16,7 @@ void closurePlotting()
   TH1::SetDefaultSumw2();
   TH2::SetDefaultSumw2();
 
-  float etaLimit = 0.95;
+  float etaLimit = 1.0;
   float minPtLimit = 0.72;
   float maxPtLimit = 390;
 
@@ -31,7 +31,7 @@ void closurePlotting()
   const int nFiles = 2;
   std::string inDir[nFiles];
   inDir[0] = "TrkCorr_Mar15_Iterative_PbPb";
-  inDir[1] = "TrkCorr_Mar15_Iterative_pp";
+  inDir[1] = "TrkCorr_May12_Iterative_RpPbCuts";
   /*inDir[0] = "Jan_24_Iterative";
   inDir[1] = "Jan_24_Iterative_Alternate";
   inDir[2] = "Jan_24_Simple";
@@ -101,23 +101,23 @@ void closurePlotting()
       Eff[i][j]->GetYaxis()->SetRangeUser(0,1);
       if(j==0)Eff[i][j]->GetXaxis()->SetRangeUser(minPtLimit,maxPtLimit);
       Eff[i][j]->Draw();
-      c1->SaveAs(Form("plots/%s%d__Efficiency.png",inDir[i].c_str(),j));
-      c1->SaveAs(Form("plots/%s%d__Efficiency.pdf",outDir[i].c_str(),j));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__Efficiency.png",inDir[i].c_str(),j));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__Efficiency.pdf",outDir[i].c_str(),j));
       EffClos[i][j]->GetYaxis()->SetRangeUser(0.8,1.2);
       if(j==0)EffClos[i][j]->GetXaxis()->SetRangeUser(minPtLimit,maxPtLimit);
       EffClos[i][j]->Draw();
-      c1->SaveAs(Form("plots/%s%d__EfficiencyClosure.png",inDir[i].c_str(),j));
-      c1->SaveAs(Form("plots/%s%d__EfficiencyClosure.pdf",outDir[i].c_str(),j));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__EfficiencyClosure.png",inDir[i].c_str(),j));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__EfficiencyClosure.pdf",outDir[i].c_str(),j));
       Fake[i][j]->GetYaxis()->SetRangeUser(0.8,1.2);
       if(j==0)Fake[i][j]->GetXaxis()->SetRangeUser(minPtLimit,maxPtLimit);
       Fake[i][j]->Draw();
-      c1->SaveAs(Form("plots/%s%d__Fake.png",inDir[i].c_str(),j));
-      c1->SaveAs(Form("plots/%s%d__Fake.pdf",outDir[i].c_str(),j));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__Fake.png",inDir[i].c_str(),j));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__Fake.pdf",outDir[i].c_str(),j));
       FakeClos[i][j]->GetYaxis()->SetRangeUser(0.8,1.2);
       if(j==0)FakeClos[i][j]->GetXaxis()->SetRangeUser(minPtLimit,maxPtLimit);
       FakeClos[i][j]->Draw();
-      c1->SaveAs(Form("plots/%s%d__FakeClosure.png",inDir[i].c_str(),j));
-      c1->SaveAs(Form("plots/%s%d__FakeClosure.pdf",outDir[i].c_str(),j));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__FakeClosure.png",inDir[i].c_str(),j));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__FakeClosure.pdf",outDir[i].c_str(),j));
     }
     c1->Clear();
     c1->SetLogx(0);
@@ -128,26 +128,26 @@ void closurePlotting()
       Eff2[i][j]->GetYaxis()->SetRangeUser(minPtLimit,maxPtLimit);
       if(j==0)Eff2[i][j]->GetXaxis()->SetRangeUser(-etaLimit,etaLimit);
       Eff2[i][j]->Draw("colz");
-      c1->SaveAs(Form("plots/%s%d__Efficiency.png",inDir[i].c_str(),j+7));
-      c1->SaveAs(Form("plots/%s%d__Efficiency.pdf",outDir[i].c_str(),j+7));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__Efficiency.png",inDir[i].c_str(),j+7));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__Efficiency.pdf",outDir[i].c_str(),j+7));
       EffClos2[i][j]->GetZaxis()->SetRangeUser(0.8,1.2);
       EffClos2[i][j]->GetYaxis()->SetRangeUser(minPtLimit,maxPtLimit);
       if(j==0)EffClos2[i][j]->GetXaxis()->SetRangeUser(-etaLimit,etaLimit);
       EffClos2[i][j]->Draw("colz");
-      c1->SaveAs(Form("plots/%s%d__EfficiencyClosure.png",inDir[i].c_str(),j+7));
-      c1->SaveAs(Form("plots/%s%d__EfficiencyClosure.pdf",outDir[i].c_str(),j+7));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__EfficiencyClosure.png",inDir[i].c_str(),j+7));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__EfficiencyClosure.pdf",outDir[i].c_str(),j+7));
       Fake2[i][j]->GetZaxis()->SetRangeUser(1,1.2);
       Fake2[i][j]->GetYaxis()->SetRangeUser(minPtLimit,maxPtLimit);
       if(j==0)Fake2[i][j]->GetXaxis()->SetRangeUser(-etaLimit,etaLimit);
       Fake2[i][j]->Draw("colz");
-      c1->SaveAs(Form("plots/%s%d__Fake.png",inDir[i].c_str(),j+7));
-      c1->SaveAs(Form("plots/%s%d__Fake.pdf",outDir[i].c_str(),j+7));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__Fake.png",inDir[i].c_str(),j+7));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__Fake.pdf",outDir[i].c_str(),j+7));
       FakeClos2[i][j]->GetZaxis()->SetRangeUser(0.8,1.2);
       FakeClos2[i][j]->GetYaxis()->SetRangeUser(minPtLimit,maxPtLimit);
       if(j==0)FakeClos2[i][j]->GetXaxis()->SetRangeUser(-etaLimit,etaLimit);
       FakeClos2[i][j]->Draw("colz");
-      c1->SaveAs(Form("plots/%s%d__FakeClosure.png",inDir[i].c_str(),j+7));
-      c1->SaveAs(Form("plots/%s%d__FakeClosure.pdf",outDir[i].c_str(),j+7));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__FakeClosure.png",inDir[i].c_str(),j+7));
+      c1->SaveAs(Form("plots/May12_pp/%s%d__FakeClosure.pdf",outDir[i].c_str(),j+7));
     }
   }
 }

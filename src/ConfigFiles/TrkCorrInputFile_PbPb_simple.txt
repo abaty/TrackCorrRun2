@@ -33,7 +33,7 @@ PbPb_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 
 1                       # Do vertex reweighting?
 1                       # Do Centrality/PU reweighting (Cent for PbPb, PU for pp, none for pPb)
-root://eoscms.cern.ch///store/group/phys_heavyions/velicanu/forest/HIRun2015/HIMinimumBias2/Merged/HiForestPromptReco_262726.root	                  # Data file to reweight the vertex to
+/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/PbPb_MB_For_Reweight/HiForestPromptReco_262726.root	                  # Data file to reweight the vertex to
 
 #Coarse Binning Options
 10                       # # of course Trk Pt Bins

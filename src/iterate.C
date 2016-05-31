@@ -17,6 +17,7 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
     if(s.ptMin<1) s.ptBinFine = 1;
     else if(s.ptMin<2) s.ptBinFine=6;
     else if(s.ptMin<3) s.ptBinFine=4;
+    else if(s.ptMin<10) s.ptBinFine=6;
     const int ptBins = s.ptBinFine+1;
     double ptAxis[ptBins];
     for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
@@ -26,6 +27,9 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
   if(stepType ==2) 
   {
     int tempFineBin = s.centPUBinFine;
+    if(s.nPb==2 && s.centPUMin<10) tempFineBin=2;
+    else if(s.nPb==2 && s.centPUMin<50) tempFineBin=4;
+ 
     if(s.nPb==2)  hist = new TH1D(Form("%s_centPU",titlePrefix),";hiBin;",tempFineBin,s.centPUMin,s.centPUMax); 
     if(s.nPb==0)  hist = new TH1D(Form("%s_centPU",titlePrefix),";nVtx;",tempFineBin,s.centPUMin,s.centPUMax); 
   }
@@ -42,8 +46,8 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
     }
   }
 
-  const int rminBins = 16;
-  double rminBinning[rminBins+1] = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.2,1.4,1.6,2,3,10};
+  const int rminBins = 8;
+  double rminBinning[rminBins+1] = {0,0.1,0.2,0.4,0.6,1,2,3,10};
   if(stepType ==5) hist = new TH1D(Form("%s_rmin",titlePrefix),";rmin;",rminBins,rminBinning);
   return hist;
 }
@@ -110,7 +114,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
       if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
       else skim = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     }
-    else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+    else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     //for efficiency
     std::cout << "Doing Efficiency denominator" << std::endl;   
     TNtuple * gen = (TNtuple*)  skim->Get("Gen");
@@ -284,7 +288,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
     if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     else skim = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
   }
-  else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+  else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
   TNtuple * reco = (TNtuple*)  skim->Get("Reco"); 
   reco->SetBranchAddress("trkPt",&pt);
   reco->SetBranchAddress("trkEta",&eta);
@@ -541,7 +545,7 @@ void iterate(TrkSettings s,int iter, int stepType, bool doCondor, bool testError
       if(s.reuseSkim) skim = TFile::Open(Form("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
       else skim = TFile::Open(Form("%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     }
-    else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/trackSkim_job%d.root",s.job),"read");
+    else skim = TFile::Open(Form("/export/d00/scratch/abaty/trackingEff/ntuples/%strackSkim_job%d.root",ifPP.c_str(),s.job),"read");
     reco = (TNtuple*)  skim->Get("Reco"); 
     reco->SetBranchAddress("trkPt",&pt);
     reco->SetBranchAddress("trkEta",&eta);

@@ -15,6 +15,8 @@ cp ../src/prepStep.C $now
 cp ../src/makeSkim.C $now
 cp ../src/getWeights.C $now
 cp ../src/iterate.C $now
+cp ../src/PlotPlotChi2Scaling_PbPb.root $now
+cp -R ../src/chi2Reweighting $now
 
 cp run.sh $now
 

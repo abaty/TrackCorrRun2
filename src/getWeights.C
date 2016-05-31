@@ -85,7 +85,7 @@ void produceWeights(TrkSettings s)
     }
     if(s.doCentPU && s.nPb==2)
     {
-      dCentPU = new TH1D("dCentPU",";hiBin;Events",100,0,200);
+      dCentPU = new TH1D("dCentPU",";hiBin;Events",50,0,200);
       evtSel->Draw("hiBin>>dCentPU",Form("%s && TMath::Abs(zVtx)<%d",eventSelectionString.c_str(),s.vz_window),"",100000);
       dCentPU->SetDirectory(0);
       dCentPU->Scale(1.0/(double)dCentPU->GetEntries());
@@ -117,7 +117,7 @@ void produceWeights(TrkSettings s)
   {
     if(s.doPthat) MCPthat = new TH1D("MCPthat",";pthat;Events",320,0,800);
     if(s.doVtx) MCVz = new TH1D("MCVz",";vz;Events",30,-15,15);
-    if(s.doCentPU && s.nPb==2) MCCentPU = new TH1D("MCCentPU",";hiBin;Events",100,0,200);
+    if(s.doCentPU && s.nPb==2) MCCentPU = new TH1D("MCCentPU",";hiBin;Events",50,0,200);
     if(s.doCentPU && s.nPb==0) MCCentPU = new TH1D("MCCentPU",";nVtx;Events",30,0,30);
 
     //stuff for pthat
