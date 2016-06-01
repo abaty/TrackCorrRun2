@@ -14,13 +14,15 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
   //set log spacing 
   if(stepType ==0)
   {
-    if(s.ptMin<1) s.ptBinFine = 1;
+    /*if(s.ptMin<1) s.ptBinFine = 1;
     else if(s.ptMin<2) s.ptBinFine=6;
     else if(s.ptMin<3) s.ptBinFine=4;
     else if(s.ptMin<10) s.ptBinFine=6;
     const int ptBins = s.ptBinFine+1;
     double ptAxis[ptBins];
-    for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
+    or(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));*/
+    const int ptBins = 28;
+    double ptAxis[ptBins] = { 0.5,0.6, 0.7 , 0.8 , 0.9 , 1.0 , 1.1 , 1.2 , 1.4 , 1.6 , 1.8 , 2.0 , 2.2 , 2.4 , 3.2 , 4.0  , 5.6 , 7.2 , 12.0,19.2, 28.8, 41.6, 60.8,86.4,120.8,165,250,400};
     hist = new TH1D(Form("%s_pt",titlePrefix),";p_{T};",ptBins-1,ptAxis);
   }
 
@@ -55,13 +57,15 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
 TH2D * makeTH2(TrkSettings s, int stepType, const char * titlePrefix)
 {
   TH2D * hist;
-  if(s.ptMin<1) s.ptBinFine = 1;
+  /*if(s.ptMin<1) s.ptBinFine = 1;
   else if(s.ptMin<2) s.ptBinFine=6;
   else if(s.ptMin<3) s.ptBinFine=4;
 
   const int ptBins = s.ptBinFine+1;
   double ptAxis[ptBins];
-  for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));
+  for(int x = 0; x<ptBins;x++) ptAxis[x] = TMath::Power(10,(x*(TMath::Log10(s.ptMax)-TMath::Log10(s.ptMin))/((float)(s.ptBinFine))) + TMath::Log10(s.ptMin));*/
+    const int ptBins = 28;
+    double ptAxis[ptBins] = { 0.5,0.6, 0.7 , 0.8 , 0.9 , 1.0 , 1.1 , 1.2 , 1.4 , 1.6 , 1.8 , 2.0 , 2.2 , 2.4 , 3.2 , 4.0  , 5.6 , 7.2 , 12.0,19.2, 28.8, 41.6, 60.8,86.4,120.8,165,250,400};
   if(s.ptMin>=10){
     const int nEtaBinFine = 9;
     double EtaBin[10] = {-2.4,-1.6,-1,-0.6,-0.2,0.2,0.6,1,1.6,2.4};

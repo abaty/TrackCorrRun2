@@ -37,7 +37,7 @@ pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 
 #Coarse Binning Options
 10                       # # of course Trk Pt Bins
-0.5 0.6 0.7 0.8 0.9 1 2 3.2 9.6 28.8 400           # Trk Pt Bin boundaries
+0.5 0.6 0.7 0.8 0.9 1 2 3.2 12 41.6 400           # Trk Pt Bin boundaries
 
 1                       # # of coarse Cent/PU Bins for the 1st coarse Trk Pt Bin
 0 10          # Cent/PU Bin Boundaries
