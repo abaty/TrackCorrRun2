@@ -127,7 +127,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
       float ptEff = eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt));
 
       //customization for RAA efficiency which smooths some flucutations (shoudl replcae with fits in pt eventually)
-      if(s->nPb==2){
+      /*if(s->nPb==2){
         int bin = eff[coarseBin][th1indx]->FindBin(pt);
         if(pt>=10 && pt<30 && cent>=5 && cent<10){
           if(bin==3 || bin==6 || bin == 9) ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)+1)/2.0;
@@ -142,7 +142,7 @@ double TrkCorr::getTrkCorr(float pt, float eta, float phi, float hiBin, float rm
           if(bin==7) ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)+1)/2.0;
           if(bin==8)ptEff = ptEff/2.0+eff[coarseBin][th1indx]->GetBinContent(eff[coarseBin][th1indx]->FindBin(pt)-1)/2.0;
         }
-      }
+      }*/
       //end customization
       netEff *= ptEff;
       netFake *= fake[coarseBin][th1indx]->GetBinContent(fake[coarseBin][th1indx]->FindBin(pt));

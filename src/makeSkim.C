@@ -258,7 +258,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(trkPt[j]<s.ptMin || trkPt[j]>=s.ptMax) continue;
       if(highPurity[j]!=1) continue;
       if(TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
-      if(trkPtError[j]/trkPt[j]>0.1) continue;
+      if(trkPtError[j]/trkPt[j]>0.3) continue;
       if(s.nPb==2 || s.doTrackTriggerCuts){
         if(trkPtError[j]/trkPt[j]>0.1) continue;
         if(trkChi2[j]/(float)trkNdof[j]/(float)trkNlayer[j]>((s.nPb==2)?(1.0/chi2corr->getChi2Scale(hiBin,trkPt[j])):1)*0.15) continue;
@@ -295,7 +295,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(genPt[j]>pthat/1.5) continue;
       if(TMath::Abs(genEta[j])>1.03) continue;
       if(genPt[j]<s.ptMin || genPt[j]>=s.ptMax) continue;
-      if(mtrkPtError[j]/mtrkPt[j]>0.1 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
+      if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
 
       if(s.nPb==2 || s.doTrackTriggerCuts){
         if(mtrkPtError[j]/mtrkPt[j]>0.1) mtrkQual[j]=0;  

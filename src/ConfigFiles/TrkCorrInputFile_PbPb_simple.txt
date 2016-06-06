@@ -39,37 +39,37 @@ PbPb_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
 10                       # # of course Trk Pt Bins
 0.5 0.6 0.7 0.8 0.9 1 2 3.2 12 41.6 400           # Trk Pt Bin boundaries
 
-5                       # # of coarse Cent/PU Bins for the 1st coarse Trk Pt Bin
-0 5 10 30 50 100         # Cent/PU Bin Boundaries
-5                       # # of coarse Cent/PU Bins for the 2nd coarse Trk Pt Bin
-0 5 10 30 50 100          # Cent/PU Bin Boundaries
-5                  
-0 5 10 30 50 100     
-5                  
-0 5 10 30 50 100     
-5                  
-0 5 10 30 50 100     
-5                  
-0 5 10 30 50 100     
-5                  
-0 5 10 30 50 100     
-5                  
-0 5 10 30 50 100     
-5                  
-0 5 10 30 50 100     
-5                  
-0 5 10 30 50 100     
+4                       # # of coarse Cent/PU Bins for the 1st coarse Trk Pt Bin
+0 10 30 50 100         # Cent/PU Bin Boundaries
+4                       # # of coarse Cent/PU Bins for the 2nd coarse Trk Pt Bin
+0 10 30 50 100          # Cent/PU Bin Boundaries
+4                  
+0 10 30 50 100     
+4                  
+0 10 30 50 100     
+4                  
+0 10 30 50 100     
+4                  
+0 10 30 50 100     
+4                  
+0 10 30 50 100     
+4                  
+0 10 30 50 100     
+4                  
+0 10 30 50 100     
+4                  
+0 10 30 50 100     
 
-1 1 1 1 1          #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
-1 1 1 1 1              #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
-1 1 1 1 1         
-1 1 1 1 1         
-1 1 1 1 1         
-1 1 1 1 1          
-1 1 1 1 1          
-1 1 1 1 1          
-1 1 1 1 1          
-1 1 1 1 1          
+1 1 1 1           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
+1 1 1 1               #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
+1 1 1 1          
+1 1 1 1          
+1 1 1 1          
+1 1 1 1           
+1 1 1 1           
+1 1 1 1           
+1 1 1 1           
+1 1 1 1           
 
 1 1 1 1 1 2 2 4 4 4                      # Multiple Reco and 2ndary pt fine binning
 

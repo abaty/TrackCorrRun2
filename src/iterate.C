@@ -48,8 +48,8 @@ TH1D * makeTH1(TrkSettings s, int stepType, const char * titlePrefix)
     }
   }
 
-  const int rminBins = 8;
-  double rminBinning[rminBins+1] = {0,0.1,0.2,0.4,0.6,1,2,3,10};
+  const int rminBins = 6;
+  double rminBinning[rminBins+1] = {0,0.1,0.2,0.4,1,3,10};
   if(stepType ==5) hist = new TH1D(Form("%s_rmin",titlePrefix),";rmin;",rminBins,rminBinning);
   return hist;
 }
