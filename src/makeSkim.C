@@ -286,8 +286,6 @@ void makeSkim(TrkSettings s, bool doCondor)
         float R = TMath::Power(jteta[k]-trkEta[j],2) + TMath::Power(TMath::ACos(TMath::Cos(jtphi[k]-trkPhi[j])),2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
-      //for fragmentation functions
-      if(rmin>0.3) continue;
 
       
       float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j],(float)(nEv%2)};
@@ -326,8 +324,6 @@ void makeSkim(TrkSettings s, bool doCondor)
         float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(TMath::ACos(TMath::Cos(jtphi[k]-genPhi[j])),2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
-      //for fragmentation functions
-      if(rmin>0.3) continue;
 
       float genEntry[] = {genPt[j],genEta[j],genPhi[j],weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j],(float)(nEv%2)};
       gen->Fill(genEntry); 
