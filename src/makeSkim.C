@@ -94,6 +94,7 @@ void makeSkim(TrkSettings s, bool doCondor)
   //track tree    
   TFile * inputFile;
   TFile * skimOut;
+  float etaCut = 2.4;
   //Setup output Ntuples
   std::string trackVars;
   std::string particleVars;
@@ -254,7 +255,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     for(int j = 0; j<nTrk; j++)
     {
       if(trkPt[j]>pthat/1.5) continue;
-      if(TMath::Abs(trkEta[j])>1.03) continue;
+      if(TMath::Abs(trkEta[j])>etaCut) continue;
       if(trkPt[j]<s.ptMin || trkPt[j]>=s.ptMax) continue;
       if(highPurity[j]!=1) continue;
       if(TMath::Abs(trkDz1[j]/trkDzError1[j])>3 || TMath::Abs(trkDxy1[j]/trkDxyError1[j])>3) continue;
@@ -268,7 +269,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(s.doCaloMatch)
       {
         float Et = (pfHcal[j]+pfEcal[j])/TMath::CosH(trkEta[j]);
-      //  if(!(trkPt[j]<20 || (Et>0.5*trkPt[j]))) continue; //Calo Matching       
+        if(!(trkPt[j]<20 || (Et>0.5*trkPt[j]))) continue; //Calo Matching       
       }
       
       if(s.doTrackTriggerCuts && ((int)trkOriginalAlgo[j]<4 || (int)trkOriginalAlgo[j]>7)) continue; //track trigger cuts
@@ -278,11 +279,15 @@ void makeSkim(TrkSettings s, bool doCondor)
       float rmin = 999;
       for(int k = 0; k<nref; k++)
       {
-        if(jtpt[k]<50) break;
+        //40 for fragmetnation functions
+        //if(jtpt[k]<50) break;
+        if(jtpt[k]<40) break;
         if(chargedSum[k]/rawpt[k]<0.01 || TMath::Abs(jteta[k])>2) continue;
         float R = TMath::Power(jteta[k]-trkEta[j],2) + TMath::Power(TMath::ACos(TMath::Cos(jtphi[k]-trkPhi[j])),2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
+      //for fragmentation functions
+      if(rmin>0.3) continue;
 
       
       float trkEntry[] = {trkPt[j],trkEta[j],trkPhi[j],weight,(float)centPU,rmin,maxJetPt,(float)trkStatus[j],(float)(nEv%2)};
@@ -293,7 +298,7 @@ void makeSkim(TrkSettings s, bool doCondor)
     for(int j = 0; j<nParticle; j++)
     {
       if(genPt[j]>pthat/1.5) continue;
-      if(TMath::Abs(genEta[j])>1.03) continue;
+      if(TMath::Abs(genEta[j])>etaCut) continue;
       if(genPt[j]<s.ptMin || genPt[j]>=s.ptMax) continue;
       if(mtrkPtError[j]/mtrkPt[j]>0.3 || TMath::Abs(mtrkDz1[j]/mtrkDzError1[j])>3 || TMath::Abs(mtrkDxy1[j]/mtrkDxyError1[j])>3) mtrkQual[j]=0;  
 
@@ -306,7 +311,7 @@ void makeSkim(TrkSettings s, bool doCondor)
       if(s.doCaloMatch)
       {
         float Et = (mtrkPfHcal[j]+mtrkPfEcal[j])/TMath::CosH(genEta[j]);
-        //if(!(mtrkPt[j]<20 || (Et>0.5*mtrkPt[j]))) mtrkQual[j]=0; //Calo Matching 
+        if(!(mtrkPt[j]<20 || (Et>0.5*mtrkPt[j]))) mtrkQual[j]=0; //Calo Matching 
       }
       if(s.doTrackTriggerCuts && ((int)mtrkOriginalAlgo[j]<4 || (int)mtrkOriginalAlgo[j]>7)) mtrkQual[j]=0;   //track trigger cuts
 
@@ -314,11 +319,15 @@ void makeSkim(TrkSettings s, bool doCondor)
       float rmin = 999;
       for(int k = 0; k<nref; k++)
       {
-        if(jtpt[k]<50) break;
+        //40 for fragmetnation functions
+        //if(jtpt[k]<50) break;
+        if(jtpt[k]<40) break;
         if(chargedSum[k]/rawpt[k]<0.01 || TMath::Abs(jteta[k])>2) continue;
         float R = TMath::Power(jteta[k]-genEta[j],2) + TMath::Power(TMath::ACos(TMath::Cos(jtphi[k]-genPhi[j])),2);
         if(rmin*rmin>R) rmin=TMath::Power(R,0.5);
       }
+      //for fragmentation functions
+      if(rmin>0.3) continue;
 
       float genEntry[] = {genPt[j],genEta[j],genPhi[j],weight,(float)centPU,rmin,maxJetPt,pNRec[j],mtrkPt[j],(float)mtrkQual[j],(float)(nEv%2)};
       gen->Fill(genEntry); 
