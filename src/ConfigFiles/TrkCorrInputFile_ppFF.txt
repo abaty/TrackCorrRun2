@@ -1,0 +1,83 @@
+#General options (The number of line skips in this doc is important)
+pp_5p02_TrkCorr_v0_SEDTARGETDATE     #job name
+0                   #Reuse previous data skims?
+0                   #Number of Pb nuclei (0=pp, 1=pPb, 2=PbPb)
+1                   #Do Efficiency? (Hardcoded to do it fow now)
+1                   #Do Fake Rate?  (Hardcoded to do it for now)
+1                   #Do Multiple Reco? (Hardcoded to do it for now)
+1                   #Do Secondary? (Hardcoded to do it for now)
+1                   #Check Closures? (Hardcoded to do it for now)
+
+#Data event Cuts
+15                  # Window range in cm for vertex z cut (default is |vz|<15) (Might need to rethink vertex requirements and reweighting for high PU pp)
+
+#MC and reweighting options
+4                   #Number of Input MC samples
+/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_GEN_SIM_5020GeV_ppSignal/Pythia8_Dijet50_pp_TuneCUETP8M1_5020GeV_FOREST_758_PrivMC/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_GEN_SIM_5020GeV_ppSignal/Pythia8_Dijet80_pp_TuneCUETP8M1_5020GeV_FOREST_758_PrivMC/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_GEN_SIM_5020GeV_ppSignal/Pythia8_Dijet120_pp_TuneCUETP8M1_5020GeV_FOREST_758_PrivMC/0.root
+/mnt/hadoop/cms/store/user/abaty/mergedForests/PYTHIA_QCD_TuneCUETP8M1_cfi_GEN_SIM_5020GeV_ppSignal/Pythia8_Dijet170_pp_TuneCUETP8M1_5020GeV_FOREST_758_PrivMC/0.root
+
+
+
+1                       # Do pthat reweighting?
+50 80 120 170 1000000     # (N+1) pthat Boundaries for (N) MC samples; (for pthat reweighting)
+3.5721E-3 4.2494E-4 5.873E-5 1.223E-05            # Total MC cross section for each pthat interval (For the interval pthat(N) to pthat(N+1)!!! NOT for pthat(N) to infinity)
+
+1                       # Do vertex reweighting?
+0                       # Do Centrality/PU reweighting (Cent for PbPb, PU for pp, none for pPb)
+/mnt/hadoop/cms/store/user/dgulhan/MinimumBias1/HiForest_MinimumBias1_Run2015E_PromptReco_pp_5020GeV/151201_113508/0000/HiForest_880.root                  # Data file to reweight the vertex to
+
+#Coarse Binning Options
+8                       # # of course Trk Pt Bins
+0.5 0.6 0.7 0.8 0.9 1 3 8 200           # Trk Pt Bin boundaries
+
+1                       # # of coarse Cent/PU Bins for the 1st coarse Trk Pt Bin
+0 10          # Cent/PU Bin Boundaries
+1                       # # of coarse Cent/PU Bins for the 2nd coarse Trk Pt Bin
+0 10          # Cent/PU Bin Boundaries
+1                       # # of coarse Cent/PU Bins for the 3rd coarse Trk Pt Bin
+0 10          # Cent/PU Bin Boundaries
+1                       # # of coarse Cent/PU Bins for the 4th coarse Trk Pt Bin
+0 10          # Cent/PU Bin Boundaries
+1                       # # of coarse Cent/PU Bins for the 5th coarse Trk Pt Bin
+0 10          # Cent/PU Bin Boundaries
+1                       # # of coarse Cent/PU Bins for the 5th coarse Trk Pt Bin
+0 10          # Cent/PU Bin Boundaries
+1                       # # of coarse Cent/PU Bins for the 3rd coarse Trk Pt Bin
+0 10          # Cent/PU Bin Boundaries
+1                       # # of coarse Cent/PU Bins for the 4th coarse Trk Pt Bin
+0 10          # Cent/PU Bin Boundaries
+
+1           #Event skip rates for 1st pt bin and each Cent/PU Bin (speeds up computation)
+1               #Event skip rates for 2nd pt bin and each Cent/PU Bin (speeds up computation)
+1                   #Event skip rates for 3rd pt bin and each Cent/PU Bin (speeds up computation)
+1                       #Event skip rates for 4th pt bin and each Cent/PU Bin (speeds up computation)
+1                       #Event skip rates for 5th pt bin and each Cent/PU Bin (speeds up computation)
+1                       #Event skip rates for 5th pt bin and each Cent/PU Bin (speeds up computation)
+1                   #Event skip rates for 3rd pt bin and each Cent/PU Bin (speeds up computation)
+1                       #Event skip rates for 4th pt bin and each Cent/PU Bin (speeds up computation)
+
+1 1 1 1 1 2 2 4                      # Multiple Reco and 2ndary pt fine binning
+
+#Fine Binning Options
+10         #Pt Fine Binning
+24         #Eta Fine Binning
+20         #Phi Fine Binning
+10         #Cent Fine Binning
+10         #Jets Fine Binning (not implemented currently)
+
+#Track Quality Cuts
+1        #High Purity Definition (0 = none (bad), 1 = loose, 2 = tight) (To Be Done)
+0        #Do Calo Matching?  (To Be Done)
+0        #Do Extra Track Trigger Cuts?
+0        #Other Track Cuts?  (To Be Done)
+
+#Advanced Settings
+#Algorithm properties
+3                # Number of steps
+1 3 0          # Order of steps (0 = pt, 1=eta+phi, 2=centrality/PU, 3=highest jet pt, 4=eta only, 5 = jet rmin, 7 = eta plus pt)
+3                # Full iterations to run before terminating
+0                # Step to terminate on (after iterating through all steps N(see above line) times, it keeps going until it get to this step and stops after completing it)
+ak3PF          # jet definition
+0                #Only use even numbered events? (For testing on half of the sample)
